@@ -1,1 +1,1 @@
-web: sh target/bin/webapp
+web: sh surveylyzer-backend/target/bin/webapp.bat
