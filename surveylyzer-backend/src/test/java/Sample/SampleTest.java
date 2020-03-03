@@ -16,6 +16,14 @@ public class SampleTest {
         assertTrue(result == 6);
     }
 
+    @Test
+    public void testSub(){
+        int value1 = 5;
+        int value2 = 3;
+        int result = value1 - value2;
+        assertTrue(result == 2);
+    }
+
 
 
 }
