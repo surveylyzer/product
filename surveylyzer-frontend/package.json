@@ -28,7 +28,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -48,5 +49,5 @@
   "devDependencies": {
     "@capacitor/cli": "1.5.1"
   },
-  "description": "An Ionic project"
+  "description": "PSIT4 Project - Surveylyzer UI"
 }
