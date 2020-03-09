@@ -1,1 +1,1 @@
-web: cd surveylyzer-frontend && ionic serve --port $PORT
+web: cd surveylyzer-frontend && npm start --port $PORT
