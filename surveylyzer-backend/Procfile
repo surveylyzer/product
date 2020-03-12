@@ -1,1 +1,1 @@
-web: cd surveylyzer-frontend && sh surveylyzer-backend/target/bin/webapp
+web: cd surveylyzer-backend && sh surveylyzer-backend/target/bin/webapp
