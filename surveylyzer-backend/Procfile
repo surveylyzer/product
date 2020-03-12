@@ -1,1 +1,0 @@
-web: cd surveylyzer-frontend && sh surveylyzer-backend/target/bin/webapp
