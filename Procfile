@@ -1,1 +1,1 @@
-web: sh surveylyzer-backend/target/bin/webapp
+web: cd surveylyzer-backend && mvn spring-boot:run
