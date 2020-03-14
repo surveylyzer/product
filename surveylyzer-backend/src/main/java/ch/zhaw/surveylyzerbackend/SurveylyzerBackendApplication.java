@@ -1,13 +1,13 @@
-package com.example.demoserver;
+package ch.zhaw.surveylyzerbackend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoServerApplication {
+public class SurveylyzerBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoServerApplication.class, args);
+		SpringApplication.run(SurveylyzerBackendApplication.class, args);
 	}
 
 }
