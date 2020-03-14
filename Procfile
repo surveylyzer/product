@@ -1,1 +1,1 @@
-web: cd surveylyzer-backend && mvn spring-boot:run
+web: cd surveylyzer-backend && java -jar target/demo-server-0.0.1-SNAPSHOT.jar
