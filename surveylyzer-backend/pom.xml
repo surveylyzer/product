@@ -23,7 +23,6 @@
 
 	<dependencies>
 		<dependency>
-		<!-- run with: mvn spring-boot:run  -->
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -42,10 +41,14 @@
 	</dependencies>
 
 	<build>
+	<!-- run with: mvn spring-boot:run  -->
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<finalName>surveylyzer-v${version}</finalName>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
