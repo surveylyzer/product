@@ -17,6 +17,7 @@
 
   <properties>
       <main.basedir>${project.parent.basedir}</main.basedir>
+      <target.path>${main.basedir}/surveylyzer-backend/src/main/resources/static</target.path>
   </properties>
 
   <build>
@@ -96,7 +97,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${main.basedir}/surveylyzer-backend/src/main/resources/static</outputDirectory>
+              <outputDirectory>${target.path}</outputDirectory>
               <resources>          
                 <resource>
                   <directory>build</directory>
@@ -114,6 +115,10 @@
         <version>3.1.0</version>
         <configuration>
           <filesets>
+            <fileset>
+              <directory>${target.path}</directory>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
             <fileset>
               <directory>build</directory>
               <followSymlinks>false</followSymlinks>
