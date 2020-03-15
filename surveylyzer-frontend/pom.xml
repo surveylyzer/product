@@ -109,7 +109,7 @@
       </plugin>
 
       <!-- clean generated folders (additional to target) -->
-      <!-- <plugin>
+      <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
@@ -118,17 +118,17 @@
               <directory>build</directory>
               <followSymlinks>false</followSymlinks>
             </fileset>
-            <fileset>
+            <!-- <fileset>
               <directory>node</directory>
               <followSymlinks>false</followSymlinks>
             </fileset>
             <fileset>
               <directory>node_modules</directory>
               <followSymlinks>false</followSymlinks>
-            </fileset>
+            </fileset> -->
           </filesets>
         </configuration>
-      </plugin> -->
+      </plugin>
     </plugins>
   </build>
 
