@@ -42,11 +42,13 @@
 
 	<build>
 	<!-- run with: mvn spring-boot:run  -->
-		<finalName>surveylyzer-v${version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<finalName>surveylyzer-v${version}</finalName>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
