@@ -1,1 +1,1 @@
-web: cd surveylyzer-backend && java -jar target/surveylyzer.jar
+web: cd surveylyzer-backend && java -jar target/surveylyzer-*.jar
