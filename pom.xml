@@ -9,8 +9,8 @@
     <artifactId>surveylyzer</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>surveylyzer-backend</module>
         <module>surveylyzer-frontend</module>
+        <module>surveylyzer-backend</module>
     </modules>
     <packaging>pom</packaging>
 
