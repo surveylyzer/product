@@ -45,7 +45,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<finalName>surveylyzer-v${version}</finalName>
+					<finalName>surveylyzer-v${project.version}</finalName>
 				</configuration>
 			</plugin>
 		</plugins>
