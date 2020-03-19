@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!src/test/resources/selenium/server/selenium-server-standalone-3.141.59.jar
 *.war
 *.nar
 *.ear
