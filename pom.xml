@@ -10,6 +10,7 @@
     <modules>
         <module>surveylyzer-backend</module>
         <module>surveylyzer-frontend</module>
+        <module>surveylyzer-ui-testing</module>
     </modules>
     <packaging>pom</packaging>
 
