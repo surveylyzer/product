@@ -17,7 +17,12 @@ public class SmokeTestSteps {
         startPage.should_see_header_text(title);
     }
 
+    public void i_click_result() {
+        startPage.click_result();
+    }
 
-
+    public void i_should_see_results(String results) {
+        startPage.should_see_results(results);
+    }
 }
 

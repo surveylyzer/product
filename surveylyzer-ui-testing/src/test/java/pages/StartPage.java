@@ -16,5 +16,19 @@ public class StartPage extends PageObject {
         soft.assertThat(titleCurrent.getText()).isEqualTo(title);
         soft.assertAll();
     }
+
+    public void click_result() {
+        WebElement viewResults = find(By.cssSelector("[href='/result']"));
+        waitFor(viewResults);
+        viewResults.click();
+    }
+
+    public void should_see_results(String results) {
+        WebElement resultsText = find(By.cssSelector(".item.md.ion-focusable.hydrated"));
+        waitFor(resultsText);
+        SoftAssertions soft = new SoftAssertions();
+        soft.assertThat(resultsText.getText()).isEqualTo(results);
+        soft.assertAll();
+    }
 }
 
