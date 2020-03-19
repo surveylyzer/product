@@ -91,16 +91,16 @@
             </plugin>
 
             <!-- BrowserStack-->
-            <plugin>
-                <groupId>com.browserstack</groupId>
-                <artifactId>automate-maven-plugin</artifactId>
-                <version>${browserstack.automate-plugin.version}</version>
-                <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${java.target.version}</target>
-                    <complianceLevel>${java.version}</complianceLevel>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>com.browserstack</groupId>-->
+                <!--<artifactId>automate-maven-plugin</artifactId>-->
+                <!--<version>${browserstack.automate-plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--<source>${java.source.version}</source>-->
+                    <!--<target>${java.target.version}</target>-->
+                    <!--<complianceLevel>${java.version}</complianceLevel>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -213,7 +213,7 @@
         <serenity.maven.version>2.0.45</serenity.maven.version>
 
         <browserstack.local.version>1.0.3</browserstack.local.version>
-        <browserstack.automate-plugin.version>0.7.2-SNAPSHOT</browserstack.automate-plugin.version>
+        <!--<browserstack.automate-plugin.version>0.7.2-SNAPSHOT</browserstack.automate-plugin.version>-->
 
         <junit.version>4.12</junit.version>
         <slf4j.version>1.6.1</slf4j.version>
