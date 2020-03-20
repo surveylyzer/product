@@ -1,0 +1,6 @@
+ion-content ion-toolbar {
+  --background: translucent;
+}
+.logo {
+  width: 3em;
+}
