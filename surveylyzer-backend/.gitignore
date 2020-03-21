@@ -4,8 +4,9 @@ target/
 !**/src/main/**
 !**/src/test/**
 src/main/resources/static/**
-/pdf_umfragen/Pics/
 !/pdf_umfragen/Pics/readme.txt
+/pdf_umfragen/Pics/
+
 
 
 ### STS ###
