@@ -11,11 +11,12 @@
     <modules>
         <module>surveylyzer-frontend</module>
         <module>surveylyzer-backend</module>
+        <module>surveylyzer-ui-testing</module>
     </modules>
     <packaging>pom</packaging>
 
     <url>http://maven.apache.org</url>
-	
+
 	<properties>
 		<main.basedir>${project.basedir}</main.basedir>
 	</properties>
