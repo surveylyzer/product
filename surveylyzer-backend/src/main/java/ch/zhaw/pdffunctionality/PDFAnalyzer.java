@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,13 +36,13 @@ public class PDFAnalyzer {
 		// gut: talk vs understandable
 		// schlecht: talk vs. was
 		// sentence.add("talk was held in a clear and understandable way");
-		sentence.put("talk", 842);
-		// sentence.put("was",795);
-		sentence.put("held", 742);
-		// sentence.put("in",680);
-		sentence.put("clear", 632);
-		sentence.put("and", 570);
-		sentence.put("understandable", 520);
+//		sentence.put("talk", 842);
+//		// sentence.put("was",795);
+//		sentence.put("held", 742);
+//		// sentence.put("in",680);
+//		sentence.put("clear", 632);
+//		sentence.put("and", 570);
+//		sentence.put("understandable", 520);
 
 		// sentence.put("way",341);
 		/*
@@ -56,13 +57,25 @@ public class PDFAnalyzer {
 		   t.setDatapath("../surveylyzer-backend/tess/tessdata/");
 		}
 	}
+	public void setWordAlignment (String word[], int distance[]) {
+		if(word.length != distance.length) {
+			return;
+		}
+		for(int i = 0; i < word.length;i++) {
+			sentence.put(word[i], distance[i]);
+		}
+	}
 
 	public boolean startTest() {
 		debugen = true;
+		String word[] = new String[] {"talk","held","clear","and","understandable"};
+		int distance[] = new int[] {842,742,632,570,520};
+		setWordAlignment(word,distance);
 
 		File file = new File(initPath+"pdf_umfragen/ScanBewertungen2.pdf");
 //		File file = new File("../surveylyzer-backend/pdf_umfragen/ScanBewertungen2.pdf");
-
+		
+		
 		try {
 			PDDocument document = PDDocument.load(file);
 			try {
@@ -83,8 +96,10 @@ public class PDFAnalyzer {
 	public ArrayList<Integer> analyzeFile(PDDocument doc) throws Exception{
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
-		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
-//		for (int xx = 0; xx < 4; xx++) {
+		
+		
+//		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
+		for (int xx = 0; xx < 4; xx++) {
 
 			// BufferedImage image = renderer.renderImageWithDPI(xx, 300);
 			BufferedImage image = renderer.renderImage(xx, 4);
@@ -135,6 +150,8 @@ public class PDFAnalyzer {
 				// Tabellenh�he = 197 (5 Zeilen)
 				// whichRating(rotated_image,xx+10,x2+520,y2-10,294,197);
 				// Tabelle 1
+				
+				
 				auswertung.addAll(whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5));
 //				whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5);
 				// Tabelle 2; y2 korrektur um 360, h�he: ca. 110
@@ -147,6 +164,8 @@ public class PDFAnalyzer {
 				e.printStackTrace();
 			}
 		}
+		
+		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf 
 		return auswertung;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
 		// /https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
