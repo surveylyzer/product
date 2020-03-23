@@ -30,24 +30,9 @@ public class PDFAnalyzer {
 	}
 
 	private void init() {
-
 		sentence = new HashMap<String, Integer>();
-		// ACHTUNG: f�r die Ausrichtung m�ssen die W�rter die selbe h�he haben
-		// gut: talk vs understandable
-		// schlecht: talk vs. was
-		// sentence.add("talk was held in a clear and understandable way");
-//		sentence.put("talk", 842);
-//		// sentence.put("was",795);
-//		sentence.put("held", 742);
-//		// sentence.put("in",680);
-//		sentence.put("clear", 632);
-//		sentence.put("and", 570);
-//		sentence.put("understandable", 520);
 
-		// sentence.put("way",341);
-		/*
-		 * y = -10 und x jeweils: x Ziel = 520+614 = 1'134 understandable:520
-		 */
+		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
 		if (Util.isOS()) {
 			initPath = "surveylyzer-backend/";
@@ -57,6 +42,11 @@ public class PDFAnalyzer {
 		   t.setDatapath("../surveylyzer-backend/tess/tessdata/");
 		}
 	}
+	/**
+	 * Initialisierung des Wort-Vektors für die Ausrichtung
+	 * @param word
+	 * @param distance
+	 */
 	public void setWordAlignment (String word[], int distance[]) {
 		if(word.length != distance.length) {
 			return;
@@ -65,9 +55,20 @@ public class PDFAnalyzer {
 			sentence.put(word[i], distance[i]);
 		}
 	}
-
+	/**
+	 * Starten vom Test.
+	 * Zunächst wird der Wort-Vektor initalisiert, welche für die Ausrichtung der Seiten benötigt wird.
+	 * Anschliessend wird das PDF-File geladen
+	 * @return
+	 */
 	public boolean startTest() {
 		debugen = true;
+		// ACHTUNG: f�r die Ausrichtung m�ssen die W�rter die selbe h�he haben
+		// gut: talk vs understandable
+		// schlecht: talk vs. was
+		/*
+		 * y = -10 und x jeweils: x Ziel = 520+614 = 1'134 understandable:520
+		 */
 		String word[] = new String[] {"talk","held","clear","and","understandable"};
 		int distance[] = new int[] {842,742,632,570,520};
 		setWordAlignment(word,distance);
@@ -79,7 +80,7 @@ public class PDFAnalyzer {
 		try {
 			PDDocument document = PDDocument.load(file);
 			try {
-				System.out.println(analyzeFile(document));
+				System.out.println(Arrays.deepToString(analyzeFile(document)));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -92,14 +93,22 @@ public class PDFAnalyzer {
 		}
 		return true;
 	}
-
-	public ArrayList<Integer> analyzeFile(PDDocument doc) throws Exception{
+	/**
+	 * Analyse des Dokuements
+	 * Bisher findet eine statische Analyse statt. Dies bedeutet, dass das PDF im Ordner pdf_umfragen analysiert wird.
+	 * Hierbei wird zurzeit Statisch im Code folgendes hinterlegt:
+	 * - Anzahl Tabellen und deren Grössen/Positionen zueinandern.
+	 * - Anzahl Fragen und Antwortmöglichkeiten
+	 * @param doc
+	 * @return
+	 * @throws Exception
+	 */
+	public int[][] analyzeFile(PDDocument doc) throws Exception{
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
-		
-		
-//		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
-		for (int xx = 0; xx < 4; xx++) {
+		int [][] evaluation = new int [3*4][4]; //Zuerzeit Statisch - 12 Fragen, mit je 4 Antowrtmöglichkeiten
+		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
+//		for (int xx = 0; xx < 2; xx++) {
 
 			// BufferedImage image = renderer.renderImageWithDPI(xx, 300);
 			BufferedImage image = renderer.renderImage(xx, 4);
@@ -148,9 +157,7 @@ public class PDFAnalyzer {
 				BufferedImage rotated_image = rotate(image, getAngle(x2 - x1, y2 - y1), x1, y1);
 				// Tabellenbreite = 294(4 Spalten)
 				// Tabellenh�he = 197 (5 Zeilen)
-				// whichRating(rotated_image,xx+10,x2+520,y2-10,294,197);
 				// Tabelle 1
-				
 				
 				auswertung.addAll(whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5));
 //				whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5);
@@ -159,6 +166,12 @@ public class PDFAnalyzer {
 				// Tabelle 3: y2 korrektur um 665
 				auswertung.addAll(whichRating(rotated_image, xx + 1000, x2 + x2_add, y2 + 665, 294, 160, 4, 4));
 				// whichRating(image,xx+10,x2+520,y2-10,294,197);
+				
+				// Auswertung in Evaluation einfügen, damit wir die Einzelnen Fragen pro Blatt aufsummieren können.
+				for(int i = 0; i< auswertung.size();i++) {
+					evaluation[i][auswertung.get(i)-1]++;
+				}
+				auswertung.clear();
 			} catch (Exception e) {
 				System.out.println("Exception");
 				e.printStackTrace();
@@ -166,11 +179,23 @@ public class PDFAnalyzer {
 		}
 		
 		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf 
-		return auswertung;
+		return evaluation;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
-		// /https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
+		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
 	}
-
+	/**
+	 * Das Übergebene Bild beinhaltet die PDF Seite. anhand der Koordinaten von x/y und dessen grösse wird dann die Tabelle ausgeschnitten
+	 * Mittels "spalten" und "zeilen" können wir dann das dynamsiche Rating in einer andern Funktion beginnen. 
+	 * @param img
+	 * @param number
+	 * @param pos_x
+	 * @param pos_y
+	 * @param width_x
+	 * @param width_y
+	 * @param spalten
+	 * @param zeilen
+	 * @return
+	 */
 	private ArrayList<Integer> whichRating(BufferedImage img, int number, int pos_x, int pos_y, int width_x, int width_y, int spalten,
 			int zeilen) {
 		BufferedImage image = img.getSubimage(pos_x, pos_y, width_x, width_y); // Here
@@ -239,9 +264,9 @@ public class PDFAnalyzer {
 	}
 
 	/**
-	 * Das �bergebene Bild wird als Tabell mit Spalten und Zeilen interpretiert.
+	 * Das Uebergebene Bild wird als Tabell mit Spalten und Zeilen interpretiert.
 	 * Hierbei ist jede Zelle gleich gross. Um die Genauigkeit der Auswertung zu
-	 * erh�hen, werden die inneren 60% einer Zelle ausgewertet. Dadurch werden
+	 * erhoehen, werden die inneren 60% einer Zelle ausgewertet. Dadurch werden
 	 * Fehlinterpretationen durch die Zellen-Linien vermindert.
 	 *
 	 * @param img
@@ -288,7 +313,6 @@ public class PDFAnalyzer {
 
 			positions.add(position);
 		}
-		System.out.println("groesse positions " + positions.size());
 		return positions;
 	}
 
