@@ -5,11 +5,14 @@ import java.io.File;
 public class PdfFile {
     private int id;
     private String pdfName;
-    private File pdfFile;
+    private int fileSizeKB;
 
-    public PdfFile(int id, String pdfName){
+
+    public PdfFile(int id, String pdfName, int fileSizeKB){
         this.id = id;
         this.pdfName = pdfName;
+        this.fileSizeKB = fileSizeKB;
+
     }
 
     public int getId() {
@@ -28,11 +31,11 @@ public class PdfFile {
         this.pdfName = pdfName;
     }
 
-    public File getPdfFile() {
-        return pdfFile;
+    public int getFileSizeKB() {
+        return fileSizeKB;
     }
 
-    public void setPdfFile(File pdfFile) {
-        this.pdfFile = pdfFile;
+    public void setFileSizeKB(int fileSize) {
+        this.fileSizeKB = fileSize;
     }
 }

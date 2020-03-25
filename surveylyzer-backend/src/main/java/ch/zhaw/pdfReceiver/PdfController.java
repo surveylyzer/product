@@ -22,6 +22,7 @@ public class PdfController {
 
     private static List<PdfFile> pdfList = new ArrayList<>();
     private final AtomicInteger pdfCounter = new AtomicInteger();
+    private static final double KBFACTOR = 0.00095367432;
 
 
     /**
@@ -40,7 +41,9 @@ public class PdfController {
     public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1) {
         System.out.print("Received File: " + file1);
         write(file1 );
-        PdfFile pdfFile = new PdfFile(pdfCounter.incrementAndGet(), file1.getOriginalFilename());
+        //get Size and convert to mb
+        int fileSizeKB = (int)(file1.getSize() * KBFACTOR);
+        PdfFile pdfFile = new PdfFile(pdfCounter.incrementAndGet(), file1.getOriginalFilename(), fileSizeKB);
         pdfList.add(pdfFile);
         return new ResponseEntity<>(pdfFile, HttpStatus.CREATED);
     }
@@ -52,10 +55,7 @@ public class PdfController {
     public void write(MultipartFile file) {
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
-        System.out.println("Current relative path is: " + s);
-
         Path filepath = Paths.get(s, file.getOriginalFilename());
-
         try (OutputStream os = Files.newOutputStream(filepath)) {
             os.write(file.getBytes());
         } catch (IOException e) {
