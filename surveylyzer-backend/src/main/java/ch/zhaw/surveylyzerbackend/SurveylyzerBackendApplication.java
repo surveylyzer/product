@@ -9,11 +9,12 @@ import ch.zhaw.pdffunctionality.PDFAnalyzer;
 public class SurveylyzerBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SurveylyzerBackendApplication.class, args);
+	//	SpringApplication.run(SurveylyzerBackendApplication.class, args);
 		
 		//Test the PDF Analyzer
     	PDFAnalyzer pa = new PDFAnalyzer();
-    	pa.startTest();
+    	//pa.startTest();
+    	pa.startHighlightingTest();
     	// Test end
 	}
 

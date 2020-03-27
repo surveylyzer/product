@@ -1,4 +1,6 @@
 package ch.zhaw.pdffunctionality;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -25,13 +27,16 @@ public class PDFAnalyzer {
 	private Tesseract t;
 	private boolean debugen = false;
 	private String initPath;
+	
+	List<Rectangle> mazeRectangles;
+	BufferedImage searchThroug;
 	public PDFAnalyzer() {
 		init();
 	}
 
 	private void init() {
 		sentence = new HashMap<String, Integer>();
-
+		mazeRectangles = new ArrayList<Rectangle>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
 		if (Util.isOS()) {
@@ -315,5 +320,125 @@ public class PDFAnalyzer {
 		}
 		return positions;
 	}
+	
+	public void startHighlightingTest() {
+		debugen = true;
+		File file = new File(initPath+"pdf_umfragen/ScanBewertungen2_highlighted.pdf");
+		try {
+			PDDocument document = PDDocument.load(file);
+			try {
+				System.out.println(Arrays.deepToString(analyzeFileHighlight(document)));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			document.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("lokales PDF konnten nicht gefunden werden.");
+		}
+	}
+	public int[][] analyzeFileHighlight(PDDocument doc) throws Exception{
+		PDFRenderer renderer = new PDFRenderer(doc);
+		ArrayList<Integer> auswertung = new ArrayList<Integer>();
+		int [][] evaluation = new int [3*4][4]; //Zuerzeit Statisch - 12 Fragen, mit je 4 Antowrtmöglichkeiten
 
+
+		for (int xx = 0; xx < 1; xx++) {
+			for(int render = 0; render<1;render++) {
+				render = 6;
+				BufferedImage image = renderer.renderImage(xx, render);
+				ImageIO.write(image, "JPEG",
+						new File(initPath+"pdf_umfragen/Pics/PDF"+1+"_Markiert.jpg"));
+				Graphics2D g2d = image.createGraphics();
+
+				g2d.setColor(Color.RED);
+				int level = 4;
+				/*
+				 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen.
+				 * und dann alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
+				 */
+				////3
+				searchThroug = image;
+				for (int y = 0; y < image.getHeight(); y++) {
+				    for (int x = 0; x < image.getWidth(); x++) {
+				        //check if current pixel has maze colour
+				        if(isHighlightedColour(image.getRGB(x, y))){
+				            Rectangle rect = findRectangle(x, y);
+				            if(rect != null) {
+
+					            g2d.drawRect(x, y,rect.width, rect.height);
+					            x+=rect.width;
+				            }
+				        }
+				    }
+				}
+				System.out.println("Anzahl Rechtecke: " + mazeRectangles.size());
+
+				g2d.dispose();
+				ImageIO.write(image, "JPEG",
+						new File(initPath+"pdf_umfragen/Pics/PDF"+2+"_Markiert.jpg"));
+				ImageIO.write(image, "JPEG",
+						new File(initPath+"pdf_umfragen/Pics/PDF"+xx+"_Markiert.jpg"));
+			}
+		}
+		return evaluation;
+	}
+	
+	
+	
+	
+	
+	public boolean isHighlightedColour(int color){
+	    // here you should actually check for a range of colours, since you can
+	    // never expect to get a nicely encoded image..
+		final int maxColor = new Color(255,191,0).getRGB();
+		final int minColor = new Color(191,255,0).getRGB();
+		
+		final int min = 191;
+		final int max = 255;
+		
+		int r = (color & 0x00ff0000) >> 16;
+		int g = (color & 0x0000ff00) >> 8;
+		int b = (color & 0x000000ff) >> 0;
+		
+		if(r>min && g>min && b <10) {
+//			System.out.println("-----------------");
+//			System.out.println("r " + r);
+//			System.out.println("g " + g);
+//			System.out.println("b " + b);
+		}
+ 	    return r>min && g>min&& b <10;
+	}
+//https://stackoverflow.com/questions/35376726/how-to-detect-a-colored-rectangles-in-an-image
+	public Rectangle findRectangle(int x, int y){
+	    // this could be optimized. You could keep a separate collection where
+	    // you remove rectangles from, once your cursor is below that rectangle
+		Rectangle toReturn = null;
+	    for(Rectangle rectangle : mazeRectangles){ 
+	        if(rectangle.contains(x, y)){
+	        	System.out.println("Rectangle bereits vorhanden");
+	            return null;
+	        }
+	    }
+	    //find the width of the `Rectangle`
+	    int xD = 1;
+	    while(isHighlightedColour(searchThroug.getRGB(x+xD, y))){
+	        xD++;
+	    }
+
+	    int yD = 1; //todo: find height of rect..
+	    while(isHighlightedColour(searchThroug.getRGB(x, y+yD))){
+	    	yD++;
+	    }
+	    
+	    if(yD >20 && xD>20) {
+		    toReturn = new Rectangle(x, y, xD, yD);
+		    mazeRectangles.add(toReturn);
+	    }
+	    System.out.println("---------");
+	    System.out.println("yD " + yD);
+	    System.out.println("xD " + xD);
+	    return toReturn;
+	}
 }
