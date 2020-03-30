@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -28,15 +29,22 @@ public class PDFAnalyzer {
 	private boolean debugen = false;
 	private String initPath;
 	
-	List<Rectangle> mazeRectangles;
-	BufferedImage searchThroug;
+	private List<Rectangle> allRectangles;
+	private ArrayList<List<Rectangle>> groupedRectangles;
+	private List<Word> allWords;
+	private ArrayList<List<Word>> groupedWords;
+	private HashMap<String,Word> singleWords;
+	private BufferedImage searchThroug;
+	private int analysLevel = 3;
+	private int resolutionLevel = 4;
 	public PDFAnalyzer() {
 		init();
 	}
 
 	private void init() {
 		sentence = new HashMap<String, Integer>();
-		mazeRectangles = new ArrayList<Rectangle>();
+		allRectangles = new ArrayList<Rectangle>();
+		singleWords = new HashMap<String,Word>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
 		if (Util.isOS()) {
@@ -116,10 +124,8 @@ public class PDFAnalyzer {
 //		for (int xx = 0; xx < 2; xx++) {
 
 			// BufferedImage image = renderer.renderImageWithDPI(xx, 300);
-			BufferedImage image = renderer.renderImage(xx, 4);
-			int level = 3;
-
-			List<Word> w = t.getWords(image, level);
+			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
+			List<Word> w = t.getWords(image, analysLevel);
 			// Koordinaten von 2 W�rter abspeichern f�r die Ausrichtung
 			int x1 = 0;
 			int x2 = 0;
@@ -327,7 +333,10 @@ public class PDFAnalyzer {
 		try {
 			PDDocument document = PDDocument.load(file);
 			try {
-				System.out.println(Arrays.deepToString(analyzeFileHighlight(document)));
+				prcInitFile(document);
+				prcSurveyFile(document);
+				
+//				System.out.println(Arrays.deepToString(prcInitFile(document)));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -338,57 +347,80 @@ public class PDFAnalyzer {
 			System.out.println("lokales PDF konnten nicht gefunden werden.");
 		}
 	}
-	public int[][] analyzeFileHighlight(PDDocument doc) throws Exception{
+	
+	public void prcInitFile(PDDocument doc) throws Exception{
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
 		int [][] evaluation = new int [3*4][4]; //Zuerzeit Statisch - 12 Fragen, mit je 4 Antowrtmöglichkeiten
 
 
-		for (int xx = 0; xx < 1; xx++) {
-			for(int render = 0; render<1;render++) {
-				render = 6;
-				BufferedImage image = renderer.renderImage(xx, render);
-				ImageIO.write(image, "JPEG",
-						new File(initPath+"pdf_umfragen/Pics/PDF"+1+"_Markiert.jpg"));
-				Graphics2D g2d = image.createGraphics();
+		BufferedImage image = renderer.renderImage(0, 6);//Seite, Auflösung
+//				ImageIO.write(image, "JPEG",
+//						new File(initPath+"pdf_umfragen/Pics/PDF_Original.jpg"));
+		Graphics2D g2d = image.createGraphics();
 
-				g2d.setColor(Color.RED);
-				int level = 4;
-				/*
-				 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen.
-				 * und dann alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
-				 */
-				////3
-				searchThroug = image;
-				for (int y = 0; y < image.getHeight(); y++) {
-				    for (int x = 0; x < image.getWidth(); x++) {
-				        //check if current pixel has maze colour
-				        if(isHighlightedColour(image.getRGB(x, y))){
-				            Rectangle rect = findRectangle(x, y);
-				            if(rect != null) {
-
-					            g2d.drawRect(x, y,rect.width, rect.height);
-					            x+=rect.width;
-				            }
-				        }
-				    }
+		g2d.setColor(Color.RED);
+		/*
+		 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen.
+		 * und dann alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
+		 */
+		//Do highlighting Stuff
+		searchThroug = image;
+		for (int y = 0; y < image.getHeight(); y++) {
+		    for (int x = 0; x < image.getWidth(); x++) {
+		        if(isHighlightedColour(image.getRGB(x, y))){
+		            Rectangle rect = findRectangle(x, y);
+		            if(rect != null) {
+		            	if(debugen) {
+		            		g2d.drawRect(x, y,rect.width, rect.height);
+		            	}
+			            x+=rect.width;
+		            }
+		        }
+		    }
+		}
+		
+		g2d.dispose();
+		int level = 3;
+		allWords = t.getWords(image, level);
+			//@Todo: evtl. bereits wörter für die Aussrichtung raussuchen.
+			//Ausrichtungs Stuff
+			
+//				ImageIO.write(image, "JPEG",
+//						new File(initPath+"pdf_umfragen/Pics/PDF_Markiert.jpg"));
+		groupedRectangles = groupRectangle(20,allRectangles);
+		groupedWords = groupWords(20,allWords);
+		if(debugen) {
+			System.out.println("Anzahl Rechtecke: " + allRectangles.size());
+			System.out.println("Anzahl Fragen: " + groupedRectangles.size());		
+			int asdf = 1;
+			for(List<Rectangle> l : groupedRectangles) {
+				System.out.println("Frage: " +(asdf++) + " Auswahl: " +l.size());
+				for(Rectangle r:l) {
+					System.out.println("     " +r.y);
 				}
-				System.out.println("Anzahl Rechtecke: " + mazeRectangles.size());
-
-				g2d.dispose();
-				ImageIO.write(image, "JPEG",
-						new File(initPath+"pdf_umfragen/Pics/PDF"+2+"_Markiert.jpg"));
-				ImageIO.write(image, "JPEG",
-						new File(initPath+"pdf_umfragen/Pics/PDF"+xx+"_Markiert.jpg"));
+			}
+			System.out.println("-------------------");
+			System.out.println("Anzahl Fragen: " + groupedWords.size());		
+			asdf = 1;
+			for(List<Word> l : groupedWords) {
+				System.out.println("Frage: " +(asdf++) + " Auswahl: " +l.size());
+				for(Word r:l) {
+					System.out.print(" " +r.getText());
+				}
+				System.out.println("");
 			}
 		}
-		return evaluation;
 	}
 	
 	
 	
 	
-	
+	/**
+	 * Range von gelber Farbe wird überprüft.
+	 * @param color
+	 * @return
+	 */
 	public boolean isHighlightedColour(int color){
 	    // here you should actually check for a range of colours, since you can
 	    // never expect to get a nicely encoded image..
@@ -402,22 +434,28 @@ public class PDFAnalyzer {
 		int g = (color & 0x0000ff00) >> 8;
 		int b = (color & 0x000000ff) >> 0;
 		
-		if(r>min && g>min && b <10) {
+//		if(r>min && g>min && b <10) {
 //			System.out.println("-----------------");
 //			System.out.println("r " + r);
 //			System.out.println("g " + g);
 //			System.out.println("b " + b);
-		}
+//		}
  	    return r>min && g>min&& b <10;
 	}
-//https://stackoverflow.com/questions/35376726/how-to-detect-a-colored-rectangles-in-an-image
+/**
+ * Sucht auf der gegebenen Koordinaten (X/Y) ein Rechteck. Falls ein neues gefunden werden kann,
+ * wird es zurück gegeben
+ * @param x
+ * @param y
+ * @return
+ */
 	public Rectangle findRectangle(int x, int y){
 	    // this could be optimized. You could keep a separate collection where
 	    // you remove rectangles from, once your cursor is below that rectangle
 		Rectangle toReturn = null;
-	    for(Rectangle rectangle : mazeRectangles){ 
-	        if(rectangle.contains(x, y)){
-	        	System.out.println("Rectangle bereits vorhanden");
+	    for(Rectangle rectangle : allRectangles){ 
+	        if(rectangle.contains(x, y)){ // verbesserungspotential bezüglich Performance vorhanden. x um weite erhöhen
+//	        	System.out.println("Rectangle bereits vorhanden");
 	            return null;
 	        }
 	    }
@@ -434,11 +472,118 @@ public class PDFAnalyzer {
 	    
 	    if(yD >20 && xD>20) {
 		    toReturn = new Rectangle(x, y, xD, yD);
-		    mazeRectangles.add(toReturn);
+		    allRectangles.add(toReturn);
 	    }
-	    System.out.println("---------");
-	    System.out.println("yD " + yD);
-	    System.out.println("xD " + xD);
 	    return toReturn;
+	}
+
+	private ArrayList<List<Rectangle>> groupRectangle(int range, List<Rectangle> all){
+		if(all.size()==0) {return null;}//Leere Liste abfangen.
+		ArrayList<List<Rectangle>> sorted = new ArrayList<List<Rectangle>> ();
+		List<Rectangle> rl = new ArrayList<Rectangle>();
+		
+		for(Rectangle r : all) {
+			if(rl.size() == 0) {
+				//Initialisierung
+				System.out.println("Start");
+				rl.add(r);
+			}else {
+				if(isInRange(range,rl.get(0).y,r.y)) {
+					//Sind drin, fügen es hinzu
+					rl.add(r);
+					System.out.println("     IF   " + r.y);
+				}else {
+					//nicht im Range, somit neue Frage erstellen.
+					sorted.add(rl);
+					rl = new ArrayList<Rectangle>();
+					rl.add(r);
+					System.out.println("     ELSE " + r.y);
+				}
+			}
+		}
+		sorted.add(rl);
+		return sorted;
+		
+	}
+	private ArrayList<List<Word>> groupWords(int range, List<Word> all){
+		if(all.size()==0) {return null;}//Leere Liste abfangen.
+		ArrayList<List<Word>> sorted = new ArrayList<List<Word>> ();
+		List<Word> rl = new ArrayList<Word>();
+		
+		for(Word r : all) {
+			if(rl.size() == 0) {
+				//Initialisierung
+//				System.out.println("Start");
+				rl.add(r);
+			}else {
+				if(isInRange(range,rl.get(0).getBoundingBox().y,r.getBoundingBox().y)) {
+					//Sind drin, fügen es hinzu
+					rl.add(r);
+//					System.out.println("     IF   " + r.getBoundingBox().y);
+				}else {
+					//nicht im Range, somit neue Frage erstellen.
+					sorted.add(rl);
+					rl = new ArrayList<Word>();
+					rl.add(r);
+//					System.out.println("     ELSE " + r.getBoundingBox().y);
+				}
+			}
+		}
+		sorted.add(rl);
+		//Alle EInträge mit weniger als z.B 5 Wörter rausschmeissen.
+		Iterator<List<Word>> i = sorted.iterator();
+		while(i.hasNext()) {
+			if(i.next().size()<5) {
+				i.remove();
+			}
+		}
+		return sorted;
+		
+	}
+	
+	private boolean isInRange(int range, int a, int b) {
+		return (a-range)<b && (a+range)>b;
+	}
+	
+	
+	public int[][] prcSurveyFile(PDDocument doc) throws Exception{
+		PDFRenderer renderer = new PDFRenderer(doc);
+		ArrayList<Integer> auswertung = new ArrayList<Integer>();
+		int [][] evaluation = new int [groupedRectangles.size()][]; 
+		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
+			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
+			List<Word> w = t.getWords(image, analysLevel);
+			
+			
+			try {
+
+//				BufferedImage rotated_image = rotate(image, getAngle(x2 - x1, y2 - y1), x1, y1);
+//				// Tabellenbreite = 294(4 Spalten)
+//				// Tabellenh�he = 197 (5 Zeilen)
+//				// Tabelle 1
+//				
+//				auswertung.addAll(whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5));
+////				whichRating(rotated_image, xx + 10, x2 + x2_add, y2 - 10, 294, 197, 4, 5);
+//				// Tabelle 2; y2 korrektur um 360, h�he: ca. 110
+//				auswertung.addAll(whichRating(rotated_image, xx + 100, x2 + x2_add, y2 + 360, 294, 110, 4, 3));
+//				// Tabelle 3: y2 korrektur um 665
+//				auswertung.addAll(whichRating(rotated_image, xx + 1000, x2 + x2_add, y2 + 665, 294, 160, 4, 4));
+//				// whichRating(image,xx+10,x2+520,y2-10,294,197);
+//				
+				// Auswertung in Evaluation einfügen, damit wir die Einzelnen Fragen pro Blatt aufsummieren können.
+				for(int i = 0; i< auswertung.size();i++) {
+					evaluation[i][auswertung.get(i)-1]++;
+				}
+				auswertung.clear();
+			} catch (Exception e) {
+				System.out.println("Exception");
+				e.printStackTrace();
+			}
+		}
+		
+		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf 
+		return evaluation;
+		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
+		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
 	}
 }
