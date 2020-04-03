@@ -50,6 +50,16 @@ public class SurveyItem {
     @CsvBindByPosition(position = 6)
     private String answer;
 
+    public SurveyItem(long id, String question, int firstItem, int secondItem, int thirdItem, int fourthItem, String answer) {
+        this.id = id;
+        this.question = question;
+        this.firstItem = firstItem;
+        this.secondItem = secondItem;
+        this.thirdItem = thirdItem;
+        this.fourthItem = fourthItem;
+        this.answer = answer;
+    }
+
     public SurveyItem(long id, String question, int firstItem, int secondItem, int thirdItem, int fourthItem) {
         this.id = id;
         this.question = question;

@@ -1,5 +1,4 @@
 import { Chart } from "react-google-charts";
-import * as DataExport from "./DataExport";
 
 import React from 'react';
 import {
@@ -62,7 +61,6 @@ const Result: React.FC = () => {
                     }}
                 />
                 <IonCardHeader>
-                    <IonButton id="toolbar_div" onClick={DataExport.drawExportToolbar}>Export Data</IonButton>
                     <IonCardSubtitle>Simple Pie Chart / It is a hardcoded example</IonCardSubtitle>
                     <IonCardTitle>Daily Activities</IonCardTitle>
                 </IonCardHeader>
