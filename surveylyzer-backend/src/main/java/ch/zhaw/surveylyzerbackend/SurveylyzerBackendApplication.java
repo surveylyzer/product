@@ -7,15 +7,15 @@ import ch.zhaw.pdffunctionality.PDFAnalyzer;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver"})
+@ComponentScan(basePackages = {"ch.zhaw.csvgenerator", "ch.zhaw.pdfReceiver"})
 public class SurveylyzerBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SurveylyzerBackendApplication.class, args);
 		
 		//Test the PDF Analyzer
-    	PDFAnalyzer pa = new PDFAnalyzer();
-    	pa.startTest();
+    //	PDFAnalyzer pa = new PDFAnalyzer();
+    //	pa.startTest();
     	// Test end
 	}
 
