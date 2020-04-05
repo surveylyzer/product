@@ -14,71 +14,19 @@ import {
 } from '@ionic/react';
 import { CSVLink } from "react-csv";
 import HorizontalLine from "../components/HorizontalLine";
+import TestData from "../data/TestData"
 
 const TestReactCSV: React.FC = () => {
-    let headers = [
-        { label: "Frage", key: "question" },
-        { label: "Wert 1", key: "one" },
-        { label: "Wert 2", key: "two" },
-        { label: "Wert 3", key: "three" },
-        { label: "Wert 4", key: "four" }
-    ];
-    let dataArray = [
-        ['City', '1', '2', '3', '4'],
-        ['Question 1', 23, 47, 2, 5],
-        ['Question 2', 24, 10, 40, 3],
-        ['Question 3', 3, 57, 15, 1],
-        ['Question 4', 67, 5, 3, 2],
-        ['Question 5', 2, 5, 1, 69]
-    ];
-    let dataLiteralObjArray = [
-        { question: "City", one: 1, two: 2, three: 3, four: 4 },
-        { question: "Q1", one: 23, two: 47, three: 2, four: 5 },
-        { question: "Q2", one: 24, two: 10, three: 40, four: 3 },
-        { question: "Q3", one: 3, two: 57, three: 15, four: 1 }
-    ];
-    let dataString = `City; 1; 2; 3; 4
-Question 1; 23; 47; 2; 5
-Question 2; 24; 10; 40; 3
-Question 3; 3; 57; 15; 1
-Question 4; 67; 5; 3; 2
-Question 5; 2; 5; 1; 69
-        `;
-    let dataJson = [
-        {
-            "question": "City",
-            "one": 1,
-            "two": 2,
-            "three": 3,
-            "four": 4
-        },
-        {
-            "question": "Q1",
-            "one": 23,
-            "two": 47,
-            "three": 2,
-            "four": 5
-        },
-        {
-            "question": "Q2",
-            "one": 24,
-            "two": 10,
-            "three": 40,
-            "four": 3
-        },
-        {
-            "question": "Q3",
-            "one": 3,
-            "two": 57,
-            "three": 15,
-            "four": 1
-        }
-    ];
-
     const ShowData = ({ data }) => {
-        // (destructured) data could be a prop for example
         return (<div><pre>{JSON.stringify(data, null, 2)}</pre></div>);
     };
+
+    let headers = TestData.getHeaders();
+    let dataArray = TestData.getDataArray();
+    let dataLiteralObjArray = TestData.getDataLiteralObjArray();
+    let dataString = TestData.getDataString();
+    let dataJson = TestData.getDataJson();
+
     return (
         <IonPage>
             <IonHeader>
@@ -86,7 +34,7 @@ Question 5; 2; 5; 1; 69
                     <IonButtons slot="start">
                         <IonBackButton defaultHref="/home" />
                     </IonButtons>
-                    <IonTitle>Testing Page for exporting Survey Result as CSV</IonTitle>
+                    <IonTitle>Test-Page for the export of survey results as CSV</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent>
