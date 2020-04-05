@@ -1,6 +1,6 @@
 package ch.zhaw.pdfReceiver;
 
-import java.io.File;
+
 
 public class PdfFile {
     private int id;
