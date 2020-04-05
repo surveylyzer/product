@@ -13,6 +13,7 @@ import {
     IonToolbar
 } from '@ionic/react';
 import { CSVLink } from "react-csv";
+import HorizontalLine from "../components/HorizontalLine";
 
 const TestReactCSV: React.FC = () => {
     let headers = [
@@ -122,6 +123,9 @@ Question 5; 2; 5; 1; 69
                         <IonButton expand="block" color="success" fill="outline">Data as JSON</IonButton>
                     </CSVLink>
                 </section>
+                <br />
+
+                <HorizontalLine color="red" bHeight={2} bStyle="dashed" />
 
                 <section>
                     <h1>RAW Data</h1>
