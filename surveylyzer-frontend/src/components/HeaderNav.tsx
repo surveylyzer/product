@@ -17,6 +17,9 @@ const HeaderNav: React.FC = () => {
                     <IonItem routerLink="/result">
                         View Result
                     </IonItem>
+                    <IonItem routerLink="/result-test">
+                        TESTING Export
+                    </IonItem>
                 </IonButtons>
             </IonToolbar>
         </IonHeader>

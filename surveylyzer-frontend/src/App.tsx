@@ -23,6 +23,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import TestReactCSV from './pages/TestReactCSV';
 
 
 const App: React.FC = () => {
@@ -32,6 +33,7 @@ const App: React.FC = () => {
         <IonRouterOutlet>
           <Route path="/" component={Home} exact={true} />
           <Route path="/result" component={Result} />
+          <Route path="/result-test" component={TestReactCSV} />
           <Redirect exact from="/home" to="/" />
         </IonRouterOutlet>
       </IonReactRouter>
