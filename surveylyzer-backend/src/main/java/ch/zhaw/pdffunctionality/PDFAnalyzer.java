@@ -322,19 +322,23 @@ public class PDFAnalyzer {
 	public void startHighlightingTest() {
 		debugen = true;
 //		File file = new File(initPath+"pdf_umfragen/ScanBewertungen2_highlighted.pdf");
-		File file = new File(initPath+"pdf_umfragen/ScanBewertungen2_highlighted2.pdf");
+//		File file = new File(initPath+"pdf_umfragen/ScanBewertungen2_highlighted2.pdf");
+		File fileInit = new File(initPath+"InitFile2Speakers.pdf");
+		File filePrc = new File(initPath+"prcFile2Speakers.pdf");
 		try {
-			PDDocument document = PDDocument.load(file);
+			PDDocument docInit = PDDocument.load(fileInit);
+			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
-				prcInitFile(document);
-//				prcSurveyFile(document);
+				prcInitFile(docInit);
+				prcSurveyFile(docPrc);
 				
 //				System.out.println(Arrays.deepToString(prcInitFile(document)));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			document.close();
+			docInit.close();
+			docPrc.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("lokales PDF konnten nicht gefunden werden.");
