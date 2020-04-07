@@ -1,6 +1,8 @@
 package ch.zhaw.pdffunctionality;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -30,6 +32,8 @@ public class PDFAnalyzer {
 	private boolean debugen = false;
 	private String initPath;
 	
+	private BufferedImage initImg;
+	
 	private List<Rectangle> allRectangles;
 	private ArrayList<List<Rectangle>> groupedRectangles;
 	private List<Word> allWords;
@@ -37,7 +41,7 @@ public class PDFAnalyzer {
 	private ArrayList<List<Word>> groupedWords;
 	private BufferedImage searchThroug;
 	private int analysLevel = 3;
-	private int resolutionLevel = 4;
+	private int resolutionLevel = 6;
 	private int minWordLength =3;
 	public PDFAnalyzer() {
 		init();
@@ -243,26 +247,7 @@ public class PDFAnalyzer {
 		return Math.tan(gk / ak);
 	}
 
-	/**
-	 * Gibt ein rotiertes Bild zur�ck. Anhand des Winkels angle an der Position
-	 * vom bilt (xCenter/yCenter)
-	 *
-	 * @param img
-	 * @param angle
-	 * @param xCenter
-	 * @param yCenter
-	 * @return
-	 */
-	private BufferedImage rotate(BufferedImage img, double angle, double xCenter, double yCenter) {
-		AffineTransform affineTransform = new AffineTransform();
-		affineTransform.rotate(-angle, xCenter, yCenter);// Rotation around the
-															// x and y Center
-		AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
-		BufferedImage result;
-		result = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-		affineTransformOp.filter(img, result);
-		return result;
-	}
+
 
 	/**
 	 * Das Uebergebene Bild wird als Tabell mit Spalten und Zeilen interpretiert.
@@ -354,20 +339,20 @@ public class PDFAnalyzer {
 	 */
 	public void prcInitFile(PDDocument doc) throws Exception{
 		PDFRenderer renderer = new PDFRenderer(doc);
-		BufferedImage image = renderer.renderImage(0, 6);//Seite, Auflösung
-				ImageIO.write(image, "JPEG",
+		initImg = renderer.renderImage(0, resolutionLevel);//Seite, Auflösung
+				ImageIO.write(initImg, "JPEG",
 						new File(initPath+"pdf_umfragen/Pics/PDF_Original.jpg"));
-		Graphics2D g2d = image.createGraphics();
+		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
 		/*
 		 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen.
 		 * und dann alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
 		 */
 		//Do highlighting Stuff
-		searchThroug = image;
-		for (int y = 0; y < image.getHeight(); y++) {
-		    for (int x = 0; x < image.getWidth(); x++) {
-		        if(isHighlightedColour(image.getRGB(x, y))){
+		searchThroug = initImg;
+		for (int y = 0; y < initImg.getHeight(); y++) {
+		    for (int x = 0; x < initImg.getWidth(); x++) {
+		        if(isHighlightedColour(initImg.getRGB(x, y))){
 		            Rectangle rect = findRectangle(x, y);
 		            if(rect != null) {
 		            	if(debugen) {
@@ -380,12 +365,16 @@ public class PDFAnalyzer {
 		}
 		
 		g2d.dispose();
+		
+		
+
+		
 		int level = 3;
-		allWords = t.getWords(image, level);
+		allWords = t.getWords(initImg, level);
 			//@Todo: evtl. bereits wörter für die Aussrichtung raussuchen.
 			//Ausrichtungs Stuff
 			
-				ImageIO.write(image, "JPEG",
+				ImageIO.write(initImg, "JPEG",
 						new File(initPath+"pdf_umfragen/Pics/PDF_Markiert.jpg"));
 		groupedRectangles = groupRectangle(20,allRectangles);
 		groupedWords = groupWords(20,allWords);
@@ -567,22 +556,101 @@ public class PDFAnalyzer {
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
 		int [][] evaluation = new int [groupedRectangles.size()][]; 
 //		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
-			for(int xx = 0; xx< 1;xx++){
-			//Rendert die PDF-Seite, welche analysiert werden soll
-			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
-			//Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
-			List<Word> w = t.getWords(image, analysLevel);
-			//Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
-			HashMap<String,Word> uWforRotation = singleWords(w);
-			//Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
-			List<List<Word>> wordPairs = sameWords(this.uniquWords,uWforRotation);
-			//Kalibrierung der Seite: Ausrichtung
-			calibration(image,wordPairs);//@Todo: muss noch implementiert werden
-			evaluation = doEvaluation(image,this.groupedRectangles);//@Todo: muss noch implementiert werden
-			
-			try {
-				//@Todo: Rotieren
+		ArrayList<BufferedImage> bestTry = new ArrayList<BufferedImage>();
+		BufferedImage bestTryPerSiteText = null;
+		String bestTryText ="";
+//		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
+			for(int xx = 0; xx< 5;xx++){
+				int bestTryPerSite = 0;
 				
+				BufferedImage image = renderer.renderImage(xx, resolutionLevel);
+				for(int i = 0; i< 1;i++) {
+					//Rendert die PDF-Seite, welche analysiert werden soll
+					//Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
+					List<Word> w = t.getWords(image, analysLevel);
+					//Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
+					HashMap<String,Word> uWforRotation = singleWords(w);
+					//Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
+					List<List<Word>> wordPairs = sameWords(this.uniquWords,uWforRotation);//bisher
+					if(wordPairs.size()== 0) {
+						break;
+					}
+			//		System.out.println("Scanned Site: " + xx + " Durchlauf: " + i);
+			//		System.out.println("w " + w.size() + " - " +"uWforRotation " + uWforRotation.size()+ " - " + "wordPairs " + wordPairs.size());
+					
+					if(wordPairs.size() > bestTryPerSite) {
+						bestTryPerSite = wordPairs.size();
+						bestTryPerSiteText = image;
+						bestTryText = "P"+xx+"D"+i;
+					}
+					//////////////////////////////////////////////////////////////////////////
+
+
+for(List<Word> wl:wordPairs) {
+	
+	int Swl_x = (int) wl.get(1).getBoundingBox().getX();
+	int Swl_y = (int) wl.get(1).getBoundingBox().getY();
+	int Swl_w = (int) wl.get(1).getBoundingBox().getWidth();
+	int Swl_h = (int) wl.get(1).getBoundingBox().getHeight();
+//	System.out.println(Swl_x + " - " + Swl_y + " - " + Swl_w + " - " + Swl_h );
+	BufferedImage bi = image.getSubimage(Swl_x
+										,Swl_y
+										,Swl_w
+										,Swl_h);
+	
+
+	int Owl_x = (int) wl.get(0).getBoundingBox().getX();
+	int Owl_y = (int) wl.get(0).getBoundingBox().getY();
+	int Owl_w = (int) wl.get(0).getBoundingBox().getWidth();
+	int Owl_h = (int) wl.get(0).getBoundingBox().getHeight();
+//	System.out.println(Owl_x + " - " + Owl_y + " - " + Owl_w + " - " + Owl_h );
+//						BufferedImage biO = initImg.getSubimage(Owl_x
+//															,Owl_y
+//															,Owl_w
+//															,Owl_h);
+	Graphics2D g2d = image.createGraphics();
+	g2d.setColor(Color.RED);
+	g2d.drawRect(Swl_x, Swl_y,Swl_w, Swl_h);
+	g2d.dispose();
+	
+	Graphics2D g2do = initImg.createGraphics();
+	g2do.setColor(Color.RED);
+	g2do.drawRect(Owl_x, Owl_y,Owl_w, Owl_h);
+	g2do.dispose();
+//						try {
+//							ImageIO.write(biO, "JPEG",
+//									new File(initPath+"pdf_umfragen/Pics/"	+ wl.get(0).getText() + "OO.jpg"));
+//							ImageIO.write(bi, "JPEG",
+//									new File(initPath+"pdf_umfragen/Pics/"	+ wl.get(0).getText() + ""+i+"SS.jpg"));
+//						} catch (IOException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+}
+image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
+
+					try {
+						ImageIO.write(image, "JPEG",
+								new File(initPath+"pdf_umfragen/Pics/P"+xx+"D"+i+".jpg"));
+						ImageIO.write(initImg, "JPEG",
+								new File(initPath+"pdf_umfragen/Pics/Original.jpg"));
+						
+					}catch (Exception e) {
+						// TODO: handle exception
+					}
+					//	System.out.println("image " + image.getWidth());
+						//	System.out.println("image " + image.getHeight());
+						
+
+
+					///////////////////////////////////////////////////////////////////////////
+				//	evaluation = doEvaluation(image,this.groupedRectangles);//@Todo: muss noch implementiert werden
+					
+				}
+				bestTry.add(bestTryPerSiteText);
+			
+			
+			try {//@TODO: Wety hier weitermachen, nun die felder evaluieren!
 				//@TODO: Auswertung Starten
 				
 				//@TODO: Auswertung zusammenfassen
@@ -596,6 +664,11 @@ public class PDFAnalyzer {
 				e.printStackTrace();
 			}
 		}
+//		int seiteee = 0;
+//		for(BufferedImage bi:bestTry) {
+//			ImageIO.write(bi, "JPEG",
+//					new File(initPath+"pdf_umfragen/Pics/BestTry"+seiteee+++ "Name" +bestTryText+".jpg"));
+//		}
 		
 		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf 
 		return evaluation;
@@ -639,7 +712,7 @@ public class PDFAnalyzer {
 	private List<List<Word>> sameWords(HashMap<String,Word> orig,HashMap<String,Word> scanned){
 		List<List<Word>> output = new ArrayList<List<Word>>();
 
-		System.out.println("sameWords----------------------------------");
+		//System.out.println("sameWords----------------------------------");
 		for(Map.Entry<String, Word> e : scanned.entrySet()) {
 			if(orig.containsKey(e.getKey())) {
 				List<Word> temp = new ArrayList<Word>();
@@ -657,25 +730,14 @@ public class PDFAnalyzer {
 	 */
 	private BufferedImage calibration(BufferedImage img,List<List<Word>> cwl) {
 		BufferedImage bi = img;
-
-		try {
-			ImageIO.write(img, "JPEG",
-					new File(initPath+"pdf_umfragen/Pics/calibrationBefore.jpg"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if(cwl.size() >1) {
+			Double rotation = calcRotation(cwl);
+			bi = rotate(bi,rotation,cwl.get(0).get(1).getBoundingBox().getCenterX(),cwl.get(0).get(1).getBoundingBox().getCenterY());
+			
+			bi = resize(bi,cwl);
+		}else {
+			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
 		}
-		Double rotation = calcRotation(cwl);
-		bi = rotate(bi,rotation,cwl.get(0).get(1).getBoundingBox().getCenterX(),cwl.get(0).get(1).getBoundingBox().getCenterY());
-
-		try {
-			ImageIO.write(bi, "JPEG",
-					new File(initPath+"pdf_umfragen/Pics/calibrationAfter.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		bi = resize(bi,cwl);
 		
 		return bi;
 	}
@@ -685,32 +747,39 @@ public class PDFAnalyzer {
 	 * @param cwl
 	 * @return
 	 */
-	private double calcRotation(List<List<Word>> cwl) {//@TODO: Wety hier weitermachen!
-		int mid = (int)(cwl.size()/2);
+	private double calcRotation(List<List<Word>> cwl) {
 		//cw.get(0) -> die ersten 2 Wörter .get(0) = Original   ,.get(1) = scannedPDF
-		System.out.println("cwl  "+ mid);
-		double w1a1 = getWordAngle(cwl.get(0).get(0), cwl.get(mid).get(0));
-		double w1a2 = getWordAngle(cwl.get(0).get(0), cwl.get(cwl.size()-1).get(0));
-//
-		double w2a1 = getWordAngle(cwl.get(0).get(1), cwl.get(mid).get(1));
-		double w2a2 = getWordAngle(cwl.get(0).get(1), cwl.get(cwl.size()-1).get(1));
-//		double w2a3 = getAngle(cwl.get(cwl.size()-1).get(1).getBoundingBox().getCenterX() - cwl.get(0).get(0).getBoundingBox().getCenterX()
-//                              ,cwl.get(cwl.size()-1).get(1).getBoundingBox().getCenterY() - cwl.get(0).get(0).getBoundingBox().getCenterY());
-		
-		if(debugen) {
-			System.out.println("----------: calcRotation ");
-			System.out.println("Words: " + cwl.get(0).get(0).getText() + " - " + cwl.get(mid).get(0).getText());
-			System.out.println("OrigWord: " + w1a1 + " - "+ w1a2);
-			System.out.println("ScanWord: " + w2a1 + " - "+ w2a2);
-			System.out.println("zu Drehen: " + (w1a1-w2a1)+ " - "+ (w1a2-w2a2) );
+		Word wOrig1 = cwl.get(0).get(0);
+		Word wScan1 = cwl.get(0).get(1);
+//		System.out.println("wOrig1 " + wOrig1.getText() + " : " + wOrig1.getBoundingBox().getCenterX() + "   " + wOrig1.getBoundingBox().getCenterY());
+//		System.out.println("wScan1 " + wScan1.getText() + " : " + wScan1.getBoundingBox().getCenterX() + "   " + wScan1.getBoundingBox().getCenterY());
+		double o = 0,s=0;
+		double return_mid = 999999;
+		double return_real = 999999;
+		for(int i = 1; i< cwl.size()-1;i++) {
+			Word wOrig2 = cwl.get(i).get(0);
+			Word wScan2 = cwl.get(i).get(1);
+			o = getWordAngle(wOrig1, wOrig2);
+			s = getWordAngle(wScan1, wScan2);
+//			System.out.println("w1 " + wOrig2.getText() + " : " + wOrig2.getBoundingBox().getCenterX() + "   " + wOrig2.getBoundingBox().getCenterY());
+//			System.out.println("s2 " + wScan2.getText() + " : " + wScan2.getBoundingBox().getCenterX() + "   " + wScan2.getBoundingBox().getCenterY());
+			System.out.println("Original: " + o);
+			System.out.println("Scanned_: " + s);
+			System.out.println("------------------> Difference: " + (o-s));
+			if(Math.pow(o-s, 2) <return_mid) {
+				return_mid =Math.pow(o-s, 2);
+				return_real = o-s;
+			}
+//			System.out.println("------------------> return_mid: " +return_mid);
 		}
-		return w2a1-w1a1;//@Todo
+		System.out.println("return_real " + return_real + "  " + cwl.size());
+		return return_real;//@Todo
 	}
 	private double getWordAngle(Word w1, Word w2) {
 		
 		
-		return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX()
-				       ,w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
+return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX() 
+		       ,w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
 	}
 	
 	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
@@ -720,14 +789,41 @@ public class PDFAnalyzer {
 		Word wOrig2 = cwl.get(cwl.size()-1).get(0);
 		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
 
-		Word wScan1 = cwl.get(0).get(0);
-		Word wScan2 = cwl.get(cwl.size()-1).get(0);
+		Word wScan1 = cwl.get(0).get(1);
+		Word wScan2 = cwl.get(cwl.size()-1).get(1);
 		Double distanceBetwScan = distWords(wScan1, wScan2);
 		
 		Double calVal = distanceBetwScan * 100 /distanceBetwOrig;
-		bi =  scale(bi,calVal);
-		
+		calVal = 100/calVal;
+		if(!calVal.isNaN()) {
+			bi =  scale(bi,calVal);
+		}
+//		System.out.println("SCALE "+calVal );
 		return bi;
+	}
+	/**
+	 * Gibt ein rotiertes Bild zur�ck. Anhand des Winkels angle an der Position
+	 * vom bilt (xCenter/yCenter)
+	 *
+	 * @param img
+	 * @param angle
+	 * @param xCenter
+	 * @param yCenter
+	 * @return
+	 */
+	private BufferedImage rotate(BufferedImage img, double angle, double xCenter, double yCenter) {
+		AffineTransform affineTransform = new AffineTransform();
+//		System.out.println("Rotieren um " + angle + " Grad");
+//		System.out.println("Rotieren um " + Math.toRadians(angle) + " Rad");
+//		affineTransform.rotate(-angle, xCenter, yCenter);// Rotation around the
+															// x and y Center
+
+		affineTransform.rotate(Math.toRadians(angle), xCenter, yCenter);
+		AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
+		BufferedImage result;
+		result = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+		affineTransformOp.filter(img, result);
+		return result;
 	}
 	private double distWords(Word w1, Word w2) {//Pythagoras
 		return Math.sqrt(Math.pow(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),2)
@@ -745,11 +841,16 @@ public class PDFAnalyzer {
 	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
-		BufferedImage img = sbi;
-        Graphics2D g = img.createGraphics();
-        AffineTransform at = AffineTransform.getScaleInstance(img.getWidth()*scale, sbi.getHeight()*scale);
-        g.drawRenderedImage(img, at);
-	    return img;
+		System.out.println("                             scale " + scale);
+		int newH = (int)(sbi.getHeight()*scale);
+		int newW = (int)(sbi.getWidth()*scale);
+		Image tmp = sbi.getScaledInstance((int)(sbi.getWidth()*scale), (int)(sbi.getHeight()*scale), Image.SCALE_SMOOTH);
+	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_3BYTE_BGR);//Sonsts wirds Rot mit einem ander Type
+	    Graphics2D g2d = dimg.createGraphics();
+	    g2d.drawImage(tmp, 0, 0, null);
+	    g2d.dispose();
+
+	    return dimg;
 	}
 	private int[][] doEvaluation(BufferedImage img, ArrayList<List<Rectangle>> gR) {
 		// TODO Auto-generated method stub
