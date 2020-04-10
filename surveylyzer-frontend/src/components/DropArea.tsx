@@ -13,6 +13,14 @@ const DropArea: React.FC = () => {
         if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
             console.log(file);
         }
+        let formData = new FormData();
+        formData.append('file1',file);
+        fetch('http://localhost:8080/pdf', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            console.log("File has been uploaded");
+        })
     }
 
     return (
