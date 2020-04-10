@@ -3,12 +3,14 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +45,7 @@ public class PDFAnalyzer {
 	private int analysLevel = 3;
 	private int resolutionLevel = 6;
 	private int minWordLength =3;
+	private double wToHrangePercent = 4.0;//Verhältnis von Höhe/Breite von 2 Wörter, Verhältniss dazu
 	public PDFAnalyzer() {
 		init();
 	}
@@ -244,7 +247,7 @@ public class PDFAnalyzer {
 	 * @return
 	 */
 	private double getAngle(double ak, double gk) {
-		return Math.tan(gk / ak);
+		return Math.atan(Math.abs(gk) / Math.abs(ak));
 	}
 
 
@@ -315,7 +318,7 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-				prcSurveyFile(docPrc);
+				System.out.println(Arrays.deepToString(prcSurveyFile(docPrc)));
 				
 //				System.out.println(Arrays.deepToString(prcInitFile(document)));
 			} catch (Exception e) {
@@ -405,9 +408,6 @@ public class PDFAnalyzer {
 			}
 		}
 	}
-	
-	
-	
 	
 	/**
 	 * Range von gelber Farbe wird überprüft.
@@ -560,9 +560,10 @@ public class PDFAnalyzer {
 		BufferedImage bestTryPerSiteText = null;
 		String bestTryText ="";
 //		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
-			for(int xx = 0; xx< 5;xx++){
+			for(int xx = 0; xx< 2;xx++){
 				int bestTryPerSite = 0;
-				
+
+				System.out.println("-------------------------------##########################################-- Seite: " + xx);
 				BufferedImage image = renderer.renderImage(xx, resolutionLevel);
 				for(int i = 0; i< 1;i++) {
 					//Rendert die PDF-Seite, welche analysiert werden soll
@@ -571,12 +572,14 @@ public class PDFAnalyzer {
 					//Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
 					HashMap<String,Word> uWforRotation = singleWords(w);
 					//Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
+//					List<List<Word>> wordPairs = sameWords(this.uniquWords,uWforRotation,this.wToHrangePercent);//bisher
 					List<List<Word>> wordPairs = sameWords(this.uniquWords,uWforRotation);//bisher
+					System.out.println("w " + w.size() + " - " +"uWforRotation " + uWforRotation.size()+ " - " + "wordPairs " + wordPairs.size());
+					
 					if(wordPairs.size()== 0) {
 						break;
 					}
 			//		System.out.println("Scanned Site: " + xx + " Durchlauf: " + i);
-			//		System.out.println("w " + w.size() + " - " +"uWforRotation " + uWforRotation.size()+ " - " + "wordPairs " + wordPairs.size());
 					
 					if(wordPairs.size() > bestTryPerSite) {
 						bestTryPerSite = wordPairs.size();
@@ -599,24 +602,17 @@ for(List<Word> wl:wordPairs) {
 										,Swl_h);
 	
 
-	int Owl_x = (int) wl.get(0).getBoundingBox().getX();
-	int Owl_y = (int) wl.get(0).getBoundingBox().getY();
-	int Owl_w = (int) wl.get(0).getBoundingBox().getWidth();
-	int Owl_h = (int) wl.get(0).getBoundingBox().getHeight();
 //	System.out.println(Owl_x + " - " + Owl_y + " - " + Owl_w + " - " + Owl_h );
 //						BufferedImage biO = initImg.getSubimage(Owl_x
 //															,Owl_y
 //															,Owl_w
 //															,Owl_h);
-	Graphics2D g2d = image.createGraphics();
-	g2d.setColor(Color.RED);
-	g2d.drawRect(Swl_x, Swl_y,Swl_w, Swl_h);
-	g2d.dispose();
+//	Graphics2D g2d = image.createGraphics();
+//	g2d.setColor(Color.GREEN);
+//	g2d.drawRect(Swl_x, Swl_y,Swl_w, Swl_h);
+//	g2d.dispose();
 	
-	Graphics2D g2do = initImg.createGraphics();
-	g2do.setColor(Color.RED);
-	g2do.drawRect(Owl_x, Owl_y,Owl_w, Owl_h);
-	g2do.dispose();
+	
 //						try {
 //							ImageIO.write(biO, "JPEG",
 //									new File(initPath+"pdf_umfragen/Pics/"	+ wl.get(0).getText() + "OO.jpg"));
@@ -628,12 +624,31 @@ for(List<Word> wl:wordPairs) {
 //						}
 }
 image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
+for(List<Word> wl:wordPairs) {
+	int Owl_x = (int) wl.get(0).getBoundingBox().getX();
+	int Owl_y = (int) wl.get(0).getBoundingBox().getY();
+	int Owl_w = (int) wl.get(0).getBoundingBox().getWidth();
+	int Owl_h = (int) wl.get(0).getBoundingBox().getHeight();
+	Graphics2D g2do = image.createGraphics();
+	g2do.setColor(Color.BLACK);
+	g2do.drawRect(Owl_x, Owl_y,Owl_w, Owl_h);
+	g2do.dispose();
+}
 
+//Nun neu analysieren und die evalutierung anfangen.
+//w = t.getWords(image, analysLevel);
+////Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
+//uWforRotation = singleWords(w);
+////Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
+//wordPairs = sameWords(this.uniquWords,uWforRotation,this.wToHrangePercent);//bisher
+//System.out.println("w " + w.size() + " - " +"uWforRotation " + uWforRotation.size()+ " - " + "wordPairs " + wordPairs.size());
+
+//auswertung.addAll(doEvaluation(image, this.groupedRectangles, wordPairs));
 					try {
 						ImageIO.write(image, "JPEG",
 								new File(initPath+"pdf_umfragen/Pics/P"+xx+"D"+i+".jpg"));
-						ImageIO.write(initImg, "JPEG",
-								new File(initPath+"pdf_umfragen/Pics/Original.jpg"));
+//						ImageIO.write(initImg, "JPEG",
+//								new File(initPath+"pdf_umfragen/Pics/Original.jpg"));
 						
 					}catch (Exception e) {
 						// TODO: handle exception
@@ -655,15 +670,16 @@ image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
 				
 				//@TODO: Auswertung zusammenfassen
 				// Auswertung in Evaluation einfügen, damit wir die Einzelnen Fragen pro Blatt aufsummieren können.
-				for(int i = 0; i< auswertung.size();i++) {
-					evaluation[i][auswertung.get(i)-1]++;
-				}
-				auswertung.clear();
+//				for(int i = 0; i< auswertung.size();i++) {
+//					evaluation[i][auswertung.get(i)]++;
+//				}
+//				auswertung.clear();
 			} catch (Exception e) {
 				System.out.println("Exception");
 				e.printStackTrace();
 			}
 		}
+			
 //		int seiteee = 0;
 //		for(BufferedImage bi:bestTry) {
 //			ImageIO.write(bi, "JPEG",
@@ -723,6 +739,28 @@ image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
 		}
 		return output;
 	}
+	//Mit range funktioniert so nicht -->  da wenn das wort leit schräg ist, natürlich das verhältnis nicht stimmen kann
+	private List<List<Word>> sameWords(HashMap<String,Word> orig,HashMap<String,Word> scanned, double range){
+		List<List<Word>> output = new ArrayList<List<Word>>();
+		Word wO = null;
+		Word wS = null;
+		//System.out.println("sameWords----------------------------------");
+		for(Map.Entry<String, Word> e : scanned.entrySet()) {
+			if(orig.containsKey(e.getKey())) {//die selben Wörter vorhanden
+				wO = orig.get(e.getKey());
+				wS = e.getValue();
+				System.out.println("getAbweichungBtoA(getWtoH(wO),getWtoH(wS))  " + getAbweichungBtoA(getWtoH(wO),getWtoH(wS)) );
+				if(getAbweichungBtoA(getWtoH(wO),getWtoH(wS)) < range) {
+					List<Word> temp = new ArrayList<Word>();
+					temp.add(wO);//orig
+					temp.add(wS);//scann
+					output.add(temp);	
+				}
+			}
+		}
+		return output;
+	}
+	
 	/**
 	 * @TODO: Implementierung der Ausrichtung des Bildes anhand der Wörter
 	 * @param img
@@ -730,15 +768,27 @@ image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
 	 */
 	private BufferedImage calibration(BufferedImage img,List<List<Word>> cwl) {
 		BufferedImage bi = img;
+		for(List<Word> lw: cwl) {
+			Word wO = lw.get(0);
+			double xO = wO.getBoundingBox().getX();
+			double yO= wO.getBoundingBox().getY();
+			double widthO= wO.getBoundingBox().getWidth();
+			double hightO= wO.getBoundingBox().getHeight();
+			Graphics2D g2d = bi.createGraphics();
+			g2d.setColor(Color.BLUE);
+			g2d.drawRect((int)xO, (int)yO,(int)widthO, (int)hightO);
+			g2d.dispose();
+		}
 		if(cwl.size() >1) {
 			Double rotation = calcRotation(cwl);
 			bi = rotate(bi,rotation,cwl.get(0).get(1).getBoundingBox().getCenterX(),cwl.get(0).get(1).getBoundingBox().getCenterY());
 			
 			bi = resize(bi,cwl);
+			
+			
 		}else {
 			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
 		}
-		
 		return bi;
 	}
 	/**
@@ -756,42 +806,60 @@ image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
 		double o = 0,s=0;
 		double return_mid = 999999;
 		double return_real = 999999;
-		for(int i = 1; i< cwl.size()-1;i++) {
+		for(int i = 1; i< cwl.size();i++) {//@wety hier weitermachen
 			Word wOrig2 = cwl.get(i).get(0);
 			Word wScan2 = cwl.get(i).get(1);
 			o = getWordAngle(wOrig1, wOrig2);
 			s = getWordAngle(wScan1, wScan2);
-//			System.out.println("w1 " + wOrig2.getText() + " : " + wOrig2.getBoundingBox().getCenterX() + "   " + wOrig2.getBoundingBox().getCenterY());
-//			System.out.println("s2 " + wScan2.getText() + " : " + wScan2.getBoundingBox().getCenterX() + "   " + wScan2.getBoundingBox().getCenterY());
-			System.out.println("Original: " + o);
-			System.out.println("Scanned_: " + s);
-			System.out.println("------------------> Difference: " + (o-s));
+//			System.out.println("wOrig2" + wOrig2.getText() + " : " + wOrig2.getBoundingBox().getCenterX() + "   " + wOrig2.getBoundingBox().getCenterY());
+//			System.out.println("wScan2 " + wScan2.getText() + " : " + wScan2.getBoundingBox().getCenterX() + "   " + wScan2.getBoundingBox().getCenterY());
+//			System.out.println("Original: " + o);
+//			System.out.println("Scanned_: " + s);
+//			System.out.println("------------------> Difference: " + (o-s));
 			if(Math.pow(o-s, 2) <return_mid) {
 				return_mid =Math.pow(o-s, 2);
 				return_real = o-s;
 			}
 //			System.out.println("------------------> return_mid: " +return_mid);
 		}
-		System.out.println("return_real " + return_real + "  " + cwl.size());
+//		System.out.println("return_real " + return_real + "  " + cwl.size());
 		return return_real;//@Todo
 	}
+
 	private double getWordAngle(Word w1, Word w2) {
 		
-		
-return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX() 
-		       ,w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
-	}
+		return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),
+		           		w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
+	} 
 	
-	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
+	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {//@TODO: wety hier weitermachen
 		BufferedImage bi = img;
 		//Distanz
 		Word wOrig1 = cwl.get(0).get(0);
 		Word wOrig2 = cwl.get(cwl.size()-1).get(0);
-		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
-
 		Word wScan1 = cwl.get(0).get(1);
 		Word wScan2 = cwl.get(cwl.size()-1).get(1);
+		
+		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
 		Double distanceBetwScan = distWords(wScan1, wScan2);
+//		System.out.println("wOrig1 " + wOrig1);
+//		System.out.println("wOrig2 " + wOrig2);
+//		System.out.println("wScan1 " + wScan1);
+//		System.out.println("wScan2 " + wScan2);
+//		System.out.println("distanceBetwScan : " + distanceBetwScan);
+//		System.out.println("distanceBetwOrig : " + distanceBetwOrig);
+
+//		for(List<Word> lw: cwl) {
+//			Word wO = lw.get(0);
+//			Word wS = lw.get(1);
+//			System.out.println("--------------------------------------------------------------");
+//			System.out.println(wO.getText() + " verhältniss: " + getWtoH(wO));
+//			System.out.println(wS.getText() + " verhältniss: " + getWtoH(wS));
+//			System.out.println(" abweichung: " + getAbweichungBtoA(getWtoH(wO),getWtoH(wS)));
+//			if(getAbweichungBtoA(getWtoH(wO),getWtoH(wS)) < 1.0) {
+//				
+//			}
+//		}
 		
 		Double calVal = distanceBetwScan * 100 /distanceBetwOrig;
 		calVal = 100/calVal;
@@ -817,7 +885,7 @@ return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenter
 //		System.out.println("Rotieren um " + Math.toRadians(angle) + " Rad");
 //		affineTransform.rotate(-angle, xCenter, yCenter);// Rotation around the
 															// x and y Center
-
+		System.out.println("Rotierung um: " + Math.toRadians(angle) + "   " + angle);
 		affineTransform.rotate(Math.toRadians(angle), xCenter, yCenter);
 		AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
 		BufferedImage result;
@@ -828,6 +896,12 @@ return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenter
 	private double distWords(Word w1, Word w2) {//Pythagoras
 		return Math.sqrt(Math.pow(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),2)
 		 	             + Math.pow(w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY(),2));
+	}
+	private double getWtoH(Word w) {//Pythagoras
+		return Math.round((w.getBoundingBox().getWidth()/w.getBoundingBox().getHeight())*100.0)/100.0;
+	}
+	private double getAbweichungBtoA(double a, double b) {
+		return Math.abs(100.0 - (b*100.0/a));
 	}
 	/**
 	 * scale image
@@ -852,9 +926,77 @@ return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenter
 
 	    return dimg;
 	}
-	private int[][] doEvaluation(BufferedImage img, ArrayList<List<Rectangle>> gR) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	private ArrayList<Integer> doEvaluation(BufferedImage img, ArrayList<List<Rectangle>> gR, List<List<Word>> wordPairs) {
+		System.out.println("doEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluation");
+		
+		ArrayList<Integer> eval = new ArrayList<Integer>();
+		Rectangle wO = wordPairs.get(0).get(0).getBoundingBox();
+		Rectangle wS = wordPairs.get(0).get(1).getBoundingBox();
+		Point ausgleich = new Point((int)((wO.getX()-wS.getX())*1)
+				                   ,(int)((wO.getY()-wS.getY())*1));
+//		Point ausgleich = new Point(0,0);
+		System.out.println("ausgleich " + ausgleich);
+		System.out.println("skale 1.9195105156243213 ");
+		//Einfach das Bild verschieben.
+		
+		for(List<Rectangle> lr: gR) {
+			eval.add(getChecked(img,lr,ausgleich));
+		}
+		
+		return eval;
 	}
+	private int getChecked(BufferedImage img, List<Rectangle> gR, Point ausrichtung) {
+		// Um Probleme mit den R�ndern zu entgehen, schauen wir nur den inneren
+		// Teil an.
+		// Somit schauen wir nur 60% des Feldes an.
+		long which_is_choosed = 255 * 3;// Weiss
+		int position = 0;
+		int i = 0;
+		for(Rectangle r: gR) {
+			BufferedImage zelle = img.getSubimage((int) (r.getX()-ausrichtung.getX() + (r.getWidth() *0.2))
+												 ,(int) (r.getY()-ausrichtung.getY() + (r.getHeight() *0.2))
+												 ,(int) (r.getWidth() * 0.6)
+												 ,(int) (r.getHeight() * 0.6));
+			int red = 0;
+			int green = 0;
+			int blue = 0;
+			for (int x = 0; x < zelle.getWidth(); x++) {
+				for (int y = 0; y < zelle.getHeight(); y++) {
+					int clr = zelle.getRGB(x, y);
+					red += (clr & 0x00ff0000) >> 16;
+					green += (clr & 0x0000ff00) >> 8;
+					blue += clr & 0x000000ff;
+				}
+			}
+			red = red / zelle.getHeight() / zelle.getWidth();
+			green = green / zelle.getHeight() / zelle.getWidth();
+			blue = blue / zelle.getHeight() / zelle.getWidth();
+			int isChoice = red + green + blue;
+
+			if (which_is_choosed > isChoice) {
+				which_is_choosed = isChoice;
+				position = i;
+			}
+			i++;
+
+			try {	
+				Graphics2D g2d = img.createGraphics();
+			g2d.setColor(Color.RED);
+			g2d.drawRect((int)(r.getX()-ausrichtung.getX()),(int)( r.getY()-ausrichtung.getY()), (int) r.getWidth(),(int) r.getHeight());
+			g2d.dispose();
+			
+				ImageIO.write(zelle, "JPEG",
+						new File(initPath+"pdf_umfragen/Pics/"	+ i + ".jpg"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+			
+System.out.println("getChecked: " + (position+1));
+		return position;
+	}
+	
 	
 }
