@@ -1,7 +1,7 @@
 package ch.zhaw.resultSender;
 
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Result {
     public String header;
@@ -13,6 +13,20 @@ public class Result {
         this.question = question;
         this.answer = answer;
     }
+
+    public static String getResult(){
+        Gson gson = new Gson();
+        //String json = gson.toJson(createFakeResult("DummmyHeader", 2,5));
+        String json = gson.toJson(createGoogleMockResult());
+        return json ;
+    }
+
+
+    public static Result createFakeResult(String header,int questionId, int answerid ){
+        Result result = new Result(header,questionId,answerid);
+        return result;
+    }
+
 
     /**
      * Needed for mock testing the comunication of results
@@ -29,23 +43,10 @@ public class Result {
         return result;
     }
 
-    public static String createJson(String[][] result){
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(result);
-        return json;
-    }
 
 
-    public static String fakeGoogleResult(){
-        String[][] result = createGoogleMockResult();
-        return createJson(result);
-    }
 
-    public static String fakeResult(){
-        Result result = new Result("Speaker",1,4);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(result);
-        return json;
-    }
+
+
 
 }

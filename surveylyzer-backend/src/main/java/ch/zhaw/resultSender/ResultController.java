@@ -1,5 +1,7 @@
 package ch.zhaw.resultSender;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -7,12 +9,9 @@ import org.springframework.web.bind.annotation.*;
 public class ResultController {
     @GetMapping()
    public String exportsResult(){
-       String json = Result.fakeResult();
-       return json;
+        String resultSet = Result.getResult();
+       return resultSet;
     }
 
-       /* public String[][]exportResult() {
-        String[][] result = Result.createGoogleMockResult();
-        return result;
-    }*/
+
 }
