@@ -12,12 +12,13 @@ import './Home.css';
 
 
 function HandleDataInput() {
-    fetch("http://localhost:8080/result")
+    fetch("http://localhost:8080/pdfResult")
         .then((response)=>{
             return response.json();
         })
         .then((data)=>{
             console.log(data);
+            alert("See fetched results at http://localhost:8080/pdfResult");
         })
 }
 
