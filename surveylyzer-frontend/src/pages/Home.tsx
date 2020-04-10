@@ -3,13 +3,23 @@ import { RouteComponentProps } from 'react-router';
 import {
   IonContent, IonPage, IonIcon, IonFab, IonFabButton,
 } from '@ionic/react';
-import { calculator } from 'ionicons/icons';
+import { calculator, construct } from 'ionicons/icons';
 // Custom Components
 import DropArea from '../components/DropArea';
 import HeaderNav from '../components/HeaderNav';
 // Our CSS
 import './Home.css';
 
+
+function HandleDataInput() {
+    fetch("http://localhost:8080/result")
+        .then((response)=>{
+            return response.json();
+        })
+        .then((data)=>{
+            console.log(data);
+        })
+}
 
 const Home: React.FC<RouteComponentProps> = (props) => {
   return (
@@ -22,6 +32,10 @@ const Home: React.FC<RouteComponentProps> = (props) => {
           <IonFabButton onClick={() => props.history.push('/result')}>
             <IonIcon icon={calculator} />
           </IonFabButton>
+
+            <IonFabButton onClick={()=> HandleDataInput()}>
+                <IonIcon icon={construct} />
+            </IonFabButton>
         </IonFab>
 
         <DropArea />
