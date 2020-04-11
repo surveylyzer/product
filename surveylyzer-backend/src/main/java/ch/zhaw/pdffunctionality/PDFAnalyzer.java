@@ -48,6 +48,7 @@ public class PDFAnalyzer {
 	private int minWordLength =3;
 	private double wToHrangePercent = 4.0;//Verhältnis von Höhe/Breite von 2 Wörter, Verhältniss dazu
 	private double confidence = 90.0;
+	private int analyseIterations = 2;
 	public PDFAnalyzer() {
 		init();
 	}
@@ -559,12 +560,17 @@ public class PDFAnalyzer {
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
 		int [][] evaluation = new int [groupedRectangles.size()][]; 
+		for(int i = 0; i< groupedRectangles.size();i++) {
+			evaluation[i] = new int[groupedRectangles.get(i).size()];
+		}
+		System.out.println("Anzahl Fragen: " + groupedRectangles.size());
+		System.out.println("Anzahl Iterationen: " + this.analyseIterations);
 //		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
 		ArrayList<BufferedImage> bestTry = new ArrayList<BufferedImage>();
 		BufferedImage bestTryPerSiteText = null;
 		String bestTryText ="";
-		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
-//			for(int xx = 1; xx< 2;xx++){
+//		for(int xx = 0; xx< doc.getNumberOfPages();xx++){
+			for(int xx = 4; xx< 5;xx++){
 				int bestTryPerSite = 0;
 
 				System.out.println("-------------------------------##########################################-- Seite: " + xx);
@@ -575,7 +581,7 @@ public class PDFAnalyzer {
 				List<Word> w = null;
 				HashMap<String,Word> uWforRotation = null;
 				List<List<Word>> wordPairs = null;
-				for(int i = 0; i< 1;i++) {
+				for(int i = 0; i< analyseIterations;i++) {
 					//Rendert die PDF-Seite, welche analysiert werden soll
 					//Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
 					w = t.getWords(image, analysLevel);
@@ -647,7 +653,9 @@ for(List<Word> wl:wordPairs) {
 //}
 //image = calibration(image,wordPairs);//@Todo: muss noch implementiert werden
 image = calibration(image,w,wordPairs);//@Todo: muss noch implementiert werden
-
+if(image == null) {
+	continue;
+}
 w = t.getWords(image, analysLevel);
 uWforRotation = singleWords(w);
 wordPairs = sameWords(this.uniquWords,uWforRotation);//bisher
@@ -704,17 +712,17 @@ for(List<Word> wl:wordPairs) {
 			try {//@TODO: Wety hier weitermachen, nun die felder evaluieren!
 				//@TODO: Auswertung Starten
 
-				ImageIO.write(image, "JPEG",
-						new File(initPath+"pdf_umfragen/Pics/P"+xx+"Final.jpg"));
 				//@TODO: Auswertung zusammenfassen
 				// Auswertung in Evaluation einfügen, damit wir die Einzelnen Fragen pro Blatt aufsummieren können.
-//				for(int i = 0; i< auswertung.size();i++) {
-//					evaluation[i][auswertung.get(i)]++;
-//				}
-//				auswertung.clear();
+				System.out.println("auswertun : " + auswertung.toString());
+				for(int i = 0; i< auswertung.size();i++) {
+					evaluation[i][auswertung.get(i)]++;
+				}
+				ImageIO.write(image, "JPEG",
+						new File(initPath+"pdf_umfragen/Pics/P"+xx+"Final.jpg"));
+				auswertung.clear();
 			} catch (Exception e) {
 				System.out.println("Exception");
-				e.printStackTrace();
 			}
 		}
 			
@@ -817,6 +825,7 @@ for(List<Word> wl:wordPairs) {
 			
 		}else {
 			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
+			bi = null;
 		}
 		return bi;
 	}
@@ -828,7 +837,9 @@ for(List<Word> wl:wordPairs) {
 	 */
 	private double calcRotation(List<Word> wl,List<List<Word>> cwl) {
 		double finalRotation = 0.0;
-		
+		if(debugen) {
+			System.out.println("calcRotation    --> start " + cwl.size());
+		}
 		/*
 		 * 1. Anhand dem selben Wörtern aus cwl eine Rotation berechnen.
 		 */
@@ -845,26 +856,11 @@ for(List<Word> wl:wordPairs) {
 			i++;
 			double angleO = getWordAngle(wO1, wO);
 			double angleS = getWordAngle(wS1, wS);
-			System.out.println("angleO " + angleO + "            " +wO1 + "    " + wO );
-			System.out.println("angleS " + angleS + "            " +wS1 + "    " + wS );
 			diff.add(angleO-angleS);
 			finalRotation += angleO-angleS;
 		}
-		for(Double d: diff) {
-			System.out.println(d);
-		}
-		System.out.println(finalRotation);
-		System.out.println(i);
 		finalRotation = finalRotation/i;
-		
-		
-		
-		
-		
-		
-		
-		
-		return finalRotation;//@Todo
+		return finalRotation;
 	}
 
 	private double getWordAngle(Word w1, Word w2) {
@@ -872,10 +868,6 @@ for(List<Word> wl:wordPairs) {
 		return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),
 		           		w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
 	} 
-	private double innerAngle(Word w) {
-		
-		return Math.atan(w.getBoundingBox().getHeight()/w.getBoundingBox().getWidth());
-	}
 	
 	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {//@TODO: wety hier weitermachen
 		BufferedImage bi = img;
@@ -887,24 +879,6 @@ for(List<Word> wl:wordPairs) {
 		
 		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
 		Double distanceBetwScan = distWords(wScan1, wScan2);
-//		System.out.println("wOrig1 " + wOrig1);
-//		System.out.println("wOrig2 " + wOrig2);
-//		System.out.println("wScan1 " + wScan1);
-//		System.out.println("wScan2 " + wScan2);
-//		System.out.println("distanceBetwScan : " + distanceBetwScan);
-//		System.out.println("distanceBetwOrig : " + distanceBetwOrig);
-
-//		for(List<Word> lw: cwl) {
-//			Word wO = lw.get(0);
-//			Word wS = lw.get(1);
-//			System.out.println("--------------------------------------------------------------");
-//			System.out.println(wO.getText() + " verhältniss: " + getWtoH(wO));
-//			System.out.println(wS.getText() + " verhältniss: " + getWtoH(wS));
-//			System.out.println(" abweichung: " + getAbweichungBtoA(getWtoH(wO),getWtoH(wS)));
-//			if(getAbweichungBtoA(getWtoH(wO),getWtoH(wS)) < 1.0) {
-//				
-//			}
-//		}
 		
 		Double calVal = distanceBetwScan * 100 /distanceBetwOrig;
 		calVal = 100/calVal;
@@ -926,11 +900,6 @@ for(List<Word> wl:wordPairs) {
 	 */
 	private BufferedImage rotate(BufferedImage img, double angle, double xCenter, double yCenter) {
 		AffineTransform affineTransform = new AffineTransform();
-		System.out.println("Rotieren um " + angle + " Grad");
-//		System.out.println("Rotieren um " + Math.toRadians(angle) + " Rad");
-//		affineTransform.rotate(angle, xCenter, yCenter);// Rotation around the
-//															 x and y Center
-
 		affineTransform.rotate(angle, xCenter, yCenter);
 		AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
 		BufferedImage result;
@@ -973,22 +942,25 @@ for(List<Word> wl:wordPairs) {
 	}
 	
 	private ArrayList<Integer> doEvaluation(BufferedImage img, ArrayList<List<Rectangle>> gR, List<List<Word>> wordPairs) {
-		System.out.println("doEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluation");
+//		System.out.println("doEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluation " + wordPairs.size());
 		
 		ArrayList<Integer> eval = new ArrayList<Integer>();
+		if(wordPairs.size()<2) {
+			return eval;
+		}
 		Rectangle wO = wordPairs.get(wordPairs.size()-1).get(0).getBoundingBox();
 		Rectangle wS = wordPairs.get(wordPairs.size()-1).get(1).getBoundingBox();
 		Point ausgleich = new Point((int)((wO.getX()-wS.getX())*1)
 				                   ,(int)((wO.getY()-wS.getY())*1));
-		System.out.println(wordPairs.get(wordPairs.size()-1).get(0));
-		System.out.println(wordPairs.get(wordPairs.size()-1).get(1));
-
-		System.out.println("ausgleich " + ausgleich);
+//		System.out.println(wordPairs.get(wordPairs.size()-1).get(0));
+//		System.out.println(wordPairs.get(wordPairs.size()-1).get(1));
+//
+//		System.out.println("ausgleich " + ausgleich);
 		for(List<Rectangle> lr: gR) {
 			eval.add(getChecked(img,lr,ausgleich));
 		}
 
-		System.out.println("doEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluationdoEvaluation");
+//		System.out.println("doEvalua " + eval.toString());
 		return eval;
 	}
 	private int getChecked(BufferedImage img, List<Rectangle> gR, Point ausrichtung) {
