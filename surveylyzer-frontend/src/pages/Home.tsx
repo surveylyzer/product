@@ -18,7 +18,7 @@ function HandleDataInput() {
         })
         .then((data)=>{
             console.log(data);
-            alert("See fetched results at http://localhost:8080/pdfResult");
+            alert("Full data available at http://localhost:8080/pdfResult \n\n Fetched results:\n\n"+ JSON.stringify(data, null, 4) );
         })
 }
 
