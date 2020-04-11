@@ -1,1 +1,0 @@
-Hier werden die einzelnen Tabellen der PDFs abgelegt. Welche analysiert werden.
