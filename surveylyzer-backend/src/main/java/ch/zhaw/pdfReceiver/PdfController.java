@@ -1,12 +1,12 @@
 package ch.zhaw.pdfReceiver;
 
 
-import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -41,7 +41,7 @@ public class PdfController {
     @PostMapping()
     public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1) {
         System.out.print("Received File: " + file1);
-        write(file1);
+        forwardMultipartFileToAnalyzer(file1);
         //get Size and convert to mb
         int fileSizeKB = (int)(file1.getSize() * KBFACTOR);
         PdfFile pdfFile = new PdfFile(pdfCounter.incrementAndGet(), file1.getOriginalFilename(), fileSizeKB);
@@ -54,7 +54,7 @@ public class PdfController {
      * Save document as file
      * @param file
      */
-    public void write(MultipartFile file) {
+    public void forwardMultipartFileToAnalyzer(MultipartFile file) {
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
         Path filepath = Paths.get(s, file.getOriginalFilename());
@@ -63,5 +63,47 @@ public class PdfController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Encodes a received File into a Base64 String in order to
+     * be saved in database
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static String encodeFileToBase64(MultipartFile file) throws IOException {
+        Base64 base64 = new Base64();
+        String encodedString = new String(base64.encode(file.getBytes()));
+        return encodedString;
+    }
+
+    /**
+     * Transforms a Base64 encoded String into file and writes it to Analyzer
+     * input channel
+     * @param encodedString
+     * @param filename
+     * @throws IOException
+     */
+    public static void forwardBase64EncodedStringToAnalyzer(String encodedString, String filename) throws IOException {
+        Base64 base64 = new Base64();
+        byte[] decodedBytes = base64.decode(encodedString.getBytes());
+        String path = getDestinationPath(filename);
+        FileOutputStream fos = new FileOutputStream(path);
+        fos.write(decodedBytes);
+        fos.flush();
+        fos.close();
+    }
+
+    /**
+     * Gets Destination Path
+     * @param filename
+     * @return
+     */
+    public static String getDestinationPath(String filename){
+        Path currentRelativePath = Paths.get("");
+        String path = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
+        String filepath = path+filename;
+        return  filepath;
     }
 }
