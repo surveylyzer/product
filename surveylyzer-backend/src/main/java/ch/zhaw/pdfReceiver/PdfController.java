@@ -1,6 +1,7 @@
 package ch.zhaw.pdfReceiver;
 
 
+import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,13 +41,14 @@ public class PdfController {
     @PostMapping()
     public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1) {
         System.out.print("Received File: " + file1);
-        write(file1 );
+        write(file1);
         //get Size and convert to mb
         int fileSizeKB = (int)(file1.getSize() * KBFACTOR);
         PdfFile pdfFile = new PdfFile(pdfCounter.incrementAndGet(), file1.getOriginalFilename(), fileSizeKB);
         pdfList.add(pdfFile);
         return new ResponseEntity<>(pdfFile, HttpStatus.CREATED);
     }
+
 
     /**
      * Save document as file
