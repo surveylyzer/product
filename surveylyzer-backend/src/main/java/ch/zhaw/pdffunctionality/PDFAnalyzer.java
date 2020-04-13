@@ -81,6 +81,7 @@ public class PDFAnalyzer {
 			PDDocument document = PDDocument.load(file);
 			try {
 				System.out.println(Arrays.deepToString(analyzeFile(document)));
+
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -178,7 +179,7 @@ public class PDFAnalyzer {
 			}
 		}
 		
-		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf 
+		// Die AUswertung nun aufsplitten auf die einzelnen Pages. etvl. bereits oben auf
 		return evaluation;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
 		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/

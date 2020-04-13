@@ -25,17 +25,15 @@ public class CsvExoportController {
         String filename = "survey_results.csv";
 
         response.setContentType("text/csv");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + filename + "\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
 
         //create a csv writer
         StatefulBeanToCsv<SurveyItem> writer = new StatefulBeanToCsvBuilder<SurveyItem>(response.getWriter())
                 .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-                .withOrderedResults(false)
                 .build();
 
-        //write all users to csv file
+        //write all survey items to csv file
         writer.write(csvGeneratorService.listSurveyItems());
 
     }

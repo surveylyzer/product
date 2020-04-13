@@ -14,8 +14,8 @@ public class SurveylyzerBackendApplication {
 		SpringApplication.run(SurveylyzerBackendApplication.class, args);
 		
 		//Test the PDF Analyzer
-    //	PDFAnalyzer pa = new PDFAnalyzer();
-    //	pa.startTest();
+//    	PDFAnalyzer pa = new PDFAnalyzer();
+//    	pa.startTest();
     	// Test end
 	}
 
