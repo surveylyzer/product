@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -37,11 +39,23 @@ public class PDFAnalyzer {
 
 	private BufferedImage initImg;
 
+	@Getter
+    @Setter
+    public static List<int[]> evaluationResults;
+
 	private List<Rectangle> allRectangles;
 	private ArrayList<List<Rectangle>> groupedRectangles;
 	private List<Word> allWords;
 	private HashMap<String, Word> uniquWords;
-	private ArrayList<List<Word>> groupedWords;
+
+    @Getter
+    @Setter
+	public static ArrayList<List<Word>> groupedWords;
+
+    @Getter
+    @Setter
+    public static boolean evaluationReady = false;
+
 	private BufferedImage searchThroug;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
@@ -85,7 +99,7 @@ public class PDFAnalyzer {
 	 * vorgegebenes PDF wird analysiert.
 	 */
 	public void startHighlightingTest() {
-		debugen = false;
+		debugen = true;
 		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
 		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
 		try {
@@ -93,8 +107,11 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-				System.out.println(Arrays.deepToString(prcSurveyFile(docPrc)));
-
+                evaluationResults = Arrays.asList(prcSurveyFile(docPrc));
+				if (!evaluationResults.isEmpty()) {
+				    evaluationReady = true;
+                }
+//				System.out.println(Arrays.deepToString(prcSurveyFile(docPrc)));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -588,20 +605,6 @@ public class PDFAnalyzer {
 
 	/**
 	 * scale image
-	 *
-	 * @param sbi
-	 *            image to scale
-	 * @param imageType
-	 *            type of image
-	 * @param dWidth
-	 *            width of destination image
-	 * @param dHeight
-	 *            height of destination image
-	 * @param fWidth
-	 *            x-factor for transformation / scaling
-	 * @param fHeight
-	 *            y-factor for transformation / scaling
-	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
 		System.out.println("                             scale " + scale);

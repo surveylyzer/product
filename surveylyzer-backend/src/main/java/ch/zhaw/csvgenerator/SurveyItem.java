@@ -79,8 +79,6 @@ public class SurveyItem {
     @CsvBindByPosition(position = 13)
     private int item_10;
 
-
-
     public SurveyItem(long id, String question, String answer, int length, int ... item) {
         this.id = id;
         this.question = question;
