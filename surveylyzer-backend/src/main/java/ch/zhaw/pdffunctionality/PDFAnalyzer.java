@@ -24,6 +24,8 @@ import javax.imageio.ImageIO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 
@@ -44,6 +46,7 @@ public class PDFAnalyzer {
 	private ArrayList<List<Word>> groupedWords;
 	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
+	private ArrayList<Question> questionList;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
@@ -94,9 +97,9 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-				for (Map.Entry<String, int[]> e : prcSurveyFile(docPrc).entrySet()) {
-					System.out.print("\n"+e.getKey() + " ");
-					for(int i: e.getValue()) {
+				for (Question q : prcSurveyFile(docPrc)) {
+					System.out.print("\n"+ q.getQuestionText() + " ");
+					for(int i: q.getEval()) {
 						System.out.print(i+" ");
 					}
 				}
@@ -366,7 +369,7 @@ public class PDFAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public HashMap<String,int[]> prcSurveyFile(PDDocument doc) throws Exception {
+	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws Exception {
 
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
@@ -379,9 +382,6 @@ public class PDFAnalyzer {
 			System.out.println("Anzahl Fragen: " + groupedRectangles.size());
 			System.out.println("Anzahl Iterationen: " + this.analyseIterations);
 		}
-		ArrayList<BufferedImage> bestTry = new ArrayList<BufferedImage>();
-		BufferedImage bestTryPerSiteText = null;
-		String bestTryText = "";
 		for (int xx = 0; xx < doc.getNumberOfPages(); xx++) {
 			// for(int xx = 4; xx< 5;xx++){
 			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
@@ -459,12 +459,13 @@ public class PDFAnalyzer {
 				System.out.println("Exception");
 			}
 		}
-		HashMap<String,int []> qAndE= new HashMap<String, int[]>();
+		
+		questionList = new ArrayList<Question>();
 		for (int i = 0; i < evaluation.length; i++) {
-			qAndE.put(questions.get(i), evaluation[i]);
+			questionList.add(new Question(questions.get(i),evaluation[i]));
 		}
 
-		return qAndE;
+		return questionList;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
 		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
 	}
@@ -733,6 +734,12 @@ public class PDFAnalyzer {
 		}
 
 		return position;
+	}
+	/**
+	 * @return the questionText
+	 */
+	public ArrayList<Question> getQuestions() {
+		return this.questionList;
 	}
 
 }
