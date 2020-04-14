@@ -42,10 +42,11 @@ public class PDFAnalyzer {
 	private List<Word> allWords;
 	private HashMap<String, Word> uniquWords;
 	private ArrayList<List<Word>> groupedWords;
+	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
-	private int minWordLength = 3;//Wie lang muss mind. ein Word sein.
+	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
 	private double confidence = 90.0;//Die genauigkeit, mit welcher ein Wort bestimmt wurde.
 	private int analyseIterations = 2;//Wie oft wird eine Seite analysiert.
 
@@ -84,8 +85,8 @@ public class PDFAnalyzer {
 	/**
 	 * vorgegebenes PDF wird analysiert.
 	 */
-	public void startHighlightingTest() {
-		debugen = false;
+	public void startHighlightingTest() { 
+		debugen = true;
 		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
 		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
 		try {
@@ -93,8 +94,12 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-				System.out.println(Arrays.deepToString(prcSurveyFile(docPrc)));
-
+				for (Map.Entry<String, int[]> e : prcSurveyFile(docPrc).entrySet()) {
+					System.out.print("\n"+e.getKey() + " ");
+					for(int i: e.getValue()) {
+						System.out.print(i+" ");
+					}
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -145,6 +150,7 @@ public class PDFAnalyzer {
 		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Markiert.jpg"));
 		groupedRectangles = groupRectangle(20, allRectangles);
 		groupedWords = groupWords(20, allWords);
+		questions = makeQuestions(allWords, groupedRectangles);
 		uniquWords = singleWords(allWords);
 		if (debugen) {
 			System.out.println("Anzahl Rechtecke: " + allRectangles.size());
@@ -166,9 +172,16 @@ public class PDFAnalyzer {
 			System.out.println("-------------------");
 			System.out.println("Anzahl uniqeWords: " + uniquWords.size());
 			asdf = 1;
-
 			for (Map.Entry<String, Word> e : uniquWords.entrySet()) {
 				System.out.println("Wort: " + e.getValue().getText());
+			}
+			
+
+			System.out.println("-------------------");
+			System.out.println("Fragen: " + questions.size());
+			asdf = 1;
+			for(String s:questions) {
+				System.out.println("Frage " + asdf + ": "  + s);
 			}
 		}
 	}
@@ -262,6 +275,32 @@ public class PDFAnalyzer {
 		return sorted;
 
 	}
+	/**
+	 * Die Wörter einer Frage/evaluation zuordnen.
+	 * @param all
+	 * @param gR
+	 * @return
+	 */
+	private ArrayList<String> makeQuestions(List<Word> all, ArrayList<List<Rectangle>> gR){
+		ArrayList<String> q = new ArrayList<String>();
+		String singleQuestion = "";
+		
+		for(List<Rectangle> lr :gR ) {
+			double yMin =        lr.get(0).getY();
+			double yMax = yMin + lr.get(0).getHeight();
+			for(Word w:all) {
+				if(w.getBoundingBox().getCenterY() >yMin &&w.getBoundingBox().getCenterY() < yMax) {//Wort ist im Range
+					if (w.getText().length() < minWordLength) { // Wörter < 3 werden nicht berücksichtig
+						continue;
+					}
+					singleQuestion = singleQuestion + " " +w.getText() + " ";
+				}
+			}
+			q.add(singleQuestion);
+			singleQuestion = "";
+		}
+		return q;
+	}
 
 	/**
 	 * Gruppiert die übergebenen Wörter horizontal anhand des Ranges.
@@ -327,10 +366,11 @@ public class PDFAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public int[][] prcSurveyFile(PDDocument doc) throws Exception {
+	public HashMap<String,int[]> prcSurveyFile(PDDocument doc) throws Exception {
 
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
+		//@TODO wety, hier eine Hashmap machen und die Fragen und dessen Antworten zusammen pampen und dann dies zurückzu geben!
 		int[][] evaluation = new int[groupedRectangles.size()][];
 		for (int i = 0; i < groupedRectangles.size(); i++) {
 			evaluation[i] = new int[groupedRectangles.get(i).size()];
@@ -419,7 +459,12 @@ public class PDFAnalyzer {
 				System.out.println("Exception");
 			}
 		}
-		return evaluation;
+		HashMap<String,int []> qAndE= new HashMap<String, int[]>();
+		for (int i = 0; i < evaluation.length; i++) {
+			qAndE.put(questions.get(i), evaluation[i]);
+		}
+
+		return qAndE;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
 		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
 	}
