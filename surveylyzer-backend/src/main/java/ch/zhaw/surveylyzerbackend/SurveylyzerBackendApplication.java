@@ -3,11 +3,10 @@ package ch.zhaw.surveylyzerbackend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import ch.zhaw.pdffunctionality.PDFAnalyzer;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender"})
+@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.status"})
 public class SurveylyzerBackendApplication {
 
 	public static void main(String[] args) {
