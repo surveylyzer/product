@@ -21,10 +21,10 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
@@ -39,27 +39,17 @@ public class PDFAnalyzer {
 
 	private BufferedImage initImg;
 
-	@Getter
-    @Setter
-    public static List<int[]> evaluationResults;
-
 	private List<Rectangle> allRectangles;
 	private ArrayList<List<Rectangle>> groupedRectangles;
 	private List<Word> allWords;
 	private HashMap<String, Word> uniquWords;
-
-    @Getter
-    @Setter
-	public static ArrayList<List<Word>> groupedWords;
-
-    @Getter
-    @Setter
-    public static boolean evaluationReady = false;
-
+	private ArrayList<List<Word>> groupedWords;
+	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
+	private ArrayList<Question> questionList;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
-	private int minWordLength = 3;//Wie lang muss mind. ein Word sein.
+	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
 	private double confidence = 90.0;//Die genauigkeit, mit welcher ein Wort bestimmt wurde.
 	private int analyseIterations = 2;//Wie oft wird eine Seite analysiert.
 
@@ -107,11 +97,12 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-                evaluationResults = Arrays.asList(prcSurveyFile(docPrc));
-				if (!evaluationResults.isEmpty()) {
-				    evaluationReady = true;
-                }
-//				System.out.println(Arrays.deepToString(prcSurveyFile(docPrc)));
+				for (Question q : prcSurveyFile(docPrc)) {
+					System.out.print("\n"+ q.getQuestionText() + " ");
+					for(int i: q.getEval()) {
+						System.out.print(i+" ");
+					}
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -125,7 +116,7 @@ public class PDFAnalyzer {
 	/**
 	 * Init File wird analysiert: - Highlighted Fields - Grouping Fields - Unique
 	 * Words for alignment
-	 *
+	 * 
 	 * @param doc
 	 * @throws Exception
 	 */
@@ -162,6 +153,7 @@ public class PDFAnalyzer {
 		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Markiert.jpg"));
 		groupedRectangles = groupRectangle(20, allRectangles);
 		groupedWords = groupWords(20, allWords);
+		questions = makeQuestions(allWords, groupedRectangles);
 		uniquWords = singleWords(allWords);
 		if (debugen) {
 			System.out.println("Anzahl Rechtecke: " + allRectangles.size());
@@ -183,16 +175,23 @@ public class PDFAnalyzer {
 			System.out.println("-------------------");
 			System.out.println("Anzahl uniqeWords: " + uniquWords.size());
 			asdf = 1;
-
 			for (Map.Entry<String, Word> e : uniquWords.entrySet()) {
 				System.out.println("Wort: " + e.getValue().getText());
+			}
+
+
+			System.out.println("-------------------");
+			System.out.println("Fragen: " + questions.size());
+			asdf = 1;
+			for(String s:questions) {
+				System.out.println("Frage " + asdf + ": "  + s);
 			}
 		}
 	}
 
 	/**
 	 * Range von gelber Farbe wird überprüft.
-	 *
+	 * 
 	 * @param color
 	 * @return
 	 */
@@ -215,7 +214,7 @@ public class PDFAnalyzer {
 	/**
 	 * Sucht auf der gegebenen Koordinaten (X/Y) ein Rechteck. Falls ein neues
 	 * gefunden werden kann, wird es zurück gegeben
-	 *
+	 * 
 	 * @param x
 	 * @param y
 	 * @return
@@ -233,7 +232,7 @@ public class PDFAnalyzer {
 			xD++;
 		}
 
-		int yD = 1;
+		int yD = 1; 
 		while (isHighlightedColour(searchThroug.getRGB(x, y + yD))) {
 			yD++;
 		}
@@ -247,7 +246,7 @@ public class PDFAnalyzer {
 
 	/**
 	 * Gruppiert die übergebenen Rechte horizontal anhand des gegebenen Ranges
-	 *
+	 * 
 	 * @param range
 	 * @param all
 	 * @return
@@ -279,10 +278,36 @@ public class PDFAnalyzer {
 		return sorted;
 
 	}
+	/**
+	 * Die Wörter einer Frage/evaluation zuordnen.
+	 * @param all
+	 * @param gR
+	 * @return
+	 */
+	private ArrayList<String> makeQuestions(List<Word> all, ArrayList<List<Rectangle>> gR){
+		ArrayList<String> q = new ArrayList<String>();
+		String singleQuestion = "";
+
+		for(List<Rectangle> lr :gR ) {
+			double yMin =        lr.get(0).getY();
+			double yMax = yMin + lr.get(0).getHeight();
+			for(Word w:all) {
+				if(w.getBoundingBox().getCenterY() >yMin &&w.getBoundingBox().getCenterY() < yMax) {//Wort ist im Range
+					if (w.getText().length() < minWordLength) { // Wörter < 3 werden nicht berücksichtig
+						continue;
+					}
+					singleQuestion = singleQuestion + " " +w.getText() + " ";
+				}
+			}
+			q.add(singleQuestion);
+			singleQuestion = "";
+		}
+		return q;
+	}
 
 	/**
 	 * Gruppiert die übergebenen Wörter horizontal anhand des Ranges.
-	 *
+	 * 
 	 * @param range
 	 * @param all
 	 * @return
@@ -327,7 +352,7 @@ public class PDFAnalyzer {
 
 	/**
 	 * Befindet sich b im Range von a?
-	 *
+	 * 
 	 * @param range
 	 * @param a
 	 * @param b
@@ -339,15 +364,16 @@ public class PDFAnalyzer {
 
 	/**
 	 * Analyse der auszuwertenden gescannten Dokumentes
-	 *
+	 * 
 	 * @param doc
 	 * @return
 	 * @throws Exception
 	 */
-	public int[][] prcSurveyFile(PDDocument doc) throws Exception {
+	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws Exception {
 
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
+		//@TODO wety, hier eine Hashmap machen und die Fragen und dessen Antworten zusammen pampen und dann dies zurückzu geben!
 		int[][] evaluation = new int[groupedRectangles.size()][];
 		for (int i = 0; i < groupedRectangles.size(); i++) {
 			evaluation[i] = new int[groupedRectangles.get(i).size()];
@@ -356,9 +382,6 @@ public class PDFAnalyzer {
 			System.out.println("Anzahl Fragen: " + groupedRectangles.size());
 			System.out.println("Anzahl Iterationen: " + this.analyseIterations);
 		}
-		ArrayList<BufferedImage> bestTry = new ArrayList<BufferedImage>();
-		BufferedImage bestTryPerSiteText = null;
-		String bestTryText = "";
 		for (int xx = 0; xx < doc.getNumberOfPages(); xx++) {
 			// for(int xx = 4; xx< 5;xx++){
 			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
@@ -436,7 +459,13 @@ public class PDFAnalyzer {
 				System.out.println("Exception");
 			}
 		}
-		return evaluation;
+
+		questionList = new ArrayList<Question>();
+		for (int i = 0; i < evaluation.length; i++) {
+			questionList.add(new Question(questions.get(i),evaluation[i]));
+		}
+
+		return questionList;
 		// https://stackoverflow.com/questions/39420986/java-tesseract-return-co-ordinates-of-text-location
 		// https://stackabuse.com/tesseract-simple-java-optical-character-recognition/
 	}
@@ -444,7 +473,7 @@ public class PDFAnalyzer {
 	/**
 	 * Gibt eine Liste von den Wörter zurück, welche nur einmal im
 	 * Dokument(Wörter-Liste) vorkommt
-	 *
+	 * 
 	 * @param list
 	 * @return
 	 */
@@ -473,7 +502,7 @@ public class PDFAnalyzer {
 	/**
 	 * Gibt eine 2D-Array von Wörter zurück, welche in beiden übergebenen Listen
 	 * vorkommen.
-	 *
+	 * 
 	 * @param orig
 	 * @param scanned
 	 * @return
@@ -513,7 +542,7 @@ public class PDFAnalyzer {
 	 * Gibt den Rotationswinkeln zurück. Anhand der Wortliste wird verglichen, wie
 	 * das Original zum gescannten liegt. Dies anhand 3 Wörter(Anfang, Mitte,
 	 * Schluss)
-	 *
+	 * 
 	 * @param cwl
 	 * @return
 	 */
@@ -605,6 +634,20 @@ public class PDFAnalyzer {
 
 	/**
 	 * scale image
+	 * 
+	 * @param sbi
+	 *            image to scale
+	 * @param imageType
+	 *            type of image
+	 * @param dWidth
+	 *            width of destination image
+	 * @param dHeight
+	 *            height of destination image
+	 * @param fWidth
+	 *            x-factor for transformation / scaling
+	 * @param fHeight
+	 *            y-factor for transformation / scaling
+	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
 		System.out.println("                             scale " + scale);
@@ -691,6 +734,12 @@ public class PDFAnalyzer {
 		}
 
 		return position;
+	}
+	/**
+	 * @return the questionText
+	 */
+	public ArrayList<Question> getQuestions() {
+		return this.questionList;
 	}
 
 }
