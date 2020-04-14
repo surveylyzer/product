@@ -17,12 +17,30 @@ const DropArea: React.FC = () => {
         let formData = new FormData();
         formData.append('file1',file);
         formData.append('pdfType', pdfType);
+        // Post Data
+
         fetch('http://localhost:8080/pdf', {
             method: 'POST',
             body: formData
         }).then(response => {
             console.log("File has been uploaded");
+            updateStatus();
         })
+
+
+
+
+    }
+
+    function updateStatus(){
+        fetch('/status',{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:  JSON.stringify({"templateReceived":true,"surveyReceived":true,"pdfAnalyzerStarted":false,"pdfAnalyzerFinished":false})
+        }).then(response => {
+            console.log("Status 'surveyReceived' has been updated")
+        })
+
     }
 
     //TODO Code duplication, will be corrected as soon as parameter passing is known
