@@ -40,8 +40,8 @@ public class PdfController {
      */
     @PostMapping()
     public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
-        System.out.print("Received File: " + file1+" has type:"+pdfType);
-        forwardMultipartFileToAnalyzer(file1);
+        System.out.println("Received File: " + file1+" has type: "+pdfType);
+        forwardMultipartFileToAnalyzer(file1, pdfType);
         //get Size and convert to mb
         int fileSizeKB = (int)(file1.getSize() * KBFACTOR);
         PdfFile pdfFile = new PdfFile(pdfCounter.incrementAndGet(), file1.getOriginalFilename(), fileSizeKB);
@@ -54,9 +54,14 @@ public class PdfController {
      * Save document as file
      * @param file
      */
-    public void forwardMultipartFileToAnalyzer(MultipartFile file) {
+    public void forwardMultipartFileToAnalyzer(MultipartFile file, String pdfType) {
         Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
+        String s = "";
+        if(pdfType.equalsIgnoreCase("templateFile")){
+            s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_template\\");
+        } else if (pdfType.equalsIgnoreCase("dataFile")){
+            s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_survey\\");
+        }
         Path filepath = Paths.get(s, file.getOriginalFilename());
         try (OutputStream os = Files.newOutputStream(filepath)) {
             os.write(file.getBytes());
