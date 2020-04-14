@@ -21,4 +21,7 @@ public class StatusController {
         return new ResponseEntity<>(status, HttpStatus.CREATED);
     }
 
+    public static Status getWorkflowStatus(){
+        return worfklowStatus;
+    }
 }

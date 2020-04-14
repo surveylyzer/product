@@ -37,8 +37,9 @@ public class Result {
         String[] question1 = {"Question 1", "23", "47", "2", "5"};
         String[] question2 = {"Question 2", "24", "10", "40", "3"};
         String[] question3 = {"Question 3", "3", "57", "15", "1"};
+        String[] question4 = {"Question 4", "333", "57", "15", "1"};
         String[] question5 = {"Question 5", "2", "5", "1", "69"};
-        String[][] result = {header, question1, question2, question3, question5};
+        String[][] result = {header, question1, question2, question3, question4, question5};
         return result;
     }
 

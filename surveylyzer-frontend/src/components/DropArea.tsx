@@ -6,7 +6,43 @@ import { cloudUploadOutline, cloudUpload } from "ionicons/icons";
 
 const DropArea: React.FC = () => {
     let dragIsActive = false;
-    function handleDataFile(fileIn: any[]) {
+
+
+    //TODO Code duplication of Inputhandling and Status updating
+    function handleTemplateFileInput(fileIn: any[]) {
+        dragIsActive = false;
+        let file = fileIn[0];
+        let arr = file?.name?.split('.');
+        let  pdfType = "templateFile";
+        if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
+            console.log(file);
+        }
+        let formData = new FormData();
+        formData.append('file1',file);
+        formData.append('pdfType', pdfType);
+        //Post Template
+        fetch('http://localhost:8080/pdf', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            console.log("Template File has been uploaded");
+            updateStatusTemplateInput()
+        })
+    }
+
+    //TODO Code duplication of Inputhandling and Status updating
+    function updateStatusTemplateInput(){
+        fetch('/status',{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:  JSON.stringify({"templateReceived":true})
+        }).then(response => {
+            console.log("Status 'templateReceived' has been updated")
+        })
+    }
+
+    //TODO Code duplication of Inputhandling and Status updating
+    function handleDataFileInput(fileIn: any[]) {
         dragIsActive = false;
         let file = fileIn[0];
         let arr = file?.name?.split('.');
@@ -18,55 +54,31 @@ const DropArea: React.FC = () => {
         formData.append('file1',file);
         formData.append('pdfType', pdfType);
         // Post Data
-
         fetch('http://localhost:8080/pdf', {
             method: 'POST',
             body: formData
         }).then(response => {
-            console.log("File has been uploaded");
-            updateStatus();
+            console.log("Data File has been uploaded");
+            updateStatusDataInput();
         })
-
-
-
-
     }
 
-    function updateStatus(){
+    //TODO Code duplication of Inputhandling and Status updating
+    function updateStatusDataInput(){
         fetch('/status',{
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"templateReceived":true,"surveyReceived":true,"pdfAnalyzerStarted":false,"pdfAnalyzerFinished":false})
+            body:  JSON.stringify({"surveyReceived":true})
         }).then(response => {
             console.log("Status 'surveyReceived' has been updated")
         })
-
     }
 
-    //TODO Code duplication, will be corrected as soon as parameter passing is known
-    function handleTemplateFile(fileIn: any[]) {
-        dragIsActive = false;
-        let file = fileIn[0];
-        let arr = file?.name?.split('.');
-        let  pdfType = "templateFile";
-        if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
-            console.log(file);
-        }
-        let formData = new FormData();
-        formData.append('file1',file);
-        formData.append('pdfType', pdfType);
-        fetch('http://localhost:8080/pdf', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            console.log("File has been uploaded");
-        })
-    }
 
     return (
         <IonContent>
 
-            <Dropzone onDrop={acceptedFiles => handleTemplateFile(acceptedFiles)}
+            <Dropzone onDrop={acceptedFiles => handleTemplateFileInput(acceptedFiles)}
                       onDragEnter={() => dragIsActive = true}
                       onDragLeave={() => dragIsActive = false}>
                 {({ getRootProps, getInputProps }) => (
@@ -83,7 +95,7 @@ const DropArea: React.FC = () => {
                     </section>
                 )}
             </Dropzone>
-            <Dropzone onDrop={acceptedFiles => handleDataFile(acceptedFiles)}
+            <Dropzone onDrop={acceptedFiles => handleDataFileInput(acceptedFiles)}
                       onDragEnter={() => dragIsActive = true}
                       onDragLeave={() => dragIsActive = false}>
                 {({ getRootProps, getInputProps }) => (

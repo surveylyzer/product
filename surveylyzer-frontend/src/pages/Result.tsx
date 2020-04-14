@@ -16,15 +16,26 @@ import {
     IonToolbar
 } from '@ionic/react';
 
-function HandleDataInput() {
-    fetch("http://localhost:8080/pdfResult")
-        .then((response)=>{
-            return response.json();
-        })
 
-}
 
 const Result: React.FC = () => {
+
+    function HandleDataInput() {
+
+        console.log("Starting to fetch Result")
+        fetch("http://localhost:8080/pdfResult")
+            .then((response)=>{
+                console.log("Response: "+response);
+                return response.json();
+            })
+        console.log("Ended fetching data NEW")
+
+
+
+    }
+
+
+
     return (
         <IonPage>
             <IonHeader>
@@ -46,7 +57,15 @@ const Result: React.FC = () => {
                             height={'500px'}
                             chartType="BarChart"
                             loader={<div>Loading Chart</div>}
-                            data={()=> HandleDataInput()}
+                            data={()=>HandleDataInput()}
+                            /*data={ [
+                                ['City', '1', '2', '3', '4'],
+                                ['Question 1', 23, 47, 2, 5],
+                                ['Question 2', 24, 10, 40, 3],
+                                ['Question 3', 3, 57, 15, 1],
+                                ['Question 4', 67, 5, 3, 2],
+                                ['Question 5', 2, 5, 1, 69],
+                            ]}*/
                             options={{
                                 title: 'Answers',
                                 chartArea: { width: '50%' },

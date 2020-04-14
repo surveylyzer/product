@@ -15,10 +15,10 @@ public class Status {
     }
 
     public void updateStatus(Status status){
-        this.templateReceived = status.isTemplateReceived();
-        this.surveyReceived = status.isSurveyReceived();
-        this.pdfAnalyzerStarted = status.isPdfAnalyzerStarted();
-        this.pdfAnalyzerFinished = status.isPdfAnalyzerFinished();
+        this.templateReceived = status.isTemplateReceived()||this.templateReceived;
+        this.surveyReceived = status.isSurveyReceived()||this.surveyReceived;
+        this.pdfAnalyzerStarted = status.isPdfAnalyzerStarted()||this.pdfAnalyzerStarted;
+        this.pdfAnalyzerFinished = status.isPdfAnalyzerFinished()||this.pdfAnalyzerFinished;
     }
 
     public boolean isTemplateReceived() {
