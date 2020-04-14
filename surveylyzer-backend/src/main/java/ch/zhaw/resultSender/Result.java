@@ -16,8 +16,8 @@ public class Result {
 
     public static String getResult(){
         Gson gson = new Gson();
-        //String json = gson.toJson(createFakeResult("DummmyHeader", 2,5));
-        String json = gson.toJson(createGoogleMockResult());
+        String json = gson.toJson(createFakeResult("DummmyHeader", 2,5));
+        //String json = gson.toJson(createGoogleMockResult());
         return json ;
     }
 

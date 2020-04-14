@@ -39,8 +39,8 @@ public class PdfController {
      * POST METHOD -> Create new PDF File
      */
     @PostMapping()
-    public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1) {
-        System.out.print("Received File: " + file1);
+    public ResponseEntity<PdfFile> createPDF(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
+        System.out.print("Received File: " + file1+" has type:"+pdfType);
         forwardMultipartFileToAnalyzer(file1);
         //get Size and convert to mb
         int fileSizeKB = (int)(file1.getSize() * KBFACTOR);
