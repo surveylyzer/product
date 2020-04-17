@@ -38,7 +38,7 @@ public class SurveyItemManager {
 
     public static List<SurveyItemAbstract> createSurveyItemsGoogleCharts() {
         ArrayList<Question> questionsList = PDFAnalyzer.questionList;
-        surveyData.add(createHeader());
+        surveyData.add(createHeaderCharts());
 
         if(questionsList != null) {
 
@@ -49,6 +49,12 @@ public class SurveyItemManager {
             }
         }
         return surveyData;
+    }
+
+    private static SurveyHeader createHeaderCharts() {
+        return new SurveyHeader("ID", "first item",
+                "second item", "third item", "fourth item", "fith item", "sixth item", "seventh item", "eighth item",
+                "ninth item", "tenth item");
     }
 
     private static SurveyHeader createHeader() {
