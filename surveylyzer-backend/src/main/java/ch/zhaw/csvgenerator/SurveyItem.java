@@ -20,12 +20,6 @@ public class SurveyItem {
 
     @Getter
     @Setter
-    @CsvBindByName(column = "Open Answer")
-    @CsvBindByPosition(position = 2)
-    private String answer;
-
-    @Getter
-    @Setter
     @CsvBindByPosition(position = 3)
     private int length;
 
@@ -79,11 +73,10 @@ public class SurveyItem {
     @CsvBindByPosition(position = 13)
     private int item_10;
 
-    public SurveyItem(long id, String question, String answer, int length, int ... item) {
+    public SurveyItem(long id, String question, int length, int ... item) {
         this.id = id;
         this.question = question;
         this.length = length;
-        this.answer = answer;
 
         if (length == 0) {
             set0items();

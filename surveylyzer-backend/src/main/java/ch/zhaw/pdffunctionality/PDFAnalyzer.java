@@ -46,7 +46,8 @@ public class PDFAnalyzer {
 	private ArrayList<List<Word>> groupedWords;
 	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
-	private ArrayList<Question> questionList;
+	public static ArrayList<Question> questionList;
+	public static boolean evaluationReady;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
@@ -97,7 +98,11 @@ public class PDFAnalyzer {
 			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
 				prcInitFile(docInit);
-				for (Question q : prcSurveyFile(docPrc)) {
+				questionList = prcSurveyFile(docPrc);
+				if (!questionList.isEmpty()) {
+					evaluationReady = true;
+				}
+				for (Question q : questionList) {
 					System.out.print("\n"+ q.getQuestionText() + " ");
 					for(int i: q.getEval()) {
 						System.out.print(i+" ");
@@ -636,17 +641,6 @@ public class PDFAnalyzer {
 	 * scale image
 	 * 
 	 * @param sbi
-	 *            image to scale
-	 * @param imageType
-	 *            type of image
-	 * @param dWidth
-	 *            width of destination image
-	 * @param dHeight
-	 *            height of destination image
-	 * @param fWidth
-	 *            x-factor for transformation / scaling
-	 * @param fHeight
-	 *            y-factor for transformation / scaling
 	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
@@ -734,12 +728,6 @@ public class PDFAnalyzer {
 		}
 
 		return position;
-	}
-	/**
-	 * @return the questionText
-	 */
-	public ArrayList<Question> getQuestions() {
-		return this.questionList;
 	}
 
 }
