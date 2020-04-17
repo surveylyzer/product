@@ -5,7 +5,7 @@ import com.opencsv.bean.CsvBindByName;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SurveyItem {
+public class SurveyItem extends SurveyItemAbstract {
 
     @Getter
     @Setter
@@ -20,64 +20,72 @@ public class SurveyItem {
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 3)
+    @CsvBindByPosition(position = 2)
     private int length;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 4)
+    @CsvBindByPosition(position = 3)
     private int item_1;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 5)
+    @CsvBindByPosition(position = 4)
     private int item_2;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 6)
+    @CsvBindByPosition(position = 5)
     private int item_3;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 7)
+    @CsvBindByPosition(position = 6)
     private int item_4;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 8)
+    @CsvBindByPosition(position = 7)
     private int item_5;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 9)
+    @CsvBindByPosition(position = 8)
     private int item_6;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 10)
+    @CsvBindByPosition(position = 9)
     private int item_7;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 11)
+    @CsvBindByPosition(position = 10)
     private int item_8;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 12)
+    @CsvBindByPosition(position = 11)
     private int item_9;
 
     @Getter
     @Setter
-    @CsvBindByPosition(position = 13)
+    @CsvBindByPosition(position = 12)
     private int item_10;
 
     public SurveyItem(long id, String question, int length, int ... item) {
         this.id = id;
         this.question = question;
         this.length = length;
+        setItems(item);
+    }
 
+    public SurveyItem(String question, int ... item) {
+        this.question = question;
+        setItems(item);
+    }
+
+    private void setItems(int ... item) {
         if (length == 0) {
             set0items();
         } else if (length == 1) {
@@ -101,7 +109,6 @@ public class SurveyItem {
         }else  {
             set10items(item);
         }
-
     }
 
     private void set0items() {

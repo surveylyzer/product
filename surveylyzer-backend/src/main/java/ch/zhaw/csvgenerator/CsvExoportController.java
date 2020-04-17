@@ -37,7 +37,7 @@ public class CsvExoportController {
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
 
             //create a csv writer
-            StatefulBeanToCsv<SurveyItem> writer = new StatefulBeanToCsvBuilder<SurveyItem>(response.getWriter())
+            StatefulBeanToCsv<SurveyItemAbstract> writer = new StatefulBeanToCsvBuilder<SurveyItemAbstract>(response.getWriter())
                     .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
