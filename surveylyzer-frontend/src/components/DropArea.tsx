@@ -60,7 +60,7 @@ const DropArea: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body:  JSON.stringify({"templateReceived":true, "templateName":templateName})
         }).then(response => {
-            console.log("Status 'templateReceived' has been updated")
+            console.log("Status of "+templateName+" has been updated")
         })
     }
 
@@ -72,7 +72,7 @@ const DropArea: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body:  JSON.stringify({"surveyReceived":true, "surveyName":surveyName})
         }).then(response => {
-            console.log("Status 'surveyReceived' has been updated")
+            console.log("Status of "+surveyName+" has been updated")
         })
     }
 

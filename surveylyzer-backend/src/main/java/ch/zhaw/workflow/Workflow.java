@@ -10,16 +10,28 @@ public class Workflow {
     private boolean pdfAnalyzerFinished;
 
     public Workflow(){
+        this.templateName = "";
         this.templateReceived = false;
+        this.surveyName = "";
         this.surveyReceived = false;
         this.pdfAnalyzerStarted = false;
         this.pdfAnalyzerFinished = false;
     }
 
+    /**
+     * Update workflow
+     * String -> only if contains actual content
+     * boolean -> keep Status if already set
+     * @param workflow
+     */
     public void updateWorkflow(Workflow workflow){
-        this.templateName = workflow.templateName;
+        if (!workflow.getTemplateName().isEmpty()){
+            this.templateName = workflow.getTemplateName();
+        }
         this.templateReceived = workflow.isTemplateReceived()||this.templateReceived;
-        this.surveyName = workflow.surveyName;
+        if (!workflow.getSurveyName().isEmpty()){
+            this.surveyName= workflow.getSurveyName();
+        }
         this.surveyReceived = workflow.isSurveyReceived()||this.surveyReceived;
         this.pdfAnalyzerStarted = workflow.isPdfAnalyzerStarted()||this.pdfAnalyzerStarted;
         this.pdfAnalyzerFinished = workflow.isPdfAnalyzerFinished()||this.pdfAnalyzerFinished;

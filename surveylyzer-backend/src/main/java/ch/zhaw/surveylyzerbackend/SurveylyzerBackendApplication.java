@@ -26,16 +26,15 @@ public class SurveylyzerBackendApplication {
 		//Initiate PDFAnalyzer
 		pdfAnalyzer = new PDFAnalyzer();
 		HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
-		Workflow currentWorkflow = workflowResponseEntity.getBody();
-		while(!(currentWorkflow.isTemplateReceived()&& currentWorkflow.isSurveyReceived())){
+		Workflow workflow= workflowResponseEntity.getBody();
+		while(!(workflow.isTemplateReceived()&& workflow.isSurveyReceived())){
 			//just wait
 			System.out.println("Got Template: "+workflowResponseEntity.getBody().isTemplateReceived());
 			System.out.println("Got Survey: "+workflowResponseEntity.getBody().isSurveyReceived());
 			TimeUnit.SECONDS.sleep(3);
 		}
 		System.out.println("Got all the files starting work");
-		pdfAnalyzer.startHighlightingTest();
-
+		pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
 	}
 
 }

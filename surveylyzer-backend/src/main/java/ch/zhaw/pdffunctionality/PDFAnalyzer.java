@@ -11,6 +11,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,6 +113,39 @@ public class PDFAnalyzer {
 			System.out.println("lokales PDF konnten nicht gefunden werden.");
 		}
 	}
+
+	public void startHighlightingExternalFile(String templateName, String surveyName) {
+		debugen = true;
+		//s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_template\\");
+		String basePath = Paths.get("").toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
+		String templatePath = basePath + "pdf_template\\" + templateName;
+		String surveyPath = basePath + "pdf_survey\\" + surveyName;
+		File templateUpload = new File(templatePath);
+		File surveyUpload = new File(surveyPath);
+
+		System.out.println("I got: " + templateUpload.exists() + " at " + templatePath);
+		try {
+			PDDocument template = PDDocument.load(templateUpload);
+			PDDocument survey = PDDocument.load(surveyUpload);
+			try {
+				prcInitFile(template);
+				for (Question q : prcSurveyFile(survey)) {
+					System.out.print("\n" + q.getQuestionText() + " ");
+					for (int i : q.getEval()) {
+						System.out.print(i + " ");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			template.close();
+			survey.close();
+		} catch (IOException e) {
+			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
+		}
+	}
+
+
 
 	/**
 	 * Init File wird analysiert: - Highlighted Fields - Grouping Fields - Unique
