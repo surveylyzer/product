@@ -44,6 +44,7 @@ public class CsvExoportController {
 
             //write all survey items to csv file
             writer.write(csvGeneratorService.listSurveyItems());
+            csvGeneratorService.clearCsvList();
         }
     }
 }

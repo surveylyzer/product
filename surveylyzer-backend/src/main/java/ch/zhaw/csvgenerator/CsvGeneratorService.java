@@ -10,4 +10,8 @@ public class CsvGeneratorService {
     public List<SurveyItemAbstract> listSurveyItems() {
         return SurveyItemManager.createSurveyItemsCsv();
     }
+
+    public void clearCsvList() {
+        SurveyItemManager.clearList();
+    }
 }

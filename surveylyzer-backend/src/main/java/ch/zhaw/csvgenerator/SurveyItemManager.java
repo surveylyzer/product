@@ -51,8 +51,12 @@ public class SurveyItemManager {
         return surveyData;
     }
 
+    public static void clearList() {
+        surveyItems.clear();
+    }
+
     private static SurveyHeader createHeaderCharts() {
-        return new SurveyHeader("ID", "first item",
+        return new SurveyHeader("Question", "first item",
                 "second item", "third item", "fourth item", "fith item", "sixth item", "seventh item", "eighth item",
                 "ninth item", "tenth item");
     }
