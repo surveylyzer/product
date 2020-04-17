@@ -13,30 +13,63 @@ import {
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
 } from '@ionic/react';
 
 
+async function GetDataInput() {
+    const res = await fetch("http://localhost:8080/pdfResult");
+    const json = await res.json().then();
+    //console.log("Fetched JSON pur:"+json);
+    //console.log("Fetched JSON stringify:"+JSON.stringify(json));
+      //console.log("Fetched JSON Parse:"+JSON.parse(json));
+    return JSON.stringify(json);
+}
+/*
+function HandleDataInput() {
+     fetch("http://localhost:8080/pdfResult")
+        .then((response)=>{
+            return JSON.stringify(response);
+        })
+}
+*/
+
+let p = new Promise((resolve, reject)=> {
+    let a = 1 + 1;
+    if(a == 2){
+        resolve('Success')
+    }else {
+        reject('Failed')
+    }
+})
+
+p.then((message)=> {
+    console.log('This is in the then ' + message)
+}).catch((message)=>{
+    console.log('This is in the catch' + message)
+})
+
+console.log(p);
+
+function GetValue(){
+    let stringValue = GetDataInput();
+    return stringValue;
+}
+
+
+GetDataInput().then(function (results) {
+    return results.toString();
+})
 
 const Result: React.FC = () => {
 
-    function HandleDataInput() {
+    //var dataInput =JSON.parse("[[\"City\",\"1\",\"2\",\"3\",\"4\"],[\"Question 1\",\"23\",\"47\",\"2\",\"5\"],[\"Question 2\",\"24\",\"10\",\"40\",\"3\"],[\"Question 3\",\"3\",\"57\",\"15\",\"1\"],[\"Question 4\",\"333\",\"57\",\"15\",\"1\"],[\"Question 5\",\"2\",\"5\",\"1\",\"69\"]]");
+    var dataInput =JSON.parse("[[\"City\",\"1\",\"2\",\"3\",\"4\"],[\"Question 1\",23,47,2,5]]");
 
-        console.log("Starting to fetch Result")
-        fetch("http://localhost:8080/pdfResult")
-            .then((response)=>{
-                console.log("Response: "+response);
-                return response.json();
-            })
-        console.log("Ended fetching data NEW")
-
-
-
-    }
-
-
+    console.log(GetValue());
 
     return (
+
         <IonPage>
             <IonHeader>
                 <IonToolbar>
@@ -57,8 +90,8 @@ const Result: React.FC = () => {
                             height={'500px'}
                             chartType="BarChart"
                             loader={<div>Loading Chart</div>}
-                            data={()=>HandleDataInput()}
-                            /*data={ [
+                           data = {dataInput}
+                           /* data={ [
                                 ['City', '1', '2', '3', '4'],
                                 ['Question 1', 23, 47, 2, 5],
                                 ['Question 2', 24, 10, 40, 3],
@@ -104,6 +137,7 @@ const Result: React.FC = () => {
                         />
                     </IonCardContent>
                 </IonCard>
+
             </IonContent>
         </IonPage>
     );

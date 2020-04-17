@@ -11,8 +11,8 @@ import HeaderNav from '../components/HeaderNav';
 import './Home.css';
 
 
-function HandleDataInput() {
-    fetch("http://localhost:8080/pdfResult")
+async function HandleDataInput() {
+    await fetch("http://localhost:8080/pdfResult")
         .then((response)=>{
             return response.json();
         })
