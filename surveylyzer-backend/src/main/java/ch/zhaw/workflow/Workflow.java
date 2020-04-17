@@ -1,24 +1,28 @@
-package ch.zhaw.status;
+package ch.zhaw.workflow;
 
-public class Status {
+public class Workflow {
 
+    private String templateName;
     private boolean templateReceived;
+    private String surveyName;
     private boolean surveyReceived;
     private boolean pdfAnalyzerStarted;
     private boolean pdfAnalyzerFinished;
 
-    public Status(){
+    public Workflow(){
         this.templateReceived = false;
         this.surveyReceived = false;
         this.pdfAnalyzerStarted = false;
         this.pdfAnalyzerFinished = false;
     }
 
-    public void updateStatus(Status status){
-        this.templateReceived = status.isTemplateReceived()||this.templateReceived;
-        this.surveyReceived = status.isSurveyReceived()||this.surveyReceived;
-        this.pdfAnalyzerStarted = status.isPdfAnalyzerStarted()||this.pdfAnalyzerStarted;
-        this.pdfAnalyzerFinished = status.isPdfAnalyzerFinished()||this.pdfAnalyzerFinished;
+    public void updateWorkflow(Workflow workflow){
+        this.templateName = workflow.templateName;
+        this.templateReceived = workflow.isTemplateReceived()||this.templateReceived;
+        this.surveyName = workflow.surveyName;
+        this.surveyReceived = workflow.isSurveyReceived()||this.surveyReceived;
+        this.pdfAnalyzerStarted = workflow.isPdfAnalyzerStarted()||this.pdfAnalyzerStarted;
+        this.pdfAnalyzerFinished = workflow.isPdfAnalyzerFinished()||this.pdfAnalyzerFinished;
     }
 
     public boolean isTemplateReceived() {
@@ -53,4 +57,19 @@ public class Status {
         this.pdfAnalyzerFinished = pdfAnalyzerFinished;
     }
 
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
+    }
+
+    public String getSurveyName() {
+        return surveyName;
+    }
+
+    public void setSurveyName(String surveyName) {
+        this.surveyName = surveyName;
+    }
 }

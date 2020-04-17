@@ -25,8 +25,8 @@ const DropArea: React.FC = () => {
             method: 'POST',
             body: formData
         }).then(response => {
-            console.log("Template File has been uploaded");
-            updateStatusTemplateInput()
+            console.log("Template File "+file.name+" has been uploaded");
+            updateStatusTemplateInput(file.name)
         })
     }
 
@@ -47,18 +47,18 @@ const DropArea: React.FC = () => {
             method: 'POST',
             body: formData
         }).then(response => {
-            console.log("Data File has been uploaded");
-            updateStatusDataInput();
+            console.log("Data File "+file.name+" has been uploaded");
+            updateStatusDataInput(file.name);
         })
     }
 
 
     //TODO Code duplication of Inputhandling and Status updating
-    function updateStatusTemplateInput(){
-        fetch('/status',{
+    function updateStatusTemplateInput(templateName : any){
+        fetch('/workflow',{
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"templateReceived":true})
+            body:  JSON.stringify({"templateReceived":true, "templateName":templateName})
         }).then(response => {
             console.log("Status 'templateReceived' has been updated")
         })
@@ -66,11 +66,11 @@ const DropArea: React.FC = () => {
 
 
     //TODO Code duplication of Inputhandling and Status updating
-    function updateStatusDataInput(){
-        fetch('/status',{
+    function updateStatusDataInput(surveyName : any){
+        fetch('/workflow',{
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"surveyReceived":true})
+            body:  JSON.stringify({"surveyReceived":true, "surveyName":surveyName})
         }).then(response => {
             console.log("Status 'surveyReceived' has been updated")
         })
