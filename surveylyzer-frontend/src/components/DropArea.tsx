@@ -31,17 +31,6 @@ const DropArea: React.FC = () => {
     }
 
     //TODO Code duplication of Inputhandling and Status updating
-    function updateStatusTemplateInput(){
-        fetch('/status',{
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"templateReceived":true})
-        }).then(response => {
-            console.log("Status 'templateReceived' has been updated")
-        })
-    }
-
-    //TODO Code duplication of Inputhandling and Status updating
     function handleDataFileInput(fileIn: any[]) {
         dragIsActive = false;
         let file = fileIn[0];
@@ -62,6 +51,19 @@ const DropArea: React.FC = () => {
             updateStatusDataInput();
         })
     }
+
+
+    //TODO Code duplication of Inputhandling and Status updating
+    function updateStatusTemplateInput(){
+        fetch('/status',{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:  JSON.stringify({"templateReceived":true})
+        }).then(response => {
+            console.log("Status 'templateReceived' has been updated")
+        })
+    }
+
 
     //TODO Code duplication of Inputhandling and Status updating
     function updateStatusDataInput(){
