@@ -13,63 +13,11 @@ import {
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar,
+    IonToolbar
 } from '@ionic/react';
 
-
-async function GetDataInput() {
-    const res = await fetch("http://localhost:8080/pdfResult");
-    const json = await res.json().then();
-    //console.log("Fetched JSON pur:"+json);
-    //console.log("Fetched JSON stringify:"+JSON.stringify(json));
-      //console.log("Fetched JSON Parse:"+JSON.parse(json));
-    return JSON.stringify(json);
-}
-/*
-function HandleDataInput() {
-     fetch("http://localhost:8080/pdfResult")
-        .then((response)=>{
-            return JSON.stringify(response);
-        })
-}
-*/
-
-let p = new Promise((resolve, reject)=> {
-    let a = 1 + 1;
-    if(a == 2){
-        resolve('Success')
-    }else {
-        reject('Failed')
-    }
-})
-
-p.then((message)=> {
-    console.log('This is in the then ' + message)
-}).catch((message)=>{
-    console.log('This is in the catch' + message)
-})
-
-console.log(p);
-
-function GetValue(){
-    let stringValue = GetDataInput();
-    return stringValue;
-}
-
-
-GetDataInput().then(function (results) {
-    return results.toString();
-})
-
 const Result: React.FC = () => {
-
-    //var dataInput =JSON.parse("[[\"City\",\"1\",\"2\",\"3\",\"4\"],[\"Question 1\",\"23\",\"47\",\"2\",\"5\"],[\"Question 2\",\"24\",\"10\",\"40\",\"3\"],[\"Question 3\",\"3\",\"57\",\"15\",\"1\"],[\"Question 4\",\"333\",\"57\",\"15\",\"1\"],[\"Question 5\",\"2\",\"5\",\"1\",\"69\"]]");
-    var dataInput =JSON.parse("[[\"City\",\"1\",\"2\",\"3\",\"4\"],[\"Question 1\",23,47,2,5]]");
-
-    console.log(GetValue());
-
     return (
-
         <IonPage>
             <IonHeader>
                 <IonToolbar>
@@ -81,37 +29,36 @@ const Result: React.FC = () => {
             </IonHeader>
             <IonContent>
                 <IonCard class="welcome-card">
-                        <IonCardHeader>
-                            <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
-                            <IonCardTitle>Survey Results</IonCardTitle>
-                        </IonCardHeader>
-                        <Chart
-                            width={'700px'}
-                            height={'500px'}
-                            chartType="BarChart"
-                            loader={<div>Loading Chart</div>}
-                           data = {dataInput}
-                           /* data={ [
-                                ['City', '1', '2', '3', '4'],
-                                ['Question 1', 23, 47, 2, 5],
-                                ['Question 2', 24, 10, 40, 3],
-                                ['Question 3', 3, 57, 15, 1],
-                                ['Question 4', 67, 5, 3, 2],
-                                ['Question 5', 2, 5, 1, 69],
-                            ]}*/
-                            options={{
-                                title: 'Answers',
-                                chartArea: { width: '50%' },
-                                colors: ['#124868', '#259BDE', '#7BC8F4', '#D3ECFB'],
-                                hAxis: {
-                                    title: 'Total',
-                                    minValue: 0,
-                                },
-                                vAxis: {
-                                    title: 'Survey',
-                                },
-                            }}
-                        />
+                    <IonCardHeader>
+                        <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
+                        <IonCardTitle>Survey Results</IonCardTitle>
+                    </IonCardHeader>
+                    <Chart
+                        width={'700px'}
+                        height={'500px'}
+                        chartType="BarChart"
+                        loader={<div>Loading Chart</div>}
+                        data={[
+                            ['City', '1', '2', '3', '4'],
+                            ['Question 1', 23, 47, 2, 5],
+                            ['Question 2', 24, 10, 40, 3],
+                            ['Question 3', 3, 57, 15, 1],
+                            ['Question 4', 67, 5, 3, 2],
+                            ['Question 5', 2, 5, 1, 69],
+                        ]}
+                        options={{
+                            title: 'Answers',
+                            chartArea: { width: '50%' },
+                            colors: ['#124868', '#259BDE', '#7BC8F4', '#D3ECFB'],
+                            hAxis: {
+                                title: 'Total',
+                                minValue: 0,
+                            },
+                            vAxis: {
+                                title: 'Survey',
+                            },
+                        }}
+                    />
                     <IonCardHeader>
                         <IonCardSubtitle>Simple Pie Chart / It is a hardcoded example</IonCardSubtitle>
                         <IonCardTitle>Daily Activities</IonCardTitle>
@@ -137,7 +84,6 @@ const Result: React.FC = () => {
                         />
                     </IonCardContent>
                 </IonCard>
-
             </IonContent>
         </IonPage>
     );
