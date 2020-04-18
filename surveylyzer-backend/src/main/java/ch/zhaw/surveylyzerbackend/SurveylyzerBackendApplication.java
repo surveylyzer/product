@@ -33,7 +33,12 @@ public class SurveylyzerBackendApplication {
 			TimeUnit.SECONDS.sleep(3);
 		}
 		System.out.println("Got all the files -> starting to analyze");
+		workflow.setPdfAnalyzerStarted(true);
+		workflowController.updateWorkflow(workflow);
 		pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
+		workflow.setPdfAnalyzerFinished(true);
+		workflowController.updateWorkflow(workflow);
+
 
 	}
 
