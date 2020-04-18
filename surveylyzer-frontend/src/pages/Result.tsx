@@ -88,7 +88,7 @@ const Result: React.FC = () => {
                                     table.push(question);
                                 }
                                 console.log("Ich bin die Tabelle: ", table);
-                                return data;
+                                return table;
                             })
                         }
                         /*data={[
