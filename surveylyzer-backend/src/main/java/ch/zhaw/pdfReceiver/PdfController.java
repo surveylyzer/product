@@ -1,11 +1,15 @@
 package ch.zhaw.pdfReceiver;
 
 
+import ch.zhaw.pdffunctionality.Util;
+import net.sourceforge.tess4j.Tesseract;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,6 +28,22 @@ public class PdfController {
     private static List<PdfFile> pdfList = new ArrayList<>();
     private final AtomicInteger pdfCounter = new AtomicInteger();
     private static final double KBFACTOR = 0.00095367432;
+    private static String initPathTemplate  = "";
+    private static String initPathSurvey  = "";
+    private static String initPathDestination = "";
+
+    private static void init() {
+        Path currentRelativePath = Paths.get("");
+        if (Util.isOS()) {
+            initPathTemplate =  currentRelativePath.toAbsolutePath().toString().concat("/surveylyzer-backend/pdf_umfragen/pdf_template/");
+            initPathSurvey =    currentRelativePath.toAbsolutePath().toString().concat("/surveylyzer-backend/pdf_umfragen/pdf_survey/");
+            initPathDestination = currentRelativePath.toAbsolutePath().toString().concat("/surveylyzer-backend/pdf_umfragen/");
+        } else {
+            initPathTemplate =  currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_template\\");
+            initPathSurvey =    currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_survey\\");
+            initPathDestination = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
+        }
+    }
 
 
     /**
@@ -55,12 +75,13 @@ public class PdfController {
      * @param file
      */
     public void forwardMultipartFileToAnalyzer(MultipartFile file, String pdfType) {
+        init();
         Path currentRelativePath = Paths.get("");
         String s = "";
         if(pdfType.equalsIgnoreCase("templateFile")){
-            s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_template\\");
+            s = initPathTemplate;
         } else if (pdfType.equalsIgnoreCase("dataFile")){
-            s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_survey\\");
+            s = initPathSurvey;
         }
         Path filepath = Paths.get(s, file.getOriginalFilename());
         try (OutputStream os = Files.newOutputStream(filepath)) {
@@ -106,8 +127,8 @@ public class PdfController {
      * @return
      */
     public static String getDestinationPath(String filename){
-        Path currentRelativePath = Paths.get("");
-        String path = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
+        init();
+        String path = initPathDestination;
         String filepath = path+filename;
         return  filepath;
     }
