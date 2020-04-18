@@ -1,5 +1,3 @@
-import { Chart } from "react-google-charts";
-
 import React from 'react';
 import {
     IonBackButton,
@@ -16,36 +14,8 @@ import {
     IonToolbar,
     IonButton
 } from '@ionic/react';
-import {timeout} from "q";
 
 declare let google: any;
-
-async function HandleDataInput() {
-    var fetchedData = {};
-    await fetch("http://localhost:8080/pdfResult")
-        .then((response)=>{
-            return response.body;
-        })
-        .then((data)=>{
-            console.log("FetchedData: "+ JSON.stringify(data));
-            fetchedData = JSON.stringify(data);
-        });
-
-    return JSON.stringify(fetchedData);
-}
-
-
-
-async function GetDataInput() {
-    const res = await fetch("http://localhost:8080/pdfResult");
-    const json = await res.json().then();
-    console.log("Fetched JSON stringify:",JSON.stringify(json));
-    return JSON.stringify(json);
-}
-
-
-
-
 
 const Result: React.FC = () => {
 
@@ -85,7 +55,7 @@ const Result: React.FC = () => {
 
                 var chart = new google.charts.Bar(document.getElementById('chart_div'));
                 chart.draw(data, options);
-            };
+            }
             return table;
         });
 
