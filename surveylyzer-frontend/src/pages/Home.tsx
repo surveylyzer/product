@@ -10,31 +10,64 @@ import HeaderNav from '../components/HeaderNav';
 // Our CSS
 import './Home.css';
 
-
-async function HandleDataInput() {
-    await fetch("http://localhost:8080/pdfResult")
-        .then((response)=>{
+async function CheckStatus() {
+    let templateReceived;
+    let surveyReceived;
+    let passable;
+    await fetch("http://localhost:8080/workflow")
+        .then(response =>{
             return response.json();
         })
         .then((data)=>{
-            console.log(data);
-            alert("Full data available at http://localhost:8080/pdfResult \n\n Fetched results:\n\n"+ JSON.stringify(data, null, 4) );
-        })
+        templateReceived = data.templateReceived;
+        surveyReceived = data.surveyReceived;
+        alert("Template here? "+templateReceived+" SurveyReceived? "+surveyReceived);
+            if(templateReceived&&surveyReceived){
+                console.log("Template and Survey are here ");
+                passable = true;
+                return passable
+            } else {
+                console.log("Something missing")
+                passable =  false;
+                return passable
+            }
+    })
+
+
 }
 
+
+//   <IonFabButton onClick= {() => {props.history.push('/result')}
+
 const Home: React.FC<RouteComponentProps> = (props) => {
-  return (
+
+
+    function GoToResult(){
+        //CheckStatus(templateReceived,surveyReceived)
+        let state = CheckStatus();
+        console.log("State: "+ state);
+        if(state){
+            props.history.push('/result')
+        } else {
+            alert("Template or Survey is missing");
+        }
+
+    }
+
+
+    return (
     <IonPage>
       <HeaderNav />
 
       <IonContent>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => props.history.push('/result')}>
+          <IonFabButton onClick= {()=>GoToResult()
+          }>
             <IonIcon icon={calculator} />
           </IonFabButton>
 
-            <IonFabButton onClick={()=> HandleDataInput()}>
+            <IonFabButton onClick={()=> CheckStatus()}>
                 <IonIcon icon={construct} />
             </IonFabButton>
         </IonFab>

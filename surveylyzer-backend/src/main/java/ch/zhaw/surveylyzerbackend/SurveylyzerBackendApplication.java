@@ -19,7 +19,6 @@ public class SurveylyzerBackendApplication {
 	private static WorkflowController workflowController = new WorkflowController();
 
 
-
 	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(SurveylyzerBackendApplication.class, args);
 		
@@ -28,12 +27,11 @@ public class SurveylyzerBackendApplication {
 		HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
 		Workflow workflow= workflowResponseEntity.getBody();
 		while(!(workflow.isTemplateReceived()&& workflow.isSurveyReceived())){
-			//just wait
 			System.out.println("Got Template: "+workflowResponseEntity.getBody().isTemplateReceived());
 			System.out.println("Got Survey: "+workflowResponseEntity.getBody().isSurveyReceived());
 			TimeUnit.SECONDS.sleep(3);
 		}
-		System.out.println("Got all the files starting work");
+		System.out.println("Got all the files -> starting to analyze");
 		pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
 	}
 
