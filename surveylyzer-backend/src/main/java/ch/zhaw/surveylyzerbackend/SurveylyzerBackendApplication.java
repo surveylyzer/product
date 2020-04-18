@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.workflow", "ch.zhaw.csvgenerator"})
 public class SurveylyzerBackendApplication {
 
-	private static PDFAnalyzer pdfAnalyzer;
+	public static PDFAnalyzer pdfAnalyzer;
 	private static WorkflowController workflowController = new WorkflowController();
 
 
@@ -38,7 +38,6 @@ public class SurveylyzerBackendApplication {
 		pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
 		workflow.setPdfAnalyzerFinished(true);
 		workflowController.updateWorkflow(workflow);
-
 
 	}
 

@@ -11,7 +11,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,10 +21,10 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
@@ -47,8 +46,8 @@ public class PDFAnalyzer {
 	private ArrayList<List<Word>> groupedWords;
 	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
-	public static ArrayList<Question> questionList;
-	public static boolean evaluationReady;
+	private ArrayList<Question> questionList;
+	private boolean evaluationReady;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
@@ -758,6 +757,14 @@ public class PDFAnalyzer {
 		}
 
 		return position;
+	}
+
+	public ArrayList<Question> getQuestionList() {
+		return this.questionList;
+	}
+
+	public boolean isEvaluationReady() {
+		return this.evaluationReady;
 	}
 
 }

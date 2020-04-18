@@ -1,7 +1,13 @@
 package ch.zhaw.resultSender;
 
 
+import ch.zhaw.csvgenerator.SurveyItemAbstract;
+import ch.zhaw.csvgenerator.SurveyItemManager;
+import ch.zhaw.pdffunctionality.Question;
+import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import com.google.gson.Gson;
+
+import java.util.List;
 
 public class Result {
     public String header;
@@ -16,15 +22,13 @@ public class Result {
 
     public static String getResult(){
         Gson gson = new Gson();
-        //String json = gson.toJson(createFakeResult("DummmyHeader", 2,5));
-        String json = gson.toJson(createGoogleMockResult());
-        return json ;
+        List<Question> results = SurveylyzerBackendApplication.pdfAnalyzer.getQuestionList();
+        return gson.toJson(results);
     }
 
 
     public static Result createFakeResult(String header,int questionId, int answerid ){
-        Result result = new Result(header,questionId,answerid);
-        return result;
+        return new Result(header,questionId,answerid);
     }
 
 
@@ -32,7 +36,8 @@ public class Result {
      * Needed for mock testing the comunication of results
      * @return
      */
-    public static String[][] createGoogleMockResult() {
+  //  public static List<SurveyItemAbstract> createGoogleMockResult() {
+    public static List<SurveyItemAbstract> createGoogleMockResult() {
         String[] header = {"City", "1", "2", "3", "4"};
         String[] question1 = {"Question 1", "23", "47", "2", "5"};
         String[] question2 = {"Question 2", "24", "10", "40", "3"};
@@ -40,7 +45,7 @@ public class Result {
         String[] question4 = {"Question 4", "333", "57", "15", "1"};
         String[] question5 = {"Question 5", "2", "5", "1", "69"};
         String[][] result = {header, question1, question2, question3, question4, question5};
-        return result;
+        return SurveyItemManager.createSurveyItemsGoogleCharts();
     }
 
 

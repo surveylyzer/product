@@ -16,18 +16,20 @@ import {
     IonToolbar,
     IonButton
 } from '@ionic/react';
+import {timeout} from "q";
 
+declare let google: any;
 
 async function HandleDataInput() {
-    var fetchedData;
+    var fetchedData = {};
     await fetch("http://localhost:8080/pdfResult")
         .then((response)=>{
             return response.body;
         })
         .then((data)=>{
-            console.log("FetchedData: "+ JSON.stringify(data))
-            fetchedData = data;
-        })
+            console.log("FetchedData: "+ JSON.stringify(data));
+            fetchedData = JSON.stringify(data);
+        });
 
     return JSON.stringify(fetchedData);
 }
@@ -37,7 +39,7 @@ async function HandleDataInput() {
 async function GetDataInput() {
     const res = await fetch("http://localhost:8080/pdfResult");
     const json = await res.json().then();
-    console.log("Fetched JSON stringify:"+JSON.stringify(json));
+    console.log("Fetched JSON stringify:",JSON.stringify(json));
     return JSON.stringify(json);
 }
 
@@ -47,8 +49,6 @@ async function GetDataInput() {
 
 const Result: React.FC = () => {
     HandleDataInput();
-    GetDataInput();
-
 
     var dataInput =JSON.parse("[[\"City\",\"1\",\"2\",\"3\",\"4\"],[\"Question 1\",23,47,2,5]]");
 
@@ -71,11 +71,26 @@ const Result: React.FC = () => {
                         <IonCardTitle>Survey Results</IonCardTitle>
                     </IonCardHeader>
                     <Chart
+
                         width={'700px'}
                         height={'500px'}
                         chartType="BarChart"
                         loader={<div>Loading Chart</div>}
-                        data = {dataInput}
+                        data = {
+                            fetch('http://localhost:8080/pdfResult')
+                            .then(function(response){ return response.json(); })
+                            .then(function(data) {
+
+                                const table: any[] = [];
+                                table.push(['question', 'item 1', 'item 2']);
+                                for (var i = 0; i < data.length; i++) {
+                                    const question = ['text', data[i].eval[0], data[i].eval[1]];
+                                    table.push(question);
+                                }
+                                console.log("Ich bin die Tabelle: ", table);
+                                return data;
+                            })
+                        }
                         /*data={[
                             ['City', '1', '2', '3', '4'],
                             ['Question 1', 23, 47, 2, 5],

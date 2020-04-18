@@ -2,6 +2,7 @@ package ch.zhaw.csvgenerator;
 
 import ch.zhaw.pdffunctionality.PDFAnalyzer;
 import ch.zhaw.pdffunctionality.Question;
+import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +21,7 @@ public class SurveyItemManager {
 
 
     public static List<SurveyItemAbstract> createSurveyItemsCsv() {
-        ArrayList<Question> questionsList = PDFAnalyzer.questionList;
+        ArrayList<Question> questionsList = SurveylyzerBackendApplication.pdfAnalyzer.getQuestionList();
 
         surveyItems.add(createHeader());
 
@@ -37,7 +38,7 @@ public class SurveyItemManager {
     }
 
     public static List<SurveyItemAbstract> createSurveyItemsGoogleCharts() {
-        ArrayList<Question> questionsList = PDFAnalyzer.questionList;
+        ArrayList<Question> questionsList = SurveylyzerBackendApplication.pdfAnalyzer.getQuestionList();
         surveyData.add(createHeaderCharts());
 
         if(questionsList != null) {
@@ -53,6 +54,10 @@ public class SurveyItemManager {
 
     public static void clearList() {
         surveyItems.clear();
+    }
+
+    public static void clearDataList() {
+        surveyData.clear();
     }
 
     private static SurveyHeader createHeaderCharts() {
