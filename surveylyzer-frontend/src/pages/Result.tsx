@@ -13,7 +13,8 @@ import {
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonButton
 } from '@ionic/react';
 
 
@@ -65,6 +66,7 @@ const Result: React.FC = () => {
             <IonContent>
                 <IonCard class="welcome-card">
                     <IonCardHeader>
+                        <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
                         <IonCardTitle>Survey Results</IonCardTitle>
                     </IonCardHeader>

@@ -47,7 +47,8 @@ public class PDFAnalyzer {
 	private ArrayList<List<Word>> groupedWords;
 	private ArrayList<String> questions;
 	private BufferedImage searchThroug;
-	private ArrayList<Question> questionList;
+	public static ArrayList<Question> questionList;
+	public static boolean evaluationReady;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
@@ -89,7 +90,7 @@ public class PDFAnalyzer {
 	/**
 	 * vorgegebenes PDF wird analysiert.
 	 */
-	public void startHighlightingTest() { 
+	public void startHighlightingTest() {
 		debugen = true;
 		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
 		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
@@ -99,7 +100,11 @@ public class PDFAnalyzer {
 			System.out.println("I got: " + fileInit.exists() + " at " + fileInit.getAbsolutePath());
 			try {
 				prcInitFile(docInit);
-				for (Question q : prcSurveyFile(docPrc)) {
+				questionList = prcSurveyFile(docPrc);
+				if (!questionList.isEmpty()) {
+					evaluationReady = true;
+				}
+				for (Question q : questionList) {
 					System.out.print("\n"+ q.getQuestionText() + " ");
 					for(int i: q.getEval()) {
 						System.out.print(i+" ");
@@ -208,7 +213,7 @@ public class PDFAnalyzer {
 			for (Map.Entry<String, Word> e : uniquWords.entrySet()) {
 				System.out.println("Wort: " + e.getValue().getText());
 			}
-			
+
 
 			System.out.println("-------------------");
 			System.out.println("Fragen: " + questions.size());
@@ -317,7 +322,7 @@ public class PDFAnalyzer {
 	private ArrayList<String> makeQuestions(List<Word> all, ArrayList<List<Rectangle>> gR){
 		ArrayList<String> q = new ArrayList<String>();
 		String singleQuestion = "";
-		
+
 		for(List<Rectangle> lr :gR ) {
 			double yMin =        lr.get(0).getY();
 			double yMax = yMin + lr.get(0).getHeight();
@@ -489,7 +494,7 @@ public class PDFAnalyzer {
 				System.out.println("Exception");
 			}
 		}
-		
+
 		questionList = new ArrayList<Question>();
 		for (int i = 0; i < evaluation.length; i++) {
 			questionList.add(new Question(questions.get(i),evaluation[i]));
@@ -666,17 +671,6 @@ public class PDFAnalyzer {
 	 * scale image
 	 * 
 	 * @param sbi
-	 *            image to scale
-	 * @param imageType
-	 *            type of image
-	 * @param dWidth
-	 *            width of destination image
-	 * @param dHeight
-	 *            height of destination image
-	 * @param fWidth
-	 *            x-factor for transformation / scaling
-	 * @param fHeight
-	 *            y-factor for transformation / scaling
 	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
@@ -764,12 +758,6 @@ public class PDFAnalyzer {
 		}
 
 		return position;
-	}
-	/**
-	 * @return the questionText
-	 */
-	public ArrayList<Question> getQuestions() {
-		return this.questionList;
 	}
 
 }

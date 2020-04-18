@@ -12,7 +12,7 @@ import org.springframework.http.HttpEntity;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.workflow"})
+@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.workflow", "ch.zhaw.csvgenerator"})
 public class SurveylyzerBackendApplication {
 
 	private static PDFAnalyzer pdfAnalyzer;
