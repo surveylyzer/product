@@ -66,8 +66,8 @@ public class PDFAnalyzer {
 			initPath = "surveylyzer-backend/";
 			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 		} else {
-			initPath = "../surveylyzer-backend/";
-			t.setDatapath("../surveylyzer-backend/tess/tessdata/");
+			initPath = "surveylyzer-backend/";
+			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 		}
 	}
 
@@ -96,6 +96,7 @@ public class PDFAnalyzer {
 		try {
 			PDDocument docInit = PDDocument.load(fileInit);
 			PDDocument docPrc = PDDocument.load(filePrc);
+			System.out.println("I got: " + fileInit.exists() + " at " + fileInit.getAbsolutePath());
 			try {
 				prcInitFile(docInit);
 				for (Question q : prcSurveyFile(docPrc)) {
@@ -115,21 +116,16 @@ public class PDFAnalyzer {
 	}
 
 	public void startHighlightingExternalFile(String templateName, String surveyName) {
+		System.out.println("Starting to analyse external Files");
 		debugen = true;
-		//s = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_template\\");
-		String basePath = Paths.get("").toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
-		String templatePath = basePath + "pdf_template\\" + templateName;
-		String surveyPath = basePath + "pdf_survey\\" + surveyName;
-		File templateUpload = new File(templatePath);
-		File surveyUpload = new File(surveyPath);
-
-		System.out.println("I got: " + templateUpload.exists() + " at " + templatePath);
+		File fileInit= new File(initPath + "pdf_umfragen/pdf_template/"+templateName);
+		File filePrc = new File(initPath + "pdf_umfragen/pdf_survey/"+surveyName);
 		try {
-			PDDocument template = PDDocument.load(templateUpload);
-			PDDocument survey = PDDocument.load(surveyUpload);
+			PDDocument docInit = PDDocument.load(fileInit);
+			PDDocument docPrc = PDDocument.load(filePrc);
 			try {
-				prcInitFile(template);
-				for (Question q : prcSurveyFile(survey)) {
+				prcInitFile(docInit);
+				for (Question q : prcSurveyFile(docPrc)) {
 					System.out.print("\n" + q.getQuestionText() + " ");
 					for (int i : q.getEval()) {
 						System.out.print(i + " ");
@@ -138,8 +134,8 @@ public class PDFAnalyzer {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			template.close();
-			survey.close();
+			docInit.close();
+			docPrc.close();
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
 		}
