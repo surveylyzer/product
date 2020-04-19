@@ -3,7 +3,7 @@ import { RouteComponentProps } from 'react-router';
 import {
     IonContent, IonPage, IonIcon, IonFab, IonFabButton,
 } from '@ionic/react';
-import { calculator, construct } from 'ionicons/icons';
+import { calculator } from 'ionicons/icons';
 // Custom Components
 import DropArea from '../components/DropArea';
 import HeaderNav from '../components/HeaderNav';
