@@ -23,8 +23,7 @@ const Result: React.FC = () => {
     const url = 'http://localhost:8080/pdfResult';
     const fetchResult = () => {
         fetch(url)
-            // .then(response => response.text()) // FETCHING TEXT:
-            .then(response => response.json()) // FETCHING JSON:
+            .then(response => response.json())
             .then(json => {
                 if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
                     alert('server is still working...');
@@ -69,14 +68,6 @@ const Result: React.FC = () => {
                             chartType="BarChart"
                             loader={<div>Loading Chart</div>}
                             data={resData}
-                            /*data={[
-                                ['City', '1', '2', '3', '4'],
-                                ['Question 1', 23, 47, 2, 5],
-                                ['Question 2', 24, 10, 40, 3],
-                                ['Question 3', 3, 57, 15, 1],
-                                ['Question 4', 67, 5, 3, 2],
-                                ['Question 5', 2, 5, 1, 69],
-                            ]}*/
                             options={{
                                 title: 'Answers',
                                 chartArea: { width: '50%' },
@@ -102,14 +93,6 @@ const Result: React.FC = () => {
                             chartType="CandlestickChart"
                             loader={<div>Loading Chart</div>}
                             data={resData}
-                            // data={[
-                            //     ['day', 'a', 'b', 'c', 'd'],
-                            //     ['Mon', 20, 28, 38, 45],
-                            //     ['Tue', 31, 38, 55, 66],
-                            //     ['Wed', 50, 55, 77, 80],
-                            //     ['Thu', 77, 77, 66, 50],
-                            //     ['Fri', 68, 66, 22, 15],
-                            // ]}
                             options={{
                                 legend: 'none',
                                 bar: { groupWidth: '80%' },

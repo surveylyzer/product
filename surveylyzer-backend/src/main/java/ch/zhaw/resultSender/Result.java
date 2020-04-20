@@ -56,7 +56,7 @@ public class Result {
     }
 
 
-    // TODO: Do we still need this (and if yes, like this - result isn't used...)?
+    // TODO: Do we still need this (and if yes, like this? - result isn't used...)?
 
     /**
      * Needed for mock testing the comunication of results
