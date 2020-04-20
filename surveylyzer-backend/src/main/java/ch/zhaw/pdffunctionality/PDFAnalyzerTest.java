@@ -1,20 +1,13 @@
 package ch.zhaw.pdffunctionality;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.sourceforge.tess4j.Word;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
-
-import static java.lang.StrictMath.atan;
 
 public class PDFAnalyzerTest {
     PDFAnalyzer pdfAnalyzer = new PDFAnalyzer();
