@@ -1,5 +1,3 @@
-import { Chart } from "react-google-charts";
-
 import React from 'react';
 import {
     IonBackButton,
@@ -13,10 +11,55 @@ import {
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonButton
 } from '@ionic/react';
 
+declare let google: any;
+
 const Result: React.FC = () => {
+
+    fetch('http://localhost:8080/pdfResult')
+        .then(function(response){ return response.json(); })
+        .then(function(data) {
+
+            const table: any[] = [];
+            table.push(['question', 'item 1', 'item 2', 'item 3']);
+            for (var i = 0; i < data.length; i++) {
+                let val = 0;
+                if (data[i].eval[2] != null) {
+                    val = data[i].eval[2];
+                }
+                let text: String = "'" + data[i].questionText + "'";
+                const question = [text, data[i].eval[0], data[i].eval[1], val];
+                table.push(question);
+            }
+            google.charts.load('current', {'packages':['bar']});
+            google.charts.setOnLoadCallback(drawStuff);
+
+            function drawStuff() {
+                var data = new google.visualization.arrayToDataTable(table, false);
+
+                var options={
+                    title: 'Answers',
+                        chartArea: { width: '50%' },
+                    colors: ['#124868', '#259BDE', '#7BC8F4'],
+                        hAxis: {
+                        title: 'Total',
+                            minValue: 0,
+                    },
+                    vAxis: {
+                        title: 'Survey',
+                    },
+                };
+
+                var chart = new google.charts.Bar(document.getElementById('chart_div'));
+                chart.draw(data, options);
+            }
+            return table;
+        });
+
+
     return (
         <IonPage>
             <IonHeader>
@@ -29,60 +72,12 @@ const Result: React.FC = () => {
             </IonHeader>
             <IonContent>
                 <IonCard class="welcome-card">
-                        <IonCardHeader>
-                            <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
-                            <IonCardTitle>Survey Results</IonCardTitle>
-                        </IonCardHeader>
-                        <Chart
-                            width={'700px'}
-                            height={'500px'}
-                            chartType="BarChart"
-                            loader={<div>Loading Chart</div>}
-                            data={[
-                                ['City', '1', '2', '3', '4'],
-                                ['Question 1', 23, 47, 2, 5],
-                                ['Question 2', 24, 10, 40, 3],
-                                ['Question 3', 3, 57, 15, 1],
-                                ['Question 4', 67, 5, 3, 2],
-                                ['Question 5', 2, 5, 1, 69],
-                            ]}
-                            options={{
-                                title: 'Answers',
-                                chartArea: { width: '50%' },
-                                colors: ['#124868', '#259BDE', '#7BC8F4', '#D3ECFB'],
-                                hAxis: {
-                                    title: 'Total',
-                                    minValue: 0,
-                                },
-                                vAxis: {
-                                    title: 'Survey',
-                                },
-                            }}
-                        />
                     <IonCardHeader>
-                        <IonCardSubtitle>Simple Pie Chart / It is a hardcoded example</IonCardSubtitle>
-                        <IonCardTitle>Daily Activities</IonCardTitle>
+                        <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
+                        <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
+                        <IonCardTitle>Survey Results</IonCardTitle>
                     </IonCardHeader>
-                    <IonCardContent>
-                        <Chart
-                            width={'700px'}
-                            height={'500px'}
-                            chartType="PieChart"
-                            loader={<div>Loading Chart</div>}
-                            data={[
-                                ['Task', 'Hours per Day'],
-                                ['Work', 11],
-                                ['Eat', 2],
-                                ['Commute', 2],
-                                ['Watch TV', 2],
-                                ['Sleep', 7],
-                            ]}
-                            options={{
-                                title: 'My Daily Activities',
-                            }}
-                            rootProps={{ 'data-testid': '1' }}
-                        />
-                    </IonCardContent>
+                    <IonCardContent id={'chart_div'}/>
                 </IonCard>
             </IonContent>
         </IonPage>
