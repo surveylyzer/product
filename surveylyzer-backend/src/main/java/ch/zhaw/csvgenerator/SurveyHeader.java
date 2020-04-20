@@ -83,5 +83,7 @@ public class SurveyHeader extends SurveyItemAbstract {
         this.item_6 = item[5];
         this.item_7 = item[6];
         this.item_8 = item[7];
+        this.item_9 = item[8];
+        this.item_10 = item[9];
     }
 }

@@ -1,16 +1,21 @@
 package ch.zhaw.pdffunctionality;
 
+import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import net.sourceforge.tess4j.Word;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.awt.*;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = PDFAnalyzer.class)
 public class PDFAnalyzerTest {
     PDFAnalyzer pdfAnalyzer = new PDFAnalyzer();
+
     @Test
     public void isHighlightedColourTest(){
         int color1 = new Color(255, 200, 0).getRGB();
