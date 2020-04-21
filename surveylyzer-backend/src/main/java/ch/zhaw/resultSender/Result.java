@@ -41,11 +41,11 @@ public class Result {
     private static Object[][] getFakeData() {
         try { TimeUnit.SECONDS.sleep(5); } catch (InterruptedException e) {}
         String[] header = {"City", "1", "2", "3", "4"};
-        Object[] question1 = {"Question 1", 23, 47, 2, 5};
+        Object[] question1 = {"Question 1", 23, 2, 5};
         Object[] question2 = {"Question 2", 24, 10, 40, 3};
-        Object[] question3 = {"Question 3", 3, 57, 15, 1};
+        Object[] question3 = {"Question 3", 3, 57, 15};
         Object[] question4 = {"Question 4", 333, 57, 15, 1};
-        Object[] question5 = {"Question 5", 2, 5, 1, 69};
+        Object[] question5 = {"Question 5", 2, 5};
         Object[][] result = {header, question1, question2, question3, question4, question5};
         return result;
     }
