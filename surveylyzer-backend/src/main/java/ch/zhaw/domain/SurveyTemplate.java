@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Document(collection = "template")
@@ -20,13 +21,20 @@ public class SurveyTemplate {
     @PersistenceConstructor
     public SurveyTemplate(Binary template) {
         this.setId(null);
-        setChangedDate(new Date());
         this.setTemplate(template);
+        dataHasChanged();
+    }
+
+    private void dataHasChanged() {
+        setChangedDate(new Date());
     }
 
     public UUID getId() { return id == null ? null : UUID.fromString(id); }
 
-    public void setId(UUID id) { this.id = id == null ? null : id.toString(); }
+    public void setId(UUID id) {
+        this.id = id == null ? null : id.toString();
+        dataHasChanged();
+    }
 
     public Binary getTemplate() {
         return template;
@@ -34,11 +42,12 @@ public class SurveyTemplate {
 
     public void setTemplate(Binary template) {
         this.template = template;
+        dataHasChanged();
     }
 
     public Date getChangedDate() { return changedDate; }
 
-    public void setChangedDate(Date changedDate) { this.changedDate = changedDate; }
+    protected void setChangedDate(Date changedDate) { this.changedDate = changedDate; }
 
     /**
      * Generates and sets a new id if current id is null
@@ -47,5 +56,28 @@ public class SurveyTemplate {
         if (getId() == null) {
             setId(UUID.randomUUID());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SurveyTemplate{" +
+                "id='" + id + '\'' +
+                ", changedDate=" + changedDate +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SurveyTemplate template1 = (SurveyTemplate) o;
+        return Objects.equals(id, template1.id) &&
+                Objects.equals(template, template1.template) &&
+                Objects.equals(changedDate, template1.changedDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, template, changedDate);
     }
 }
