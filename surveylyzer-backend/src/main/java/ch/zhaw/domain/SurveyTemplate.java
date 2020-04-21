@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.Date;
 import java.util.UUID;
 
-//@EnableMongoRepositories
-//@EnableAutoConfiguration
 @Document(collection = "template")
 public class SurveyTemplate {
     @Id
@@ -21,21 +19,33 @@ public class SurveyTemplate {
 
     @PersistenceConstructor
     public SurveyTemplate(Binary template) {
-        this.setId(UUID.randomUUID());
+        this.setId(null);
         setChangedDate(new Date());
         this.setTemplate(template);
     }
 
-    public UUID getId() { return UUID.fromString(id); }
-    public void setId(UUID id) { this.id = id.toString(); }
+    public UUID getId() { return id == null ? null : UUID.fromString(id); }
+
+    public void setId(UUID id) { this.id = id == null ? null : id.toString(); }
 
     public Binary getTemplate() {
         return template;
     }
+
     public void setTemplate(Binary template) {
         this.template = template;
     }
 
     public Date getChangedDate() { return changedDate; }
+
     public void setChangedDate(Date changedDate) { this.changedDate = changedDate; }
+
+    /**
+     * Generates and sets a new id if current id is null
+     */
+    public void setNewIdIfNull() {
+        if (getId() == null) {
+            setId(UUID.randomUUID());
+        }
+    }
 }
