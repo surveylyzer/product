@@ -41,7 +41,7 @@ const Result: React.FC = () => {
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         fetchResult();
-    }, []); // [] --> only on "Mount and Unmount"
+    }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
 
     return (
