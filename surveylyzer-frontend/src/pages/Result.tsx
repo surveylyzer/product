@@ -1,5 +1,5 @@
 import { Chart } from "react-google-charts";
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     IonBackButton,
     IonButtons,
@@ -21,7 +21,7 @@ const Result: React.FC = () => {
     // Init
     const [resData, setResData] = useState([]);
     const url = 'http://localhost:8080/pdfResult';
-    const fetchResult = () => {
+    const fetchResult = useCallback(() => {
         fetch(url)
             .then(response => response.json())
             .then(json => {
@@ -35,7 +35,7 @@ const Result: React.FC = () => {
                 }
             })
             .catch((err) => { console.log(err); alert('id not found') });
-    }
+    }, []);
 
     // Fetch Result Data
     // Similar to componentDidMount and componentDidUpdate:
