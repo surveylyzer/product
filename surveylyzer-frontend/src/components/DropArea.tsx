@@ -25,7 +25,7 @@ const DropArea: React.FC = () => {
             method: 'POST',
             body: formData
         }).then(response => {
-            console.log("Template File "+file.name+" has been uploaded");
+            console.log("Template File "+file.name+" has been uploaded now");
             updateStatusTemplateInput(file.name)
         })
     }
