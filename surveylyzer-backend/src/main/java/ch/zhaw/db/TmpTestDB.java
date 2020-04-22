@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 
 @Component
 public class TmpTestDB implements CommandLineRunner {
+// Todo: remove this db-test class if not needed anymore...
     @Autowired
     private Storage db;
 
@@ -25,7 +26,8 @@ public class TmpTestDB implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        test();
+        // Todo: uncomment this for testing db:
+//        test();
     }
 
     private void test() throws Exception {

@@ -1,6 +1,5 @@
 import { Chart } from "react-google-charts";
-
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     IonBackButton,
     IonButtons,
@@ -13,10 +12,43 @@ import {
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonButton
 } from '@ionic/react';
 
+
 const Result: React.FC = () => {
+    // Init
+    const [resData, setResData] = useState([]);
+    const url = 'http://localhost:8080/pdfResult';
+    const fetchResult = useCallback(() => {
+        fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
+                    alert('server is still working...');
+                    setTimeout(() => { fetchResult(); }, 2000);
+                }
+                else {
+                    console.log('Fetched json: ', json);
+                    // make all row-arrays the same length (for google charts):
+                    let maxL = json[0].length;
+                    let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
+                    console.log('Googel JSON: ', res);
+                    // update state
+                    setResData(res);
+                }
+            })
+            .catch((err) => { console.log(err); alert('id not found') });
+    }, []);
+
+    // Fetch Result Data
+    // Similar to componentDidMount and componentDidUpdate:
+    useEffect(() => {
+        fetchResult();
+    }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
+
+
     return (
         <IonPage>
             <IonHeader>
@@ -29,23 +61,18 @@ const Result: React.FC = () => {
             </IonHeader>
             <IonContent>
                 <IonCard class="welcome-card">
-                        <IonCardHeader>
-                            <IonCardSubtitle>Simple Bar Chart / It is a hardcoded example</IonCardSubtitle>
-                            <IonCardTitle>Survey Results</IonCardTitle>
-                        </IonCardHeader>
+                    <IonCardHeader>
+                        <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
+                        <IonCardTitle>Survey Results</IonCardTitle>
+                        <IonCardSubtitle>Bar Chart</IonCardSubtitle>
+                    </IonCardHeader>
+                    <IonCardContent>
                         <Chart
-                            width={'700px'}
-                            height={'500px'}
+                            width={'100%'}
+                            height={'75vh'}
                             chartType="BarChart"
                             loader={<div>Loading Chart</div>}
-                            data={[
-                                ['City', '1', '2', '3', '4'],
-                                ['Question 1', 23, 47, 2, 5],
-                                ['Question 2', 24, 10, 40, 3],
-                                ['Question 3', 3, 57, 15, 1],
-                                ['Question 4', 67, 5, 3, 2],
-                                ['Question 5', 2, 5, 1, 69],
-                            ]}
+                            data={resData}
                             options={{
                                 title: 'Answers',
                                 chartArea: { width: '50%' },
@@ -59,28 +86,26 @@ const Result: React.FC = () => {
                                 },
                             }}
                         />
+                    </IonCardContent>
+
                     <IonCardHeader>
-                        <IonCardSubtitle>Simple Pie Chart / It is a hardcoded example</IonCardSubtitle>
-                        <IonCardTitle>Daily Activities</IonCardTitle>
+                        <IonCardSubtitle>CandleStick Chart</IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
                         <Chart
-                            width={'700px'}
-                            height={'500px'}
-                            chartType="PieChart"
+                            width={'100%'}
+                            height={'75vh'}
+                            chartType="CandlestickChart"
                             loader={<div>Loading Chart</div>}
-                            data={[
-                                ['Task', 'Hours per Day'],
-                                ['Work', 11],
-                                ['Eat', 2],
-                                ['Commute', 2],
-                                ['Watch TV', 2],
-                                ['Sleep', 7],
-                            ]}
+                            data={resData}
                             options={{
-                                title: 'My Daily Activities',
+                                legend: 'none',
+                                bar: { groupWidth: '80%' },
+                                candlestick: {
+                                    fallingColor: { strokeWidth: 0, fill: '#a52714' }, // red
+                                    risingColor: { strokeWidth: 0, fill: '#0f9d58' }, // green
+                                },
                             }}
-                            rootProps={{ 'data-testid': '1' }}
                         />
                     </IonCardContent>
                 </IonCard>

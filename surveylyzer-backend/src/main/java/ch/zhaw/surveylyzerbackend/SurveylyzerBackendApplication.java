@@ -1,26 +1,45 @@
 package ch.zhaw.surveylyzerbackend;
 
-import ch.zhaw.db.TmpTestDB;
+import ch.zhaw.pdffunctionality.PDFAnalyzer;
+import ch.zhaw.workflow.Workflow;
+import ch.zhaw.workflow.WorkflowController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.http.HttpEntity;
+
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
-//@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver"})
+//@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.workflow", "ch.zhaw.csvgenerator"})
 @ComponentScan(basePackages = {"ch.zhaw"})
 @EnableMongoRepositories("ch.zhaw.domain")
 public class SurveylyzerBackendApplication {
 
-    public static void main(String[] args) {
+    public static PDFAnalyzer pdfAnalyzer;
+    private static WorkflowController workflowController = new WorkflowController();
+
+
+    public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(SurveylyzerBackendApplication.class, args);
-    }
 
+        //Initiate PDFAnalyzer
+        pdfAnalyzer = new PDFAnalyzer();
+        HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
+        Workflow workflow = workflowResponseEntity.getBody();
+        //pdfAnalyzer.startHighlightingTest();
+        while (!(workflow.isTemplateReceived() && workflow.isSurveyReceived())) {
+            System.out.println("Got Template: " + workflowResponseEntity.getBody().isTemplateReceived());
+            System.out.println("Got Survey: " + workflowResponseEntity.getBody().isSurveyReceived());
+            TimeUnit.SECONDS.sleep(3);
+        }
+        System.out.println("Got all the files -> starting to analyze");
+        workflow.setPdfAnalyzerStarted(true);
+        workflowController.updateWorkflow(workflow);
+        pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
+        workflow.setPdfAnalyzerFinished(true);
+        workflowController.updateWorkflow(workflow);
 
-    // Todo: remove running db-test if not needed anymore...
-    @Bean
-    public TmpTestDB helloRunner() {
-        return new TmpTestDB();
     }
 }
