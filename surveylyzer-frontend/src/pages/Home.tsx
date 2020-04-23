@@ -1,9 +1,9 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
-    IonContent, IonPage, IonIcon, IonFab, IonFabButton,
+    IonContent, IonPage
 } from '@ionic/react';
-import { calculator } from 'ionicons/icons';
+
 // Custom Components
 import DropArea from '../components/DropArea';
 import HeaderNav from '../components/HeaderNav';
@@ -28,12 +28,6 @@ const Home: React.FC<RouteComponentProps> = (props) => {
         <IonPage>
             <HeaderNav />
             <IonContent>
-                <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                    <IonFabButton onClick= {()=>GetStatus()
-                    }>
-                        <IonIcon icon={calculator} />
-                    </IonFabButton>
-                </IonFab>
                 <DropArea />
             </IonContent>
         </IonPage>
