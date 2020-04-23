@@ -1,10 +1,14 @@
-import { IonContent, IonIcon } from "@ionic/react";
-import React from "react";
+import {IonContent, IonIcon, IonLabel} from "@ionic/react";
+import React, {useEffect, useState} from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload } from "ionicons/icons";
 
 const DropArea: React.FC = () => {
+    //Init
+    const [templateText, setTemplateText] = useState("Drag \'n\' drop your Template here");
+    const [surveyText, setSurveyText] = useState("Drag \'n\' drop your Survey here");
+
     let dragIsActive = false;
 
     function handleInput(fileIn: any[], inputType:string) {
@@ -22,13 +26,19 @@ const DropArea: React.FC = () => {
             method: 'POST',
             body: formData
         }).then(response => {
+            if(inputType == "templateFile"){
+                setTemplateText("Uploaded Template: "+ file.name)
+            } else {
+                setSurveyText("Uploaded Template: "+ file.name )
+            }
+
             console.log(inputType+" "+file.name+" has been uploaded now");
         })
     }
 
+
     return (
         <IonContent>
-
             <Dropzone onDrop={acceptedFiles => handleInput(acceptedFiles,"templateFile")}
                       onDragEnter={() => dragIsActive = true}
                       onDragLeave={() => dragIsActive = false}>
@@ -39,13 +49,13 @@ const DropArea: React.FC = () => {
                             <span className="icon"><IonIcon icon={cloudUpload} /></span>
                             {dragIsActive ?
                                 <p>Drop here ...</p> :
-                                <p>Drag 'n' drop your <strong>PDF Template</strong> here, <br />
-                                    or click to select files</p>
+                                <p>{templateText}</p>
                             }
                         </div>
                     </section>
                 )}
             </Dropzone>
+
             <Dropzone onDrop={acceptedFiles => handleInput(acceptedFiles,"dataFile")}
                       onDragEnter={() => dragIsActive = true}
                       onDragLeave={() => dragIsActive = false}>
@@ -56,8 +66,7 @@ const DropArea: React.FC = () => {
                             <span className="icon"><IonIcon icon={cloudUploadOutline} /></span>
                             {dragIsActive ?
                                 <p>Drop here ...</p> :
-                                <p>Drag 'n' drop your <strong>PDF DATA</strong> here, <br />
-                                    or click to select files</p>
+                                <p>{surveyText}</p>
                             }
                         </div>
                     </section>
