@@ -4,7 +4,9 @@ package ch.zhaw.pdfReceiver;
 import ch.zhaw.db.Storage;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;
+import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import org.bson.types.Binary;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,23 +17,66 @@ import java.io.*;
 @RestController
 @RequestMapping("/pdf")
 public class PdfController {
+    @Autowired
+    private Storage databaseAccess ;
 
-    private Storage db ;
+    private Survey survey = null;
+    private File dataFile = null;
 
     /**
-     * POST METHOD -> Create new PDF File
+     * POST METHOD -> Get PDF Files from Frontend
      */
     @PostMapping()
     public ResponseEntity<HttpStatus> createPDF(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
-        System.out.println("Received File: " + file1.getOriginalFilename()+" of type: "+pdfType);
-        forwardMultipartFiletoDB(file1, pdfType);
+        System.out.println("--> Received File: " + file1.getOriginalFilename()+" of type: "+pdfType);
+
+        //templateFile are being persisted in db
+        if(pdfType.equalsIgnoreCase("templateFile")){
+            survey = persistTemplate(file1);
+             } else {
+            //dataFile are not being persisted and will later just be pased to Analyzer
+            dataFile = multipartToFile(file1, file1.getOriginalFilename());
+        }
+        processFilesToAnalyzer();
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    // No Methodiscription since refocatoring required
-    private void forwardMultipartFiletoDB(MultipartFile file, String pdfType){
-        System.out.println("forwardMultipartFiletoDB -> started");
-        db.emptyDatabase();
+    // No method description at this point since this probably doesn't belong in here - Refactoring in progress
+    private void processFilesToAnalyzer(){
+        //check whether both files are here
+        if(survey == null || dataFile == null){
+            System.out.println("Not starting either survey(db object) or datafile missing ");
+        } else {
+            //both files have been received -> start of Analyzer
+            boolean success = SurveylyzerBackendApplication.startAnalzyerIfNotBusy(survey, dataFile);
+            System.out.println("Starting TestHighlight: " + success);
+            // reset to null
+            survey = null;
+            dataFile = null;
+        }
+    }
+
+    /**
+     * Persist received template File and get Survey
+     * @param file
+     * @return
+     */
+    private Survey persistTemplate(MultipartFile file){
+        byte[] pdfData = multipartToByteArray(file);
+        SurveyTemplate t = new SurveyTemplate(new Binary(pdfData));
+        Survey survey = databaseAccess.saveNewResult(null, t);
+        System.out.println("SurveyID:" + survey.getId());
+        return survey;
+    }
+
+
+    /**
+     * Converts Multipart file into Bytearray
+     * @param file
+     * @return
+     */
+    private byte[] multipartToByteArray(MultipartFile file){
         File pdf = null;
         byte[] pdfData = null;
         try {
@@ -43,12 +88,8 @@ public class PdfController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(pdfType.equalsIgnoreCase("templateFile")){
-            SurveyTemplate t = new SurveyTemplate(new Binary(pdfData));
-            Survey s = db.saveNewResult(null, t);
-        } else if (pdfType.equalsIgnoreCase("dataFile")){
-            System.out.println("Not yet implmented");
-        }
+        return pdfData;
+
     }
 
     /**
@@ -66,8 +107,5 @@ public class PdfController {
         }
         return convFile;
     }
-
-
-
 
 }

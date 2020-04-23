@@ -35,9 +35,9 @@ const DropArea: React.FC = () => {
         } else if (surveyFile===null){
             alert("FAIL -> Survey file has not been uploaded!");
         } else {
-            alert("SUCCESS - Your files have been submitted")
             submitFile(templateFile,"templateFile");
             submitFile(surveyFile,"dataFile");
+            alert("SUCCESS - Your files have been submitted")
             }
     }
 

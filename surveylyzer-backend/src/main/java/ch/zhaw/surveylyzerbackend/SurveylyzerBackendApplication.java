@@ -1,14 +1,18 @@
 package ch.zhaw.surveylyzerbackend;
 
+import ch.zhaw.domain.Survey;
+import ch.zhaw.domain.SurveyTemplate;
 import ch.zhaw.pdffunctionality.PDFAnalyzer;
 import ch.zhaw.workflow.Workflow;
 import ch.zhaw.workflow.WorkflowController;
+import org.apache.commons.io.FileUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.HttpEntity;
 
+import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -19,27 +23,54 @@ public class SurveylyzerBackendApplication {
 
     public static PDFAnalyzer pdfAnalyzer;
     private static WorkflowController workflowController = new WorkflowController();
+    private static HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
+    private static Workflow workflow = workflowResponseEntity.getBody();
 
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(SurveylyzerBackendApplication.class, args);
+    }
 
-        //Initiate PDFAnalyzer
-        pdfAnalyzer = new PDFAnalyzer();
-        HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
-        Workflow workflow = workflowResponseEntity.getBody();
-        //pdfAnalyzer.startHighlightingTest();
-        while (!(workflow.isTemplateReceived() && workflow.isSurveyReceived())) {
-            System.out.println("Got Template: " + workflowResponseEntity.getBody().isTemplateReceived());
-            System.out.println("Got Survey: " + workflowResponseEntity.getBody().isSurveyReceived());
-            TimeUnit.SECONDS.sleep(3);
+    public static boolean startAnalzyerIfNotBusy(Survey survey, File dataFile){
+        //check if Analyzer is busy
+        if(workflow.isPdfAnalyzerStarted()){
+            System.out.println("Currently busy -> Handling to be implemented");
+            return false;
         }
-        System.out.println("Got all the files -> starting to analyze");
-        workflow.setPdfAnalyzerStarted(true);
-        workflowController.updateWorkflow(workflow);
-        pdfAnalyzer.startHighlightingExternalFile(workflow.getTemplateName(), workflow.getSurveyName());
-        workflow.setPdfAnalyzerFinished(true);
-        workflowController.updateWorkflow(workflow);
+        else {
+            startAnalyzer(survey, dataFile);
+            return true;
+        }
 
     }
+
+    public static void startAnalyzer(Survey survey, File datafile){
+        //Analyzer not busy -> set states
+        workflow.setPdfAnalyzerFinished(false);
+        workflow.setPdfAnalyzerStarted(true);
+
+        //start analyzing
+        pdfAnalyzer = new PDFAnalyzer();
+        //pdfAnalyzer.startHighlightingTest();
+        File templateFile = getTemplateFile(survey);
+        pdfAnalyzer.startHighlightingExternalFile(templateFile, datafile);
+
+        //Analzer finished reset state
+        workflow.setPdfAnalyzerFinished(true);
+        workflow.setPdfAnalyzerStarted(false);
+    }
+
+    //Todo Check if create empty file really correct
+    public static File getTemplateFile(Survey survey)  {
+        SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
+        File templateFile = new File((System.getProperty("java.io.tmpdir")+"/templateFile"));
+        try{
+            OutputStream os = new FileOutputStream(templateFile);
+            os.write(surveyTemplate.getTemplate().getData());
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        return templateFile;
+    }
+
 }

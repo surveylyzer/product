@@ -72,7 +72,6 @@ public class PDFAnalyzer {
 	}
 
 
-
 	/**
 	 * Tangens(Gegenkathete/Ankathete)
 	 *
@@ -119,14 +118,12 @@ public class PDFAnalyzer {
 		}
 	}
 
-	public void startHighlightingExternalFile(String templateName, String surveyName) {
+	public void startHighlightingExternalFile(File templateFile, File surveyFile) {
 		System.out.println("Starting to analyse external Files");
 		debugen = true;
-		File fileInit= new File(initPath + "pdf_umfragen/pdf_template/"+templateName);
-		File filePrc = new File(initPath + "pdf_umfragen/pdf_survey/"+surveyName);
 		try {
-			PDDocument docInit = PDDocument.load(fileInit);
-			PDDocument docPrc = PDDocument.load(filePrc);
+			PDDocument docInit = PDDocument.load(templateFile);
+			PDDocument docPrc = PDDocument.load(surveyFile);
 			try {
 				prcInitFile(docInit);
 				for (Question q : prcSurveyFile(docPrc)) {
