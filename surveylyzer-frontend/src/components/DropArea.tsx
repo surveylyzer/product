@@ -1,13 +1,13 @@
-import {IonContent, IonIcon, IonLabel} from "@ionic/react";
-import React, {useEffect, useState} from "react";
+import {IonContent, IonIcon } from "@ionic/react";
+import React, { useState} from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload } from "ionicons/icons";
 
 const DropArea: React.FC = () => {
     //Init
-    const [templateText, setTemplateText] = useState("Drag \'n\' drop your Template here");
-    const [surveyText, setSurveyText] = useState("Drag \'n\' drop your Survey here");
+    const [templateText, setTemplateText] = useState("Drag 'n' drop your Template here");
+    const [surveyText, setSurveyText] = useState("Drag 'n' drop your Survey here");
 
     let dragIsActive = false;
 
@@ -26,7 +26,7 @@ const DropArea: React.FC = () => {
             method: 'POST',
             body: formData
         }).then(response => {
-            if(inputType == "templateFile"){
+            if(inputType === "templateFile"){
                 setTemplateText("Uploaded Template: "+ file.name)
             } else {
                 setSurveyText("Uploaded Template: "+ file.name )
