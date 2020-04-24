@@ -1,6 +1,5 @@
 package ch.zhaw.pdffunctionality;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -11,9 +10,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,8 +18,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import lombok.Getter;
-import lombok.Setter;
+import ch.zhaw.results.ResultUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -48,6 +44,7 @@ public class PDFAnalyzer {
 	private BufferedImage searchThroug;
 	private ArrayList<Question> questionList;
 	private boolean evaluationReady;
+	private Object[][] results;
 	private int analysLevel = 3;//Tiefe von Tesseract(3 = Wörter, 4=Buchstaben)
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
@@ -89,7 +86,7 @@ public class PDFAnalyzer {
 	 * vorgegebenes PDF wird analysiert.
 	 */
 	public void startHighlightingTest() {
-		debugen = true;
+		debugen = false;
 		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
 		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
 		try {
@@ -118,20 +115,25 @@ public class PDFAnalyzer {
 		}
 	}
 
-	public void startHighlightingExternalFile(File templateFile, File surveyFile) {
+	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
 		System.out.println("Starting to analyse external Files");
-		debugen = true;
+		debugen = false;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
 			PDDocument docPrc = PDDocument.load(surveyFile);
 			try {
 				prcInitFile(docInit);
-				for (Question q : prcSurveyFile(docPrc)) {
-					System.out.print("\n" + q.getQuestionText() + " ");
-					for (int i : q.getEval()) {
-						System.out.print(i + " ");
+				questionList = prcSurveyFile(docPrc);
+				if (questionList != null) {
+					results = ResultUtils.getResults(questionList);
+					for (Question q : prcSurveyFile(docPrc)) {
+						System.out.print("\n" + q.getQuestionText() + " ");
+						for (int i : q.getEval()) {
+							System.out.print(i + " ");
+						}
 					}
 				}
+				return results;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -140,9 +142,9 @@ public class PDFAnalyzer {
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
 		}
+
+		return results;
 	}
-
-
 
 	/**
 	 * Init File wird analysiert: - Highlighted Fields - Grouping Fields - Unique

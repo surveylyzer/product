@@ -3,9 +3,9 @@ package ch.zhaw.surveylyzerbackend;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;
 import ch.zhaw.pdffunctionality.PDFAnalyzer;
+import ch.zhaw.results.ResultController;
 import ch.zhaw.workflow.Workflow;
 import ch.zhaw.workflow.WorkflowController;
-import org.apache.commons.io.FileUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -13,15 +13,17 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.http.HttpEntity;
 
 import java.io.*;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 @SpringBootApplication
-//@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.resultSender", "ch.zhaw.workflow", "ch.zhaw.csvgenerator"})
+//@ComponentScan(basePackages = {"ch.zhaw.pdfReceiver","ch.zhaw.results", "ch.zhaw.workflow", "ch.zhaw.csvgenerator"})
 @ComponentScan(basePackages = {"ch.zhaw"})
 @EnableMongoRepositories("ch.zhaw.domain")
 public class SurveylyzerBackendApplication {
 
     public static PDFAnalyzer pdfAnalyzer;
+    public static UUID surveyId;
+    public static Object[][] results;
     private static WorkflowController workflowController = new WorkflowController();
     private static HttpEntity<Workflow> workflowResponseEntity = workflowController.getWorkflow();
     private static Workflow workflow = workflowResponseEntity.getBody();
@@ -38,10 +40,12 @@ public class SurveylyzerBackendApplication {
             return false;
         }
         else {
+            if (survey != null) {
+                surveyId = survey.getId();
+            }
             startAnalyzer(survey, dataFile);
             return true;
         }
-
     }
 
     public static void startAnalyzer(Survey survey, File datafile){
@@ -53,7 +57,10 @@ public class SurveylyzerBackendApplication {
         pdfAnalyzer = new PDFAnalyzer();
         //pdfAnalyzer.startHighlightingTest();
         File templateFile = getTemplateFile(survey);
-        pdfAnalyzer.startHighlightingExternalFile(templateFile, datafile);
+        results = pdfAnalyzer.startHighlightingExternalFile(templateFile, datafile);
+        // todo: find solution to initialise data base correctly at this point within resultController, at the moment it throws Null Pointer Exception
+//        ResultController resultController = new ResultController();
+//        resultController.saveResult(surveyId, results);
 
         //Analzer finished reset state
         workflow.setPdfAnalyzerFinished(true);
