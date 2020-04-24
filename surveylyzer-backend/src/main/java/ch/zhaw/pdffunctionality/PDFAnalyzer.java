@@ -566,7 +566,7 @@ public class PDFAnalyzer {
 			Double rotation = calcRotation(w, cwl);
 			bi = rotate(bi, rotation, cwl.get(0).get(1).getBoundingBox().getX(),
 					cwl.get(0).get(1).getBoundingBox().getY());
-			//bi = resize(bi,cwl);
+		//	bi = resize(bi,cwl);
 		} else {
 			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
 			bi = null;
@@ -631,9 +631,7 @@ public class PDFAnalyzer {
 		BufferedImage bi = img;
 		// Distanz
 		Word wOrig1 = null;
-//		Word wOrig2 = cwl.get(cwl.size() - 1).get(0);
 		Word wScan1 = null;
-//		Word wScan2 = cwl.get(cwl.size() - 1).get(1);
 
 		Double distanceBetwOrig = 0.0; //= distWords(wOrig1, wOrig2);
 		Double distanceBetwScan = 0.0 ; //distWords(wScan1, wScan2);
