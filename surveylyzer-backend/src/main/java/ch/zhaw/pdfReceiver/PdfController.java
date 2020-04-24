@@ -43,8 +43,16 @@ public class PdfController {
             initPathSurvey =    currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\pdf_survey\\");
             initPathDestination = currentRelativePath.toAbsolutePath().toString().concat("\\surveylyzer-backend\\pdf_umfragen\\");
         }
+        initExcption();
     }
-
+    
+    private static void initExcption() {
+        Path currentRelativePath = Paths.get("");
+        initPathTemplate =  currentRelativePath.toAbsolutePath().toString().concat("\\pdf_umfragen\\pdf_template\\");
+        initPathSurvey =    currentRelativePath.toAbsolutePath().toString().concat("\\pdf_umfragen\\pdf_survey\\");
+        initPathDestination = currentRelativePath.toAbsolutePath().toString().concat("\\pdf_umfragen\\");
+    	
+    }
 
     /**
      * GET METHOD -> Get static List of received PDFS
@@ -87,6 +95,7 @@ public class PdfController {
         try (OutputStream os = Files.newOutputStream(filepath)) {
             os.write(file.getBytes());
         } catch (IOException e) {
+        	
             e.printStackTrace();
         }
     }

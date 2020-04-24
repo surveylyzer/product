@@ -52,7 +52,7 @@ public class PDFAnalyzer {
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
 	private double confidence = 90.0;//Die genauigkeit, mit welcher ein Wort bestimmt wurde.
-	private int analyseIterations = 2;//Wie oft wird eine Seite analysiert.
+	private int analyseIterations = 1;//Wie oft wird eine Seite analysiert.
 
 	public PDFAnalyzer() {
 		init();
@@ -142,6 +142,7 @@ public class PDFAnalyzer {
 			docPrc.close();
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
+            e.printStackTrace();
 		}
 	}
 
@@ -417,7 +418,7 @@ public class PDFAnalyzer {
 			System.out.println("Anzahl Iterationen: " + this.analyseIterations);
 		}
 		for (int xx = 0; xx < doc.getNumberOfPages(); xx++) {
-			// for(int xx = 4; xx< 5;xx++){
+//			 for(int xx = 0; xx< 1;xx++){
 			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
 			if (debugen) {
 				System.out.println(
@@ -565,6 +566,7 @@ public class PDFAnalyzer {
 			Double rotation = calcRotation(w, cwl);
 			bi = rotate(bi, rotation, cwl.get(0).get(1).getBoundingBox().getX(),
 					cwl.get(0).get(1).getBoundingBox().getY());
+			//bi = resize(bi,cwl);
 		} else {
 			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
 			bi = null;
@@ -588,20 +590,29 @@ public class PDFAnalyzer {
 		/*
 		 * 1. Anhand dem selben Wörtern aus cwl eine Rotation berechnen.
 		 */
-		Word wO1 = cwl.get(0).get(0);
-		Word wS1 = cwl.get(0).get(1);
-		ArrayList<Double> diff = new ArrayList<Double>();
+//		Word wO1 = cwl.get(0).get(0);
+//		Word wS1 = cwl.get(0).get(1);
+		Word wO1 = null;
+		Word wS1 = null;
+//		System.out.println("wO1 " + wO1);
+//		System.out.println("wS1 " + wS1);
 		int i = 0;
-		for (int j = 1; j < cwl.size(); j++) {
+		for (int j = 0; j < cwl.size(); j++) {
 			Word wO = cwl.get(j).get(0);
 			Word wS = cwl.get(j).get(1);
 			if (wS.getConfidence() < confidence) {
 				continue;
 			}
+			if(wO1 == null) {
+				wO1 = cwl.get(j).get(0);
+				wS1 = cwl.get(j).get(1);
+				continue;
+			}
+//			System.out.println("wS " + wS );
+//			System.out.println("wO " + wO );
 			i++;
 			double angleO = getWordAngle(wO1, wO);
 			double angleS = getWordAngle(wS1, wS);
-			diff.add(angleO - angleS);
 			finalRotation += angleO - angleS;
 		}
 		finalRotation = finalRotation / i;
@@ -619,20 +630,40 @@ public class PDFAnalyzer {
 	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
 		BufferedImage bi = img;
 		// Distanz
-		Word wOrig1 = cwl.get(0).get(0);
-		Word wOrig2 = cwl.get(cwl.size() - 1).get(0);
-		Word wScan1 = cwl.get(0).get(1);
-		Word wScan2 = cwl.get(cwl.size() - 1).get(1);
+		Word wOrig1 = null;
+//		Word wOrig2 = cwl.get(cwl.size() - 1).get(0);
+		Word wScan1 = null;
+//		Word wScan2 = cwl.get(cwl.size() - 1).get(1);
 
-		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
-		Double distanceBetwScan = distWords(wScan1, wScan2);
-
+		Double distanceBetwOrig = 0.0; //= distWords(wOrig1, wOrig2);
+		Double distanceBetwScan = 0.0 ; //distWords(wScan1, wScan2);
+		
+		int i = 0;
+		for (int j = 1; j < cwl.size(); j++) {
+			Word wO = cwl.get(j).get(0);
+			Word wS = cwl.get(j).get(1);
+			if (wS.getConfidence() < confidence) {
+				continue;
+			}
+			if(wOrig1 == null) {
+				wOrig1 = cwl.get(j).get(0);
+				wScan1 = cwl.get(j).get(1);
+				continue;
+			}
+			i++;
+			distanceBetwOrig += distWords(wOrig1, wO);
+			distanceBetwScan += distWords(wScan1, wS);
+		}
+		distanceBetwOrig = distanceBetwOrig / i;
+		distanceBetwScan = distanceBetwScan / i;
+		
 		Double calVal = distanceBetwScan * 100 / distanceBetwOrig;
 		calVal = 100 / calVal;
 		if (!calVal.isNaN()) {
 			bi = scale(bi, calVal);
 		}
 		return bi;
+		
 	}
 
 	/**
@@ -718,9 +749,16 @@ public class PDFAnalyzer {
 		int position = 0;
 		int i = 0;
 		for (Rectangle r : gR) {
-			BufferedImage zelle = img.getSubimage((int) (r.getX() - ausrichtung.getX() + (r.getWidth() * 0.2)),
-					(int) (r.getY() - ausrichtung.getY() + (r.getHeight() * 0.2)), (int) (r.getWidth() * 0.6),
-					(int) (r.getHeight() * 0.6));
+			BufferedImage zelle = null;
+			try {
+			zelle = img.getSubimage((int) (r.getX() - ausrichtung.getX() + (r.getWidth() * 0.2))
+												 ,(int) (r.getY() - ausrichtung.getY() + (r.getHeight() * 0.2))
+												 ,(int) (r.getWidth() * 0.6)
+												 ,(int) (r.getHeight() * 0.6));
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			
 			int red = 0;
 			int green = 0;
 			int blue = 0;
