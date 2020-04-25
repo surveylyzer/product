@@ -32,6 +32,7 @@ const Result: React.FC = () => {
                 else {
                     console.log('Fetched json: ', json);
                     // make all row-arrays the same length (for google charts):
+                    // if json
                     let maxL = json[0].length;
                     let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
                     console.log('Googel JSON: ', res);

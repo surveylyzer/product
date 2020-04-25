@@ -18,32 +18,39 @@ import java.io.*;
 @RequestMapping("/pdf")
 public class PdfController {
     @Autowired
-    private Storage databaseAccess ;
+    private Storage databaseAccess;
 
     private Survey survey = null;
-    private File dataFile = null;
+//    private File dataFile = null;
 
     /**
      * POST METHOD -> Get PDF Files from Frontend
      */
-    @PostMapping()
+    @PostMapping("/initMapping")
     public ResponseEntity<HttpStatus> createPDF(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
         System.out.println("--> Received File: " + file1.getOriginalFilename()+" of type: "+pdfType);
 
         //templateFile are being persisted in db
         if(pdfType.equalsIgnoreCase("templateFile")){
             survey = persistTemplate(file1);
-             } else {
+        } else {
             //dataFile are not being persisted and will later just be pased to Analyzer
-            dataFile = multipartToFile(file1, file1.getOriginalFilename());
+            // todo: save SurveyTemplate and return survey ID with Response Entity
+           // dataFile = multipartToFile(file1, file1.getOriginalFilename());
         }
-        processFilesToAnalyzer();
+      //  processFilesToAnalyzer();
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/calculateResults")
+    public void startAnalyze(@RequestParam("id") String id,@RequestParam("dataFile") File dataFile) {
+        // todo invoke PdfAnalyzer
+        processFilesToAnalyzer(dataFile);
+    }
+
     // No method description at this point since this probably doesn't belong in here - Refactoring in progress
-    private void processFilesToAnalyzer(){
+    private void processFilesToAnalyzer(File dataFile){
         //check whether both files are here
         if(survey == null || dataFile == null){
             System.out.println("Not starting either survey(db object) or datafile missing ");

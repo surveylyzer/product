@@ -6,6 +6,7 @@ import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class ResultController {
     private Storage dataBase;
 
     @GetMapping()
-    public Object[][] getResult() {
+    public Object[][] getResult(@RequestParam String surveyId) {
                 /*
         Dummy Code:
         Get Result from DB.
@@ -33,13 +34,12 @@ public class ResultController {
         Es gibt für den Controller auch Wrapper-Klassen für HTTP Status Meldungen.
         Z.B. "Spring Boot ResponseEntity" --> Als Inspiration ;-))
         */
-        UUID surveyId = SurveylyzerBackendApplication.surveyId;
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
 
         if (surveyId != null) {
             // todo: saveResult should be invoked within Application Class instead here
-            saveResult(surveyId, SurveylyzerBackendApplication.results);
+         //   saveResult(surveyId, SurveylyzerBackendApplication.results);
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey.getResult() != null) {
                 return survey.getResult();
@@ -51,6 +51,7 @@ public class ResultController {
             return dummyResult;
         }
     }
+
 
     public void saveResult(UUID surveyId, Object[][] result) {
         Survey survey = dataBase.getSurveyResultById(surveyId);
