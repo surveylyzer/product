@@ -65,7 +65,7 @@ public class PDFAnalyzer {
 		if (Util.isOS()) {
 			initPath = "surveylyzer-backend/";
 			t.setDatapath("surveylyzer-backend/tess/tessdata/");
-		} else {
+		} else {//  bei yannic und evtl heroku: ../
 			initPath = "surveylyzer-backend/";
 			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 		}
@@ -120,8 +120,9 @@ public class PDFAnalyzer {
 	}
 
 	public void startHighlightingExternalFile(String templateName, String surveyName) {
-		System.out.println("Starting to analyse external Files");
-		debugen = true;
+		if(debugen) {
+			System.out.println("Starting to analyse external Files");
+		}
 		File fileInit= new File(initPath + "pdf_umfragen/pdf_template/"+templateName);
 		File filePrc = new File(initPath + "pdf_umfragen/pdf_survey/"+surveyName);
 		try {
@@ -130,10 +131,13 @@ public class PDFAnalyzer {
 			try {
 				prcInitFile(docInit);
 				for (Question q : prcSurveyFile(docPrc)) {
-					System.out.print("\n" + q.getQuestionText() + " ");
-					for (int i : q.getEval()) {
-						System.out.print(i + " ");
+					if(debugen) {
+						System.out.print("\n" + q.getQuestionText() + " ");
+						for (int i : q.getEval()) {
+							System.out.print(i + " ");
+						}
 					}
+
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -158,7 +162,9 @@ public class PDFAnalyzer {
 	public void prcInitFile(PDDocument doc) throws Exception {
 		PDFRenderer renderer = new PDFRenderer(doc);
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
-		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Original.jpg"));
+		if(debugen) {
+			ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Original.jpg"));
+		}
 		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
 		/*
@@ -184,13 +190,12 @@ public class PDFAnalyzer {
 		g2d.dispose();
 
 		allWords = t.getWords(initImg, this.analysLevel);
-
-		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Markiert.jpg"));
 		groupedRectangles = groupRectangle(20, allRectangles);
 		groupedWords = groupWords(20, allWords);
 		questions = makeQuestions(allWords, groupedRectangles);
 		uniquWords = singleWords(allWords);
 		if (debugen) {
+			ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Markiert.jpg"));
 			System.out.println("Anzahl Rechtecke: " + allRectangles.size());
 			System.out.println("Anzahl Fragen: " + groupedRectangles.size());
 			int asdf = 1;
@@ -443,21 +448,26 @@ public class PDFAnalyzer {
 				if (wordPairs.size() == 0) {
 					break;
 				}
-
-				for (List<Word> wl : wordPairs) {
-
-					int Swl_x = (int) wl.get(1).getBoundingBox().getX();
-					int Swl_y = (int) wl.get(1).getBoundingBox().getY();
-					int Swl_w = (int) wl.get(1).getBoundingBox().getWidth();
-					int Swl_h = (int) wl.get(1).getBoundingBox().getHeight();
-					BufferedImage bi = image.getSubimage(Swl_x, Swl_y, Swl_w, Swl_h);
-					if (debugDrawing) {
-						Graphics2D g2d = image.createGraphics();
-						g2d.setColor(Color.RED);
-						g2d.drawRect(Swl_x, Swl_y, Swl_w, Swl_h);
-						g2d.dispose();
+				if (debugDrawing) {
+					BufferedImage bi = image;
+					for (List<Word> wl : wordPairs) {
+						int Swl_x = (int) wl.get(1).getBoundingBox().getX();
+						int Swl_y = (int) wl.get(1).getBoundingBox().getY();
+						int Swl_w = (int) wl.get(1).getBoundingBox().getWidth();
+						int Swl_h = (int) wl.get(1).getBoundingBox().getHeight();
+						// bi = image.getSubimage(Swl_x, Swl_y, Swl_w, Swl_h);
+						if (debugDrawing) {
+							Graphics2D g2d = bi.createGraphics();
+							g2d.setColor(Color.RED);
+							g2d.drawRect(Swl_x, Swl_y, Swl_w, Swl_h);
+							g2d.dispose();
+						}
+					}
+					if (debugen) {
+						ImageIO.write(bi, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "ScannedWords.jpg"));
 					}
 				}
+				
 				image = calibration(image, w, wordPairs);
 				if (image == null) {
 					continue;
@@ -472,11 +482,14 @@ public class PDFAnalyzer {
 						int Owl_y = (int) wl.get(0).getBoundingBox().getY();
 						int Owl_w = (int) wl.get(0).getBoundingBox().getWidth();
 						int Owl_h = (int) wl.get(0).getBoundingBox().getHeight();
-
-						Graphics2D g2do = image.createGraphics();
-						g2do.setColor(Color.BLACK);
+						BufferedImage bufImg = initImg;
+						Graphics2D g2do = bufImg.createGraphics();
+						g2do.setColor(Color.RED);
 						g2do.drawRect(Owl_x, Owl_y, Owl_w, Owl_h);
 						g2do.dispose();
+						if (debugen) {
+							ImageIO.write(bufImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "Words.jpg"));
+						}
 					}
 				}
 			}
@@ -568,7 +581,9 @@ public class PDFAnalyzer {
 					cwl.get(0).get(1).getBoundingBox().getY());
 		//	bi = resize(bi,cwl);
 		} else {
-			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
+			if(debugen) {
+				System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
+			}
 			bi = null;
 		}
 		return bi;
@@ -590,12 +605,8 @@ public class PDFAnalyzer {
 		/*
 		 * 1. Anhand dem selben Wörtern aus cwl eine Rotation berechnen.
 		 */
-//		Word wO1 = cwl.get(0).get(0);
-//		Word wS1 = cwl.get(0).get(1);
 		Word wO1 = null;
 		Word wS1 = null;
-//		System.out.println("wO1 " + wO1);
-//		System.out.println("wS1 " + wS1);
 		int i = 0;
 		for (int j = 0; j < cwl.size(); j++) {
 			Word wO = cwl.get(j).get(0);
@@ -608,8 +619,6 @@ public class PDFAnalyzer {
 				wS1 = cwl.get(j).get(1);
 				continue;
 			}
-//			System.out.println("wS " + wS );
-//			System.out.println("wO " + wO );
 			i++;
 			double angleO = getWordAngle(wO1, wO);
 			double angleS = getWordAngle(wS1, wS);
