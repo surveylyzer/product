@@ -17,7 +17,8 @@ const DropArea: React.FC<DropAreaProps> = ({history}) => {
     const [templateFile, setTemplateFile] = useState(null);
     // Values to be passed to result
     const [surveyFile, setSurveyFile] = useState(null);
-    const [surveyId, setSurveyId] = useState("");
+    // const [surveyId, setSurveyId] = useState(""); // wird nicht gebraucht, denn wir gehen zur nächsten Seite, 
+                                                     // sobald wir sie haben...
 
     let dragIsActive = false;
 
@@ -45,41 +46,44 @@ const DropArea: React.FC<DropAreaProps> = ({history}) => {
         } else {
             submitTemplate(templateFile,"templateFile");
             console.log("submitAllFiles -> SUCCESS - Template has been submitted");
-            while(!readyToPass){
-                alert("Please wait a while");
-                readyToPass();
-            }
-            goToResult();
+            // while(!readyToPass){
+            //     alert("Please wait a while");
+            //     readyToPass();
+            // }
+            // goToResult(); --> sollte aufgerufen werden, sobald du die Antwort erhälst, 
+            //                   also in der fetch methode, siehe unten...
             }
     }
 
-    function submitTemplate(file:any, inputType:string){
+    function submitTemplate(file: any, inputType: string) {
         let formData = new FormData();
-        formData.append('file1',file);
+        formData.append('file1', file);
         formData.append('pdfType', inputType);
         fetch('http://localhost:8080/template', {
             method: 'POST',
             body: formData
         })
             .then(response => response.json())
-            .then( json => {
-                    console.log("submitTemplate -> Template: ",file.name+" has been submitted");
-                    console.log("submitTemplate -> Survey ID: ", json.toString());
-                    let fetchedSurveyId = json.toString();
-                    setSurveyId(fetchedSurveyId);
+            .then(json => {
+                console.log("submitTemplate -> Template: ", file.name + " has been submitted");
+                console.log("submitTemplate -> Survey ID: ", json.toString());
+                let fetchedSurveyId = json.toString();
+                // setSurveyId(fetchedSurveyId);
+                goToResult(fetchedSurveyId, surveyFile != null ? surveyFile : null);
             })
     }
 
-    function readyToPass(){
-        if (surveyId === ""){
-            return false;
-        } else {
-            return true;
-        }
-    }
+    // function readyToPass(){
+    //     if (surveyId === ""){
+    //         return false;
+    //     } else {
+    //         return true;
+    //     }
+    // }
 
-    function goToResult(){
-        history.push({ pathname: '/result', state: { surveyId: surveyId, surveyFile: surveyFile} })
+    function goToResult(id: String, file: File | null) {
+        if (!file) { console.error("Survey File mustn't be null!!"); return; }
+        history.push('/result', { surveyId: id, surveyFile: file });
     }
 
     return (
