@@ -12,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
+import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/pdf")
+@RequestMapping()
 public class PdfController {
     @Autowired
     private Storage databaseAccess ;
@@ -26,36 +27,17 @@ public class PdfController {
     /**
      * POST METHOD -> Get PDF Files from Frontend
      */
-    @PostMapping()
-    public ResponseEntity<HttpStatus> createPDF(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
-        System.out.println("--> Received File: " + file1.getOriginalFilename()+" of type: "+pdfType);
-
+    @PostMapping("/template")
+    // --> COM 1 Ende <---
+    public ResponseEntity<UUID> persistTemplate(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
+        System.out.println("--> Received Template : " + file1.getOriginalFilename());
         //templateFile are being persisted in db
-        if(pdfType.equalsIgnoreCase("templateFile")){
-            survey = persistTemplate(file1);
-             } else {
-            //dataFile are not being persisted and will later just be pased to Analyzer
-            dataFile = multipartToFile(file1, file1.getOriginalFilename());
-        }
-        processFilesToAnalyzer();
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        survey = persistTemplate(file1);
+        UUID surveyId = survey.getId();
+        // --> COM 2 Start <---
+        return new ResponseEntity<>(surveyId,HttpStatus.CREATED);
     }
 
-    // No method description at this point since this probably doesn't belong in here - Refactoring in progress
-    private void processFilesToAnalyzer(){
-        //check whether both files are here
-        if(survey == null || dataFile == null){
-            System.out.println("Not starting either survey(db object) or datafile missing ");
-        } else {
-            //both files have been received -> start of Analyzer
-            boolean success = SurveylyzerBackendApplication.startAnalzyerIfNotBusy(survey, dataFile);
-            System.out.println("Starting TestHighlight: " + success);
-            // reset to null
-            survey = null;
-            dataFile = null;
-        }
-    }
 
     /**
      * Persist received template File and get Survey

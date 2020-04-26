@@ -16,7 +16,7 @@ const Home: React.FC<RouteComponentProps> = (props) => {
         <IonPage>
             <HeaderNav />
             <IonContent>
-                <DropArea />
+                <DropArea history={props.history} />
             </IonContent>
         </IonPage>
     );

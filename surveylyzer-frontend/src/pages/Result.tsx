@@ -1,5 +1,5 @@
 import { Chart } from "react-google-charts";
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     IonBackButton,
     IonButtons,
@@ -17,7 +17,13 @@ import {
 } from '@ionic/react';
 
 
-const Result: React.FC = () => {
+
+
+
+
+
+const Result: React.FC= () => {
+
     // Init
     const [resData, setResData] = useState([]);
     const url = 'http://localhost:8080/pdfResult';

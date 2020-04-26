@@ -4,12 +4,20 @@ import Dropzone from "react-dropzone";
 import './DropArea.css';
 import {cloudUploadOutline, cloudUpload, play} from "ionicons/icons";
 
-const DropArea: React.FC = () => {
+import {History} from "history";
+
+interface DropAreaProps {
+    history : History;
+}
+
+const DropArea: React.FC<DropAreaProps> = ({history}) => {
     //Init
     const [templateText, setTemplateText] = useState("Drag 'n' drop your Template here");
     const [surveyText, setSurveyText] = useState("Drag 'n' drop your Survey here");
     const [templateFile, setTemplateFile] = useState(null);
+    // Values to be passed to result
     const [surveyFile, setSurveyFile] = useState(null);
+    const [surveyId, setSurveyId] = useState("");
 
     let dragIsActive = false;
 
@@ -18,7 +26,7 @@ const DropArea: React.FC = () => {
         let file = fileIn[0];
         let arr = file?.name?.split('.');
         if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
-            console.log(file);
+            console.log("uploadFile -> ", file);
         }
         if(inputType === "templateFile"){
             setTemplateFile(file);
@@ -35,22 +43,43 @@ const DropArea: React.FC = () => {
         } else if (surveyFile===null){
             alert("FAIL -> Survey file has not been uploaded!");
         } else {
-            submitFile(templateFile,"templateFile");
-            submitFile(surveyFile,"dataFile");
-            alert("SUCCESS - Your files have been submitted")
+            submitTemplate(templateFile,"templateFile");
+            console.log("submitAllFiles -> SUCCESS - Template has been submitted");
+            while(!readyToPass){
+                alert("Please wait a while");
+                readyToPass();
+            }
+            goToResult();
             }
     }
 
-    function submitFile(file:any, inputType:string){
+    function submitTemplate(file:any, inputType:string){
         let formData = new FormData();
         formData.append('file1',file);
         formData.append('pdfType', inputType);
-        fetch('http://localhost:8080/pdf', {
+        fetch('http://localhost:8080/template', {
             method: 'POST',
             body: formData
-        }).then(response => {
-            console.log(inputType+" "+file.name+" has been submitted");
         })
+            .then(response => response.json())
+            .then( json => {
+                    console.log("submitTemplate -> Template: ",file.name+" has been submitted");
+                    console.log("submitTemplate -> Survey ID: ", json.toString());
+                    let fetchedSurveyId = json.toString();
+                    setSurveyId(fetchedSurveyId);
+            })
+    }
+
+    function readyToPass(){
+        if (surveyId === ""){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function goToResult(){
+        history.push({ pathname: '/result', state: { surveyId: surveyId, surveyFile: surveyFile} })
     }
 
     return (
