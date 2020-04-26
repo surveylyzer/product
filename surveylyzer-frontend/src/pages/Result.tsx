@@ -54,7 +54,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
         console.log(";-)");
         console.log("ERHALTENE Props auf Result-Page:", myProps);
         fetchResult();
-    }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
+    }, [fetchResult, myProps]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
 
     return (
