@@ -1,5 +1,5 @@
 import { Chart } from "react-google-charts";
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     IonBackButton,
     IonButtons,
@@ -15,10 +15,16 @@ import {
     IonToolbar,
     IonButton
 } from '@ionic/react';
+import { RouteComponentProps } from "react-router";
 
+interface ResultProps {
+    surveyId : String,
+    surveyFile : File
+}
 
-const Result: React.FC = () => {
+const Result: React.FC<RouteComponentProps> = (props) => {
     // Init
+    const myProps : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
     const [resData, setResData] = useState([]);
     const url = 'http://localhost:8080/pdfResult';
     const fetchResult = useCallback(() => {
@@ -46,8 +52,10 @@ const Result: React.FC = () => {
     // Fetch Result Data
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
+        console.log(";-)");
+        console.log("ERHALTENE Props auf Result-Page:", myProps);
         fetchResult();
-    }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
+    }, [fetchResult, myProps]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
 
     return (
@@ -66,6 +74,8 @@ const Result: React.FC = () => {
                         <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardTitle>Survey Results</IonCardTitle>
                         <IonCardSubtitle>Bar Chart</IonCardSubtitle>
+                        <IonCardSubtitle>{"ID: " + myProps?.surveyId}</IonCardSubtitle>
+                        <IonCardSubtitle>{"File: " + myProps?.surveyFile?.name}</IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
                         <Chart
