@@ -29,7 +29,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     const myProps : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
     const [resData, setResData] = useState([]);
     const url = 'http://localhost:8080/resultObject';
-    const urlRawData = 'http://localhost:8080/rawResults';
 
     const fetchResult = useCallback(() => {
         fetch(url)
@@ -85,11 +84,12 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 })
         }
         submitSurveyPdfAndGetResult(properties.surveyFile, properties.surveyId);
-        // eslint-disable-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
-    const rawDataUrl = urlRawData + '?' + 'surveyId=' + myProps?.surveyId; // eslint-disable-line prefer-template
+    const rawDataUrl = 'http://localhost:8080/rawResults?surveyId=' + String(myProps?.surveyId);
+    // eslint-disable-line prefer-template
 
     function renderData(resData: any) {
         if (resData.length === 0) {
