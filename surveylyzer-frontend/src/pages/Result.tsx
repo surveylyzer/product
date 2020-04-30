@@ -31,33 +31,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     const url = 'http://localhost:8080/resultObject';
     const urlRawData = 'http://localhost:8080/rawResults';
 
-    function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
-        let formData = new FormData();
-        formData.append('file', file);
-        formData.append('surveyId', surveyId);
-        fetch(url, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(json => {
-                if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
-                    alert('server is still working...');
-                    setTimeout(() => { fetchResult(); }, 2000);
-                }
-                else {
-                    console.log('Fetched json: ', json);
-                    // make all row-arrays the same length (for google charts):
-                    // if json
-                    let maxL = json[0].length;
-                    let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
-                    console.log('Googel JSON: ', res);
-                    // update state
-                    setResData(res);
-                }
-            })
-    }
-
     const fetchResult = useCallback(() => {
         fetch(url)
             .then(response => response.json())
@@ -84,14 +57,41 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     // Fetch Result Data
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        submitSurveyPdfAndGetResult(myProps.surveyFile, myProps.surveyId);
+        const properties : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
+        function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
+            let formData = new FormData();
+            formData.append('file', file);
+            formData.append('surveyId', surveyId);
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(json => {
+                    if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
+                        alert('server is still working...');
+                        setTimeout(() => { fetchResult(); }, 2000);
+                    }
+                    else {
+                        console.log('Fetched json: ', json);
+                        // make all row-arrays the same length (for google charts):
+                        // if json
+                        let maxL = json[0].length;
+                        let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
+                        console.log('Googel JSON: ', res);
+                        // update state
+                        setResData(res);
+                    }
+                })
+        }
+        submitSurveyPdfAndGetResult(properties.surveyFile, properties.surveyId);
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
-    const rawDataUrl = urlRawData+ "?" + "surveyId=" + myProps?.surveyId;
+    const rawDataUrl = urlRawData + '?' + 'surveyId=' + myProps?.surveyId;
 
     function renderData(resData: any) {
-        if (resData.length == 0) {
+        if (resData.length === 0) {
             return (
                 <div>
                     <IonImg class='processing' src='./assets/img/processing.gif' alt="processing" />
