@@ -13,9 +13,11 @@ import {
     IonPage,
     IonTitle,
     IonToolbar,
-    IonButton
+    IonButton, IonImg
 } from '@ionic/react';
 import { RouteComponentProps } from "react-router";
+
+import './Result.css';
 
 interface ResultProps {
     surveyId : string,
@@ -26,9 +28,8 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     // Init
     const myProps : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
     const [resData, setResData] = useState([]);
-  //  const url = 'http://localhost:8080/resultObject';
     const url = 'http://localhost:8080/resultObject';
-    console.log("Props: ", myProps.surveyId);
+    const urlRawData = 'http://localhost:8080/rawResults';
 
     function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
         let formData = new FormData();
@@ -83,13 +84,45 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     // Fetch Result Data
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        console.log(";-)");
-        console.log("ERHALTENE Props auf Result-Page:", myProps);
-        console.log("Survey ID:", myProps.surveyId);
         submitSurveyPdfAndGetResult(myProps.surveyFile, myProps.surveyId);
-    }, [fetchResult, myProps]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
+    }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
+    const rawDataUrl = urlRawData+ "?" + "surveyId=" + myProps?.surveyId;
+
+    function renderData(resData: any) {
+        if (resData.length == 0) {
+            return (
+                <div>
+                    <IonImg class='processing' src='./assets/img/processing.gif' alt="processing" />
+                    <IonCardSubtitle class='info'> We are processing your request... It can take some time </IonCardSubtitle>
+                </div>
+            )
+        } else {
+            return (
+                <Chart
+                    width={'100%'}
+                    height={'75vh'}
+                    chartType="BarChart"
+                    loader={<div>Loading Chart</div>}
+                    data={resData}
+                    options={{
+                        title: 'Answers',
+                        chartArea: { width: '50%' },
+                        colors: ['#124868', '#259BDE', '#7BC8F4', '#D3ECFB'],
+                        hAxis: {
+                            title: 'Total',
+                            minValue: 0,
+                        },
+                        vAxis: {
+                            title: 'Survey',
+                        },
+                    }}
+                />
+            );
+        }
+    }
+
 
     return (
         <IonPage>
@@ -105,31 +138,20 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 <IonCard class="welcome-card">
                     <IonCardHeader>
                         <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
-                        <IonCardTitle>{surveyName}</IonCardTitle>
-                        <IonCardSubtitle>Bar Chart</IonCardSubtitle>
-                        <IonCardSubtitle>{"ID: " + myProps?.surveyId}</IonCardSubtitle>
-                        <IonCardSubtitle>{"File: " + myProps?.surveyFile?.name}</IonCardSubtitle>
+                        <IonCardTitle class={"title"}>{surveyName.toUpperCase()}</IonCardTitle>
+                        <IonCardSubtitle class={"subtitle"}>Not patient enough to wait for the survey result... ? </IonCardSubtitle>
+                        <div className="block">
+                            <IonCardSubtitle>Copy and paste this link in new browser tab to access the <b>raw data: </b>
+                                <span className="url">{rawDataUrl}</span>
+                            </IonCardSubtitle>
+                            <IonCardSubtitle>Copy and paste this ID to put them in the id field on the home page to access the
+                                <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
+                            </IonCardSubtitle>
+                        </div>
+
                     </IonCardHeader>
                     <IonCardContent>
-                        <Chart
-                            width={'100%'}
-                            height={'75vh'}
-                            chartType="BarChart"
-                            loader={<div>Loading Chart</div>}
-                            data={resData}
-                            options={{
-                                title: 'Answers',
-                                chartArea: { width: '50%' },
-                                colors: ['#124868', '#259BDE', '#7BC8F4', '#D3ECFB'],
-                                hAxis: {
-                                    title: 'Total',
-                                    minValue: 0,
-                                },
-                                vAxis: {
-                                    title: 'Survey',
-                                },
-                            }}
-                        />
+                        {renderData(resData)}
                     </IonCardContent>
                 </IonCard>
             </IonContent>
