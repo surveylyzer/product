@@ -18,7 +18,7 @@ import {
 import { RouteComponentProps } from "react-router";
 
 interface ResultProps {
-    surveyId : String,
+    surveyId : string,
     surveyFile : File
 }
 
@@ -26,7 +26,37 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     // Init
     const myProps : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
     const [resData, setResData] = useState([]);
-    const url = 'http://localhost:8080/pdfResult';
+  //  const url = 'http://localhost:8080/resultObject';
+    const url = 'http://localhost:8080/resultObject';
+    console.log("Props: ", myProps.surveyId);
+
+    function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
+        let formData = new FormData();
+        formData.append('file', file);
+        formData.append('surveyId', surveyId);
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(json => {
+                if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
+                    alert('server is still working...');
+                    setTimeout(() => { fetchResult(); }, 2000);
+                }
+                else {
+                    console.log('Fetched json: ', json);
+                    // make all row-arrays the same length (for google charts):
+                    // if json
+                    let maxL = json[0].length;
+                    let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
+                    console.log('Googel JSON: ', res);
+                    // update state
+                    setResData(res);
+                }
+            })
+    }
+
     const fetchResult = useCallback(() => {
         fetch(url)
             .then(response => response.json())
@@ -49,14 +79,17 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             .catch((err) => { console.log(err); alert('id not found') });
     }, []);
 
+
     // Fetch Result Data
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         console.log(";-)");
         console.log("ERHALTENE Props auf Result-Page:", myProps);
-        fetchResult();
+        console.log("Survey ID:", myProps.surveyId);
+        submitSurveyPdfAndGetResult(myProps.surveyFile, myProps.surveyId);
     }, [fetchResult, myProps]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
+    const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
 
     return (
         <IonPage>
@@ -72,7 +105,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 <IonCard class="welcome-card">
                     <IonCardHeader>
                         <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
-                        <IonCardTitle>Survey Results</IonCardTitle>
+                        <IonCardTitle>{surveyName}</IonCardTitle>
                         <IonCardSubtitle>Bar Chart</IonCardSubtitle>
                         <IonCardSubtitle>{"ID: " + myProps?.surveyId}</IonCardSubtitle>
                         <IonCardSubtitle>{"File: " + myProps?.surveyFile?.name}</IonCardSubtitle>
@@ -94,27 +127,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                                 },
                                 vAxis: {
                                     title: 'Survey',
-                                },
-                            }}
-                        />
-                    </IonCardContent>
-
-                    <IonCardHeader>
-                        <IonCardSubtitle>CandleStick Chart</IonCardSubtitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                        <Chart
-                            width={'100%'}
-                            height={'75vh'}
-                            chartType="CandlestickChart"
-                            loader={<div>Loading Chart</div>}
-                            data={resData}
-                            options={{
-                                legend: 'none',
-                                bar: { groupWidth: '80%' },
-                                candlestick: {
-                                    fallingColor: { strokeWidth: 0, fill: '#a52714' }, // red
-                                    risingColor: { strokeWidth: 0, fill: '#0f9d58' }, // green
                                 },
                             }}
                         />

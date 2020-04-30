@@ -1,0 +1,120 @@
+package ch.zhaw.controller;
+
+import ch.zhaw.db.Storage;
+import ch.zhaw.domain.Survey;
+import ch.zhaw.domain.SurveyTemplate;
+import ch.zhaw.pdffunctionality.PDFAnalyzer;
+import org.apache.commons.io.FileUtils;
+import org.bson.types.Binary;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * Get result data from database or error messages.
+ */
+@RestController
+@RequestMapping()
+public class ResultController {
+
+    @Autowired
+    private Storage dataBase;
+
+    private Object[][] results;
+
+    @PostMapping("/resultObject")
+    public ResponseEntity<Object [][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
+        PDFAnalyzer analyzer = new PDFAnalyzer();
+        Survey survey = dataBase.getSurveyResultById(surveyId);
+
+        SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
+        File template = new File("template");
+        File surveyFile = new File("survey");
+
+        if (surveyTemplate != null) {
+            Binary binaryTemplate = surveyTemplate.getTemplate();
+            if (binaryTemplate != null) {
+                byte[] byteTemplate = binaryTemplate.getData();
+
+                try {
+                    FileUtils.writeByteArrayToFile(template, byteTemplate);
+                    FileUtils.writeByteArrayToFile(surveyFile, ControllerUtils.multipartToByteArray(file));
+                    results = analyzer.startHighlightingExternalFile(template, surveyFile);
+                    survey.setResult(results);
+                    dataBase.saveOrUpdateSurveyResult(survey);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        return new ResponseEntity<>(results, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
+    @ResponseBody
+    public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
+        String[] header = {"Questions", "1", "2", "3"};
+        Object[][] dummyResult = {header};
+
+        if (surveyId != null) {
+            // todo: saveResult should be invoked within Application Class instead here
+            //   saveResult(surveyId, SurveylyzerBackendApplication.results);
+            Survey survey = dataBase.getSurveyResultById(surveyId);
+            if (survey.getResult() != null) {
+                return survey.getResult();
+            } else {
+                return dummyResult;
+            }
+
+        } else {
+            return dummyResult;
+        }
+    }
+
+//    @GetMapping("/userResults")
+//    public ResponseEntity<Object [][]> getResult(@RequestParam("surveyId") String surveyId) {
+//                /*
+//        Dummy Code:
+//        Get Result from DB.
+//        if null --> invalid id / id not found message
+//        if found but empty result --> still working message
+//        if found with result --> return result (like getFakeData())
+//
+//        (Du kannst auch ein anderes Objekt zurückgeben, muss kein Object[][] sein...
+//        Es gibt für den Controller auch Wrapper-Klassen für HTTP Status Meldungen.
+//        Z.B. "Spring Boot ResponseEntity" --> Als Inspiration ;-))
+//        */
+//        String[] header = {"Questions", "1", "2", "3"};
+//        Object[][] dummyResult = {header};
+//
+//        if (surveyId != null) {
+//            // todo: saveResult should be invoked within Application Class instead here
+//         //   saveResult(surveyId, SurveylyzerBackendApplication.results);
+//            Survey survey = dataBase.getSurveyResultById(surveyId);
+//            if (survey.getResult() != null) {
+//                return new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
+//            } else {
+//                return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+//            }
+//
+//        } else {
+//            return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+//        }
+//    }
+
+    private static Object[][] simulateBusy() {
+        // return null; // "not found"
+        // return simulateBusy(); // "found but empty --> result not yet ready"
+        Object[][] busy = {{"$$busy$$"}};
+        return busy;
+    }
+
+}
