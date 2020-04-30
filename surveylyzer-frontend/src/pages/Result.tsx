@@ -85,11 +85,11 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 })
         }
         submitSurveyPdfAndGetResult(properties.surveyFile, properties.surveyId);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-line react-hooks/exhaustive-deps
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
-    const urlPartOne = urlRawData + '?' + 'surveyId=';
+    const rawDataUrl = urlRawData + '?' + 'surveyId=' + myProps?.surveyId; // eslint-disable-line prefer-template
 
     function renderData(resData: any) {
         if (resData.length === 0) {
@@ -143,7 +143,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                         <IonCardSubtitle class={"subtitle"}>Not patient enough to wait for the survey result... ? </IonCardSubtitle>
                         <div className="block">
                             <IonCardSubtitle>Copy and paste this link in new browser tab to access the <b>raw data: </b>
-                                <span className="url">{urlPartOne.concat(myProps?.surveyId)}</span>
+                                <span className="url">{rawDataUrl}</span>
                             </IonCardSubtitle>
                             <IonCardSubtitle>Copy and paste this ID to put them in the id field on the home page to access the
                                 <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
