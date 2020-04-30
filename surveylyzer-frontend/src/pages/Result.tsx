@@ -85,6 +85,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 })
         }
         submitSurveyPdfAndGetResult(properties.surveyFile, properties.surveyId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
