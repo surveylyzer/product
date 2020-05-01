@@ -1,5 +1,5 @@
 import { IonCardContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
-import React, { useState, constructor } from "react";
+import React, { useState} from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload, play } from "ionicons/icons";

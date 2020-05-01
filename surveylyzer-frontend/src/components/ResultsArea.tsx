@@ -1,5 +1,5 @@
 import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonInput, IonCardContent, IonText } from "@ionic/react";
-import React, {useState} from 'react';
+import React from 'react';
 import './DropArea.css';
 import { play } from "ionicons/icons";
 
@@ -11,7 +11,7 @@ interface ResultProps {
 
 const ResultsArea: React.FC<ResultProps> = ({ history }) => {
 
-    const [surveyId, setSurveyId] = useState(null);
+    // const [surveyId, setSurveyId] = useState(null);
 
     function submitIdAndGetResult(surveyId: any) {
         let formData = new FormData();
@@ -39,7 +39,7 @@ const ResultsArea: React.FC<ResultProps> = ({ history }) => {
     }
 
     const text = "b7d374ad-cf62-4202-8898-4f7dcae533d6";
-    const textLang = "b8718b71-48f9-4a4f-b964-99e201b60560";
+    // const textLang = "b8718b71-48f9-4a4f-b964-99e201b60560";
 
 
 

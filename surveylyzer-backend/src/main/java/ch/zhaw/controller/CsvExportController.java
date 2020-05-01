@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class CsvExportController {
 
     private SurveyItemManager itemManager = new SurveyItemManager();
     private List<SurveyItemAbstract> surveyItems = new ArrayList<>();
-    private String surveyId = "";
 
     @PostMapping("/get-results-csv")
     public ResponseEntity<String> prepareResultForExport(@RequestParam("surveyId") String surveyId) {
