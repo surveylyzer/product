@@ -88,8 +88,8 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
 
     const surveyName = myProps?.surveyFile?.name.replace(".pdf", "");
+    // eslint-disable-next-line prefer-template
     const rawDataUrl = 'http://localhost:8080/rawResults?surveyId=' + String(myProps?.surveyId);
-    // eslint-disable-line prefer-template
 
     function renderData(resData: any) {
         if (resData.length === 0) {
@@ -124,6 +124,35 @@ const Result: React.FC<RouteComponentProps> = (props) => {
         }
     }
 
+    function renderLinks() {
+        if (resData.length === 0) {
+            return(
+                <div>
+                    <IonCardSubtitle class={"subtitle"}>Not patient enough to wait for the survey result... ?</IonCardSubtitle>
+                    <div className="block">
+                        <IonCardSubtitle>Copy and save this link to access the <b>raw data: </b>
+                            <span className="url">{rawDataUrl}</span>
+                        </IonCardSubtitle>
+                        <IonCardSubtitle>Copy and save this ID to put them in the "Result ID" field on the home page to access the
+                            <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
+                        </IonCardSubtitle>
+                    </div>
+                </div>
+            )
+        } else {
+            return(
+                <div>
+                    <IonCardSubtitle>Click this link to access the <b>raw data: </b>
+                        <a href={rawDataUrl} className="url_ready">{rawDataUrl}</a>
+                    </IonCardSubtitle>
+                    <IonCardSubtitle>Save this ID to access the
+                        <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
+                    </IonCardSubtitle>
+                </div>
+            )
+        }
+    }
+
 
     return (
         <IonPage>
@@ -140,16 +169,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                     <IonCardHeader>
                         <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardTitle class={"title"}>{surveyName.toUpperCase()}</IonCardTitle>
-                        <IonCardSubtitle class={"subtitle"}>Not patient enough to wait for the survey result... ? </IonCardSubtitle>
-                        <div className="block">
-                            <IonCardSubtitle>Copy and paste this link in new browser tab to access the <b>raw data: </b>
-                                <span className="url">{rawDataUrl}</span>
-                            </IonCardSubtitle>
-                            <IonCardSubtitle>Copy and paste this ID to put them in the id field on the home page to access the
-                                <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
-                            </IonCardSubtitle>
-                        </div>
-
+                        {renderLinks()}
                     </IonCardHeader>
                     <IonCardContent>
                         {renderData(resData)}

@@ -31,3 +31,11 @@
 .block{
     margin-left: 2em;
 }
+
+.url_ready:hover {
+    color: #8BB0F2;
+    font-weight: bold;
+    cursor: pointer;
+    target-name: new;
+    target-new: tab;
+}

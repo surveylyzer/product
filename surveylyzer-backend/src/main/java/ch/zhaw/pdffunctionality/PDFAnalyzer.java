@@ -18,7 +18,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import ch.zhaw.results.ResultUtils;
+import ch.zhaw.controller.ResultUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
