@@ -1,4 +1,4 @@
-package ch.zhaw.csvgenerator;
+package ch.zhaw.surveyitems;
 
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvBindByName;

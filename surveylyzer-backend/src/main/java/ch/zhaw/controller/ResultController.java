@@ -1,5 +1,6 @@
 package ch.zhaw.controller;
 
+import ch.zhaw.controller.utils.ControllerUtils;
 import ch.zhaw.db.Storage;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;
@@ -58,6 +59,7 @@ public class ResultController {
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
+    //todo: it has be still implemented in FE
     @GetMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
         String[] header = {"Questions", "1", "2", "3"};

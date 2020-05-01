@@ -1,6 +1,7 @@
 package ch.zhaw.controller;
 
 
+import ch.zhaw.controller.utils.ControllerUtils;
 import ch.zhaw.db.Storage;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;

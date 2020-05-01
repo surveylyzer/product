@@ -1,4 +1,4 @@
-package ch.zhaw.csvgenerator;
+package ch.zhaw.surveyitems;
 
 public class SurveyItemAbstract {
 }

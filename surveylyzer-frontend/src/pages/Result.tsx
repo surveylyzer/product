@@ -29,6 +29,44 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     const myProps : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
     const [resData, setResData] = useState([]);
     const url = 'http://localhost:8080/resultObject';
+    const urlCsv = 'http://localhost:8080/get-results-csv';
+
+    function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
+        let formData = new FormData();
+        formData.append('file', file);
+        formData.append('surveyId', surveyId);
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(json => {
+                if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
+                    alert('server is still working...');
+                    setTimeout(() => { fetchResult(); }, 2000);
+                }
+                else {
+                    console.log('Fetched json: ', json);
+                    // make all row-arrays the same length (for google charts):
+                    // if json
+                    let maxL = json[0].length;
+                    let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
+                    console.log('Googel JSON: ', res);
+                    // update state
+                    setResData(res);
+                }
+            })
+    }
+
+    function submitSurveyId(surveyId: string) {
+        let formData = new FormData();
+        formData.append('surveyId', surveyId);
+        fetch(urlCsv, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response);
+    }
 
     const fetchResult = useCallback(() => {
         fetch(url)
@@ -57,32 +95,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         const properties : ResultProps = props.location.state as ResultProps || {surveyId:null, surveyFile :null};
-        function submitSurveyPdfAndGetResult(file: any, surveyId: string) {
-            let formData = new FormData();
-            formData.append('file', file);
-            formData.append('surveyId', surveyId);
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(json => {
-                    if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
-                        alert('server is still working...');
-                        setTimeout(() => { fetchResult(); }, 2000);
-                    }
-                    else {
-                        console.log('Fetched json: ', json);
-                        // make all row-arrays the same length (for google charts):
-                        // if json
-                        let maxL = json[0].length;
-                        let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
-                        console.log('Googel JSON: ', res);
-                        // update state
-                        setResData(res);
-                    }
-                })
-        }
         submitSurveyPdfAndGetResult(properties.surveyFile, properties.surveyId);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchResult]); // [] --> only on "Mount and Unmount", pass function avoids missing dependency error
@@ -140,8 +152,10 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 </div>
             )
         } else {
+            submitSurveyId(myProps.surveyId);
             return(
                 <div>
+                    <IonButton class={"button"} href={"/export-survey-results"}>Export Data as CSV</IonButton>
                     <IonCardSubtitle>Click this link to access the <b>raw data: </b>
                         <a href={rawDataUrl} className="url_ready">{rawDataUrl}</a>
                     </IonCardSubtitle>
@@ -167,7 +181,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             <IonContent>
                 <IonCard class="welcome-card">
                     <IonCardHeader>
-                        <IonButton href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardTitle class={"title"}>{surveyName.toUpperCase()}</IonCardTitle>
                         {renderLinks()}
                     </IonCardHeader>

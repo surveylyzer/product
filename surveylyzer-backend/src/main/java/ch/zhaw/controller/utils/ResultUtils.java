@@ -1,4 +1,4 @@
-package ch.zhaw.controller;
+package ch.zhaw.controller.utils;
 
 import ch.zhaw.pdffunctionality.Question;
 

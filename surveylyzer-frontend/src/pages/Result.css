@@ -39,3 +39,8 @@
     target-name: new;
     target-new: tab;
 }
+
+.button{
+    padding-bottom: 0.6em;
+    padding-top: 0.2em;
+}

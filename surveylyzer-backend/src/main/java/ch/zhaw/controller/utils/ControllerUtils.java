@@ -1,4 +1,4 @@
-package ch.zhaw.controller;
+package ch.zhaw.controller.utils;
 
 import org.springframework.web.multipart.MultipartFile;
 
