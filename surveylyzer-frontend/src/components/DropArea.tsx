@@ -1,5 +1,5 @@
-import { IonContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
-import React, { useState } from "react";
+import { IonCardContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import React, { useState, constructor } from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload, play } from "ionicons/icons";
@@ -71,7 +71,7 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
     }
 
     return (
-        <IonContent>
+        <IonCardContent>
             <Dropzone onDrop={acceptedFiles => uploadFile(acceptedFiles, "templateFile")}
                 onDragEnter={() => dragIsActive = true}
                 onDragLeave={() => dragIsActive = false}>
@@ -112,7 +112,7 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
                 </IonFabButton>
             </IonFab>
 
-        </IonContent>
+        </IonCardContent>
     );
 }
 export default DropArea;

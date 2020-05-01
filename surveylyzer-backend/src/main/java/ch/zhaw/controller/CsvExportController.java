@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +35,7 @@ public class CsvExportController {
     public ResponseEntity<String> prepareResultForExport(@RequestParam("surveyId") String surveyId) {
         Object[][] results;
         if (surveyId != null) {
-            if(!surveyId.equals(this.surveyId) && itemManager.getResults() != null) {
-                itemManager.clearItems();
-            }
+            itemManager.clearItems();
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey.getResult() != null) {
                 results = survey.getResult();
@@ -50,7 +49,7 @@ public class CsvExportController {
     @GetMapping("/export-survey-results")
     public ResponseEntity<String> exportCSV(HttpServletResponse response) throws Exception {
 
-            String filename = "survey_results.csv";
+        String filename = "survey_results.csv";
 
             response.setContentType("text/csv");
             response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");

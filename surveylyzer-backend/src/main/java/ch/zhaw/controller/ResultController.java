@@ -59,12 +59,11 @@ public class ResultController {
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
-    //todo: it has be still implemented in FE
-    @GetMapping("/visualizeResults")
+    @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
+        // todo: error handling
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey.getResult() != null) {
