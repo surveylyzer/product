@@ -59,7 +59,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 // update state
                 setResData(res);
             })
-    }, []);
+    }, [resultURL]);
 
     function submitSurveyId(surveyId: string) {
         let formData = new FormData();
