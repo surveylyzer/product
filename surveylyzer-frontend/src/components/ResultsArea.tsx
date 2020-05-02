@@ -38,7 +38,7 @@ const ResultsArea: React.FC<ResultProps> = ({ history }) => {
         history.push('/calculatedResults', { res: res});
     }
 
-    const text = "b7d374ad-cf62-4202-8898-4f7dcae533d6";
+    const text = "09591764-05a6-41c3-b499-4e936471a991";
     // const textLang = "b8718b71-48f9-4a4f-b964-99e201b60560";
 
 

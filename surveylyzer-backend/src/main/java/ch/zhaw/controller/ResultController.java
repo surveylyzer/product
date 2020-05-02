@@ -56,12 +56,15 @@ public class ResultController {
 
         }
 
+        template.delete();
+        surveyFile.delete();
+
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
     @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
-        // todo: error handling
+        // todo: error handling + user infos / alerts
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
         if (surveyId != null) {
@@ -80,6 +83,7 @@ public class ResultController {
     @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
     @ResponseBody
     public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
+        //todo: error handling must be still implemented
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
 

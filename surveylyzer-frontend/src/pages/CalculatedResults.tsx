@@ -16,7 +16,7 @@ interface ResultProps {
 const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
 
     const myProps : ResultProps = props.location.state as ResultProps || {res:null};
-    const textLang = "b7d374ad-cf62-4202-8898-4f7dcae533d6";
+    const textLang = "09591764-05a6-41c3-b499-4e936471a991";
     const urlCsv = 'http://localhost:8080/get-results-csv';
 
     function submitSurveyId(surveyId: string) {
