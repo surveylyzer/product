@@ -28,6 +28,30 @@ public class PdfControllerTest {
                 .andExpect(content().string(containsString("[]")));
     }
 
+    @Test
+    void getPDFs() {
+    }
+
+    @Test
+    void createPDF() {
+    }
+
+    @Test
+    void forwardMultipartFileToAnalyzer() {
+    }
+
+    @Test
+    void encodeFileToBase64() {
+    }
+
+    @Test
+    void forwardBase64EncodedStringToAnalyzer() {
+    }
+
+    @Test
+    void getDestinationPath() {
+    }
+
     /* TEMPLATE FOR TEST TO BE WRITTEN*/
     /*
     @Test
