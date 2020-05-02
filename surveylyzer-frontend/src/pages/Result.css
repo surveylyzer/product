@@ -1,0 +1,46 @@
+.url{
+    color: #3880ff;
+    font-size: 14px;
+}
+
+.processing{
+    width: 15em;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info{
+    text-align: center;
+    color: #3880ff;
+    font-size: 15px;
+    letter-spacing: 2px;
+    padding-bottom: 4em;
+}
+
+.title{
+    padding-bottom: 0.4em;
+}
+
+.subtitle{
+    padding-bottom: 0.3em;
+    color: #444;
+    font-size: 15px;
+}
+
+.block{
+    margin-left: 2em;
+}
+
+.url_ready:hover {
+    color: #8BB0F2;
+    font-weight: bold;
+    cursor: pointer;
+    target-name: new;
+    target-new: tab;
+}
+
+.button{
+    padding-bottom: 0.6em;
+    padding-top: 0.2em;
+}

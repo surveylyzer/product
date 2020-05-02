@@ -1,88 +1,80 @@
-import { IonContent, IonIcon } from "@ionic/react";
-import React from "react";
+import { IonContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
-import { cloudUploadOutline, cloudUpload } from "ionicons/icons";
+import { cloudUploadOutline, cloudUpload, play } from "ionicons/icons";
 
-const DropArea: React.FC = () => {
+import { History } from "history";
+
+interface DropAreaProps {
+    history: History;
+}
+
+const DropArea: React.FC<DropAreaProps> = ({ history }) => {
+    //Init
+    const [templateText, setTemplateText] = useState("Drag 'n' drop your Template here");
+    const [surveyText, setSurveyText] = useState("Drag 'n' drop your Survey here");
+    const [templateFile, setTemplateFile] = useState(null);
+    // Values to be passed to result
+    const [surveyFile, setSurveyFile] = useState(null);
+
     let dragIsActive = false;
 
-
-    //TODO Code duplication of Inputhandling and Status updating
-    function handleTemplateFileInput(fileIn: any[]) {
+    function uploadFile(fileIn: any[], inputType: string) {
         dragIsActive = false;
         let file = fileIn[0];
         let arr = file?.name?.split('.');
-        let  pdfType = "templateFile";
         if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
-            console.log(file);
+            console.log("uploadFile -> ", file);
         }
+        if (inputType === "templateFile") {
+            setTemplateFile(file);
+            setTemplateText("Uploaded TEMPLATE: " + file.name + "   (Mistake? Just reupload correct file)")
+        } else if (inputType === "dataFile") {
+            setSurveyFile(file);
+            setSurveyText("Uploaded SURVEY: " + file.name + "   (Mistake? Just reupload correct file)")
+        }
+    }
+
+    function submitAllFiles() {
+        if (templateFile === null) {
+            alert("FAIL -> Template file has not been uploaded!");
+        } else if (surveyFile === null) {
+            alert("FAIL -> Survey file has not been uploaded!");
+        } else {
+            submitTemplate(templateFile, "templateFile");
+            console.log("submitAllFiles -> SUCCESS - Template has been submitted");
+        }
+    }
+
+    function submitTemplate(file: any, inputType: string) {
         let formData = new FormData();
-        formData.append('file1',file);
-        formData.append('pdfType', pdfType);
-        //Post Template
-        fetch('http://localhost:8080/pdf', {
+        formData.append('file1', file);
+        formData.append('pdfType', inputType);
+        fetch('http://localhost:8080/template', {
             method: 'POST',
             body: formData
-        }).then(response => {
-            console.log("Template File "+file.name+" has been uploaded");
-            updateStatusTemplateInput(file.name)
         })
+            .then(response => response.json())
+            .then(json => {
+                console.log("submitTemplate -> Template: ", file.name + " has been submitted");
+                console.log("submitTemplate -> Survey ID: ", json.toString());
+                let fetchedSurveyId = json.toString();
+                // setSurveyId(fetchedSurveyId);
+                goToResult(fetchedSurveyId, surveyFile != null ? surveyFile : null);
+            })
     }
 
-    //TODO Code duplication of Inputhandling and Status updating
-    function handleDataFileInput(fileIn: any[]) {
-        dragIsActive = false;
-        let file = fileIn[0];
-        let arr = file?.name?.split('.');
-        let  pdfType = "dataFile";
-        if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
-            console.log(file);
-        }
-        let formData = new FormData();
-        formData.append('file1',file);
-        formData.append('pdfType', pdfType);
-        // Post Data
-        fetch('http://localhost:8080/pdf', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            console.log("Data File "+file.name+" has been uploaded");
-            updateStatusDataInput(file.name);
-        })
+    function goToResult(id: String, file: File | null) {
+        if (!id || !file) { console.error("ID and Survey File mustn't be null!!"); return; }
+        history.push('/result', { surveyId: id, surveyFile: file });
     }
-
-
-    //TODO Code duplication of Inputhandling and Status updating
-    function updateStatusTemplateInput(templateName : any){
-        fetch('/workflow',{
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"templateReceived":true, "templateName":templateName})
-        }).then(response => {
-            console.log("Status of "+templateName+" has been updated")
-        })
-    }
-
-
-    //TODO Code duplication of Inputhandling and Status updating
-    function updateStatusDataInput(surveyName : any){
-        fetch('/workflow',{
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:  JSON.stringify({"surveyReceived":true, "surveyName":surveyName})
-        }).then(response => {
-            console.log("Status of "+surveyName+" has been updated")
-        })
-    }
-
 
     return (
         <IonContent>
-
-            <Dropzone onDrop={acceptedFiles => handleTemplateFileInput(acceptedFiles)}
-                      onDragEnter={() => dragIsActive = true}
-                      onDragLeave={() => dragIsActive = false}>
+            <Dropzone onDrop={acceptedFiles => uploadFile(acceptedFiles, "templateFile")}
+                onDragEnter={() => dragIsActive = true}
+                onDragLeave={() => dragIsActive = false}>
                 {({ getRootProps, getInputProps }) => (
                     <section className="dropzone">
                         <div className="content" {...getRootProps()}>
@@ -90,16 +82,16 @@ const DropArea: React.FC = () => {
                             <span className="icon"><IonIcon icon={cloudUpload} /></span>
                             {dragIsActive ?
                                 <p>Drop here ...</p> :
-                                <p>Drag 'n' drop your <strong>PDF Template</strong> here, <br />
-                                    or click to select files</p>
+                                <p>{templateText}</p>
                             }
                         </div>
                     </section>
                 )}
             </Dropzone>
-            <Dropzone onDrop={acceptedFiles => handleDataFileInput(acceptedFiles)}
-                      onDragEnter={() => dragIsActive = true}
-                      onDragLeave={() => dragIsActive = false}>
+
+            <Dropzone onDrop={acceptedFiles => uploadFile(acceptedFiles, "dataFile")}
+                onDragEnter={() => dragIsActive = true}
+                onDragLeave={() => dragIsActive = false}>
                 {({ getRootProps, getInputProps }) => (
                     <section className="dropzone">
                         <div className="content" {...getRootProps()}>
@@ -107,13 +99,18 @@ const DropArea: React.FC = () => {
                             <span className="icon"><IonIcon icon={cloudUploadOutline} /></span>
                             {dragIsActive ?
                                 <p>Drop here ...</p> :
-                                <p>Drag 'n' drop your <strong>PDF DATA</strong> here, <br />
-                                    or click to select files</p>
+                                <p>{surveyText}</p>
                             }
                         </div>
                     </section>
                 )}
             </Dropzone>
+
+            <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                <IonFabButton onClick={() => submitAllFiles()}>
+                    <IonIcon icon={play} />
+                </IonFabButton>
+            </IonFab>
 
         </IonContent>
     );
