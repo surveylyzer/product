@@ -3,12 +3,9 @@ package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import net.sourceforge.tess4j.Word;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
