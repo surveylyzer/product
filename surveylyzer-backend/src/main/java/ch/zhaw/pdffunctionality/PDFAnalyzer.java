@@ -60,6 +60,8 @@ public class PDFAnalyzer {
 		allRectangles = new ArrayList<Rectangle>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
+
+		// TODO: Define language path or make a "switch" for it...
 //		if (Util.isOS()) {
 //			initPath = "surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
@@ -68,12 +70,36 @@ public class PDFAnalyzer {
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		}
 
-		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
-		t.setLanguage("ENG");
-		System.out.println("---------------------------------------------------------------");
-		System.out.println("PFAD: " + tessDataFolder.getAbsolutePath());
-		//Set the tessdata path
-		t.setDatapath(tessDataFolder.getAbsolutePath());
+		// ----------------------------------
+		// Option 1
+		// ----------------------------------
+		// Works locally BUT NOT on Heroku, but locally:
+//		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+//		t.setLanguage("ENG");
+//		System.out.println("---------------------------------------------------------------");
+//		System.out.println("PFAD: " + tessDataFolder.getAbsolutePath());
+//		//Set the tessdata path
+//		t.setDatapath(tessDataFolder.getAbsolutePath());
+
+		// ----------------------------------
+		// Option 2
+		// Works on HEROKU:
+		// ----------------------------------
+		t.setDatapath("/app/.apt/usr/share/tesseract-ocr/4.00/tessdata");
+		
+		// ----------------------------------
+		// Option 3
+		// Works @Yannic:
+		// ----------------------------------
+//		t.setDatapath("../surveylyzer-backend/tess/tessdata/");
+
+		// ----------------------------------
+		// Option 4
+		// works @Mike:
+		// ----------------------------------
+//		t.setDatapath("surveylyzer-backend/tess/tessdata/");
+
+
 	}
 
 
