@@ -1,20 +1,54 @@
 package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
+import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.awt.*;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = SurveylyzerBackendApplication.class)
 public class PDFAnalyzerTest {
     PDFAnalyzer pdfAnalyzer = new PDFAnalyzer();
+    String initPath;
+    File fileInit;
+    File filePrc;
+    PDDocument empty;
+    PDDocument docInit;
+    PDDocument docPrc;
+    Tesseract t;
+
+
+    @Before
+    void init() throws Exception{
+        File fileInit = new File("C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\pdf_umfragen\\initFile.pdf");
+        File filePrc = new File("C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\pdf_umfragen\\prcFile.pdf");
+
+
+       /*
+        initPath = "surveylyzer-backend/";
+        File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
+        File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");*/
+        try {
+            docInit = PDDocument.load(fileInit);
+            docPrc = PDDocument.load(filePrc);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void isHighlightedColourTest(){
@@ -164,5 +198,89 @@ public class PDFAnalyzerTest {
 
         List<List<Word>> resultat = (List<List<Word>>) sameWords.invoke(pdfAnalyzer, firstMap, secondMap);
         Assert.assertEquals(output, resultat);
+    }
+    @Test
+    public void distWordsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+        Rectangle r2 = new Rectangle(5, 0, 2, 4);
+        Word w1 = new Word("WordOne", 0, r1);
+        Word w2 = new Word("WordTwo", 0, r2);
+
+        Method distWords = PDFAnalyzer.class.getDeclaredMethod("distWords",Word.class, Word.class);
+        distWords.setAccessible(true);
+        double distExpected = Math.sqrt(Math.pow(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(), 2)
+                + Math.pow(w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY(), 2));
+        double distActual = (Double) distWords.invoke(pdfAnalyzer,w1,w2);
+        Assert.assertEquals(distExpected, distActual, 0);
+    }
+
+    @Test
+    public void getWordAngleTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+        Rectangle r2 = new Rectangle(5, 0, 2, 4);
+        Word w1 = new Word("WordOne", 0, r1);
+        Word w2 = new Word("WordTwo", 0, r2);
+
+        Method getWordAngle = PDFAnalyzer.class.getDeclaredMethod("getWordAngle", Word.class, Word.class);
+        getWordAngle.setAccessible(true);
+
+        double ak = w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX();
+        double gk = w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY();
+
+        double angleExpected = Math.atan(gk)/(ak);
+        double angleActual = (Double) getWordAngle.invoke(pdfAnalyzer,w1,w2);
+
+        Assert.assertEquals(angleExpected, angleActual,0);
+    }
+
+    @Test
+    void startHighlightingExternalFileTest() throws Exception{
+        //pdfAnalyzer = new PDFAnalyzer();
+        //init();
+        //Object[][] expected;
+        //expected = pdfAnalyzer.startHighlightingExternalFile(fileInit, filePrc);
+    }
+    @Test
+    void startHighlightingExternalFileTest2() throws Exception {
+        File fileone = new File("wrong Path");
+        try {
+            pdfAnalyzer.startHighlightingExternalFile(fileone, fileone);
+        } catch (Exception e) {
+        }
+    }
+    @Test
+    void prcInitFileTest() throws Exception{
+      //  init();
+       // pdfAnalyzer.prcInitFile(docInit);
+        }
+
+    @Test
+    void prcIniFileTest2() {
+        try {
+            pdfAnalyzer.prcInitFile(empty);
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    void findRectangle() {
+        /*Rectangle r1 = new Rectangle(0, 0, 4, 2);
+        Rectangle r2 = new Rectangle(5, 0, 4, 2);
+        Rectangle r3 = new Rectangle(5, 0, 4, 2);
+        Rectangle newRectangle = pdfAnalyzer.findRectangle(10, 0);
+        Assert.assertEquals(r2, newRectangle);*/
+    }
+
+    @Test
+    void prcSurveyFile() {
+
+    }
+
+    @Test
+    void scale() {
+    }
+
+    @Test
+    void getQuestionList() {
     }
 }
