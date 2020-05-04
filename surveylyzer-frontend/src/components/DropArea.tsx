@@ -17,6 +17,8 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
     const [templateFile, setTemplateFile] = useState(null);
     // Values to be passed to result
     const [surveyFile, setSurveyFile] = useState(null);
+    const hostURL = window.location.protocol + '//' + window.location.host;
+    const templateUrl = hostURL + '/template';
 
     let dragIsActive = false;
 
@@ -51,7 +53,7 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
         let formData = new FormData();
         formData.append('file1', file);
         formData.append('pdfType', inputType);
-        fetch('http://localhost:8080/template', {
+        fetch(templateUrl, {
             method: 'POST',
             body: formData
         })

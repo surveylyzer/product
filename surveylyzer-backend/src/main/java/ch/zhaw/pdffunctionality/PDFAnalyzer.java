@@ -156,7 +156,6 @@ public class PDFAnalyzer {
 	public void prcInitFile(PDDocument doc) throws Exception {
 		PDFRenderer renderer = new PDFRenderer(doc);
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
-		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Original.jpg"));
 		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
 		/*
@@ -183,7 +182,6 @@ public class PDFAnalyzer {
 
 		allWords = t.getWords(initImg, this.analysLevel);
 
-		ImageIO.write(initImg, "JPEG", new File(initPath + "pdf_umfragen/Pics/PDF_Markiert.jpg"));
 		groupedRectangles = groupRectangle(20, allRectangles);
 		groupedWords = groupWords(20, allWords);
 		questions = makeQuestions(allWords, groupedRectangles);
