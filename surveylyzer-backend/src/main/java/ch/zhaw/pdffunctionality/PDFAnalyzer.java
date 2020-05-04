@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import ch.zhaw.controller.utils.ResultUtils;
+import net.sourceforge.tess4j.util.LoadLibs;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -59,13 +60,20 @@ public class PDFAnalyzer {
 		allRectangles = new ArrayList<Rectangle>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
-		if (Util.isOS()) {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
-		} else {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
-		}
+//		if (Util.isOS()) {
+//			initPath = "surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		} else {
+//			initPath = "surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		}
+
+		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+		t.setLanguage("ENG");
+		System.out.println("---------------------------------------------------------------");
+		System.out.println("PFAD: " + tessDataFolder.getAbsolutePath());
+		//Set the tessdata path
+		t.setDatapath(tessDataFolder.getAbsolutePath());
 	}
 
 
