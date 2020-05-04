@@ -10,6 +10,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,8 +74,8 @@ public class PDFAnalyzer {
 
 		// ----------------------------------
 		// Option 1
-		// ----------------------------------
 		// Works locally BUT NOT on Heroku, but locally:
+		// ----------------------------------
 //		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
 //		t.setLanguage("ENG");
 //		System.out.println("---------------------------------------------------------------");
@@ -85,8 +87,8 @@ public class PDFAnalyzer {
 		// Option 2
 		// Works on HEROKU:
 		// ----------------------------------
-		t.setDatapath("/app/.apt/usr/share/tesseract-ocr/4.00/tessdata");
-		
+//		t.setDatapath("/app/.apt/usr/share/tesseract-ocr/4.00/tessdata");
+
 		// ----------------------------------
 		// Option 3
 		// Works @Yannic:
@@ -99,6 +101,18 @@ public class PDFAnalyzer {
 		// ----------------------------------
 //		t.setDatapath("surveylyzer-backend/tess/tessdata/");
 
+
+		// ----------------------------------
+		// SOLUTION - Suggestion
+		// ----------------------------------
+		String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
+		if (Files.notExists(Paths.get(tessdataPath))){
+			File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+			tessdataPath = tessDataFolder.getAbsolutePath();
+		}
+		System.out.println("---------------------------------------------------------------");
+		System.out.println("Set tessdata path to: " + tessdataPath);
+		t.setDatapath(tessdataPath);
 
 	}
 
