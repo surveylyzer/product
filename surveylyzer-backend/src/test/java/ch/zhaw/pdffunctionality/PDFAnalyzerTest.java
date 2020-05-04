@@ -1,6 +1,7 @@
 package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 import org.junit.Assert;
@@ -28,19 +29,13 @@ public class PDFAnalyzerTest {
     PDDocument empty;
     PDDocument docInit;
     PDDocument docPrc;
-    Tesseract t;
 
-
+/*
     @Before
     void init() throws Exception{
-        File fileInit = new File("C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\pdf_umfragen\\initFile.pdf");
-        File filePrc = new File("C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\pdf_umfragen\\prcFile.pdf");
-
-
-       /*
         initPath = "surveylyzer-backend/";
-        File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
-        File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");*/
+        File fileInit = new File(initPath + "../pdf_umfragen/initFile.pdf");
+        File filePrc = new File(initPath + "../pdf_umfragen/prcFile.pdf");
         try {
             docInit = PDDocument.load(fileInit);
             docPrc = PDDocument.load(filePrc);
@@ -49,7 +44,7 @@ public class PDFAnalyzerTest {
             e.printStackTrace();
         }
     }
-
+*/
     @Test
     public void isHighlightedColourTest(){
         int color1 = new Color(255, 200, 0).getRGB();
@@ -234,13 +229,6 @@ public class PDFAnalyzerTest {
     }
 
     @Test
-    void startHighlightingExternalFileTest() throws Exception{
-        //pdfAnalyzer = new PDFAnalyzer();
-        //init();
-        //Object[][] expected;
-        //expected = pdfAnalyzer.startHighlightingExternalFile(fileInit, filePrc);
-    }
-    @Test
     void startHighlightingExternalFileTest2() throws Exception {
         File fileone = new File("wrong Path");
         try {
@@ -248,12 +236,6 @@ public class PDFAnalyzerTest {
         } catch (Exception e) {
         }
     }
-    @Test
-    void prcInitFileTest() throws Exception{
-      //  init();
-       // pdfAnalyzer.prcInitFile(docInit);
-        }
-
     @Test
     void prcIniFileTest2() {
         try {
@@ -263,8 +245,11 @@ public class PDFAnalyzerTest {
     }
 
     @Test
-    void findRectangle() {
-        /*Rectangle r1 = new Rectangle(0, 0, 4, 2);
+    void findRectangle() throws Exception {
+     /*   pdfAnalyzer = new PDFAnalyzer();
+        init();
+        pdfAnalyzer.prcInitFile(docInit);
+        Rectangle r1 = new Rectangle(0, 0, 4, 2);
         Rectangle r2 = new Rectangle(5, 0, 4, 2);
         Rectangle r3 = new Rectangle(5, 0, 4, 2);
         Rectangle newRectangle = pdfAnalyzer.findRectangle(10, 0);
@@ -272,15 +257,114 @@ public class PDFAnalyzerTest {
     }
 
     @Test
-    void prcSurveyFile() {
+    void makeQuestionsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method makeQuestions = PDFAnalyzer.class.getDeclaredMethod("makeQuestions", List.class, ArrayList.class);
+        makeQuestions.setAccessible(true);
 
+        int range = 20;
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+        Rectangle r2 = new Rectangle(5, 0, 2, 4);
+        Rectangle r3 = new Rectangle(10, 30, 2, 4);
+        Rectangle r4 = new Rectangle(0, 30, 2, 4);
+
+        Word w1 = new Word("WordOne", 0, r1);
+        Word w2 = new Word("WordTwo", 0, r2);
+        Word w3 = new Word("WordThree", 0, r1);
+        Word w4 = new Word("WordFour", 0, r3);
+        Word w5 = new Word("a", 0, r3);
+
+        List<Word> all = new ArrayList<>();
+        ArrayList<List<Rectangle>> gR = new ArrayList<List<Rectangle>>();
+        List<Rectangle> listOne = new ArrayList<>();
+        List<Rectangle> listTwo = new ArrayList<>();
+        all.add(w1);
+        all.add(w2);
+        all.add(w3);
+        all.add(w4);
+        all.add(w5);
+        listOne.add(r1);
+        listTwo.add(r3);
+        gR.add(listOne);
+        gR.add(listTwo);
+
+        ArrayList<String> result = (ArrayList<String>) makeQuestions.invoke(pdfAnalyzer,all,gR);
+        String first = " WordOne  WordTwo  WordThree ";
+        String second = " WordFour ";
+        ArrayList<String> expected = new ArrayList<>();
+        expected.add(first);
+        expected.add(second);
+        Assert.assertEquals(expected,result);
+    }
+    @Test
+    void singleWordsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method singleWords = PDFAnalyzer.class.getDeclaredMethod("singleWords", List.class);
+        singleWords.setAccessible(true);
+        int range = 20;
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+        Rectangle r2 = new Rectangle(5, 0, 2, 4);
+        Rectangle r3 = new Rectangle(10, 30, 2, 4);
+        Rectangle r4 = new Rectangle(0, 30, 2, 4);
+
+        Word w1 = new Word("WordOne", 0, r1);
+        Word w2 = new Word("WordOne", 0, r2);
+        Word w3 = new Word("WordOne", 0, r1);
+        Word w4 = new Word("WordFour", 0, r3);
+        Word w5 = new Word("a", 0, r3);
+
+        List<Word> all = new ArrayList<>();
+        all.add(w1);
+        all.add(w2);
+        all.add(w3);
+        all.add(w4);
+        all.add(w5);
+
+        HashMap<String, Word> result = (HashMap<String, Word>) singleWords.invoke(pdfAnalyzer,all);
+        HashMap<String, Word> expected = new HashMap<String, Word>();
+        expected.put("WordFour", w4);
+        Assert.assertEquals(expected, result);
     }
 
     @Test
-    void scale() {
+    void calcRotationTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method calcRotation = PDFAnalyzer.class.getDeclaredMethod("calcRotation", List.class, List.class);
+        calcRotation.setAccessible(true);
+        int range = 20;
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+        Rectangle r2 = new Rectangle(10, 0, 2, 4);
+        Rectangle r3 = new Rectangle(5, 10, 2, 4);
+
+        Word w1 = new Word("WordOne", 0, r1);
+        Word w2 = new Word("WordTwo", 10, r2);
+        Word w3 = new Word("WordThree", 100, r1);
+        Word w4 = new Word("WordFour", 200, r3);
+        Word w5 = new Word("a", 90, r1);
+        Word w6 = new Word("WordOne", 0, r1);
+        Word w7 = new Word("WordTwo", 0, r2);
+
+        List<Word> listOne = new ArrayList<>();
+        List<Word> listTwo = new ArrayList<>();
+        List<Word> listThree = new ArrayList<>();
+        List<List<Word>> all = new ArrayList<>();
+        List<List<Word>> allTwo = new ArrayList<>();
+        listOne.add(w1);
+        listOne.add(w2);
+        listOne.add(w3);
+        listTwo.add(w4);
+        listTwo.add(w5);
+        all.add(listOne);
+        all.add(listTwo);
+
+        double result = (Double) calcRotation.invoke(pdfAnalyzer,null,all);
+        double expected = 1.1;
+        Assert.assertEquals(expected, result, 0.01);
+
+        listThree.add(w6);
+        listThree.add(w7);
+        allTwo.add(listThree);
+        result = (Double) calcRotation.invoke(pdfAnalyzer,null,allTwo);
+        expected = 0.0;
+        Assert.assertEquals(expected, result, 0.01);
     }
 
-    @Test
-    void getQuestionList() {
-    }
+
 }
