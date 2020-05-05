@@ -179,7 +179,6 @@ public class PDFAnalyzer {
 		}
 
 		g2d.dispose();
-
 		allWords = t.getWords(initImg, this.analysLevel);
 
 		groupedRectangles = groupRectangle(20, allRectangles);
@@ -571,8 +570,7 @@ public class PDFAnalyzer {
 
 	/**
 	 * Gibt den Rotationswinkeln zurück. Anhand der Wortliste wird verglichen, wie
-	 * das Original zum gescannten liegt. Dies anhand 3 Wörter(Anfang, Mitte,
-	 * Schluss)
+	 * das Original zum gescannten liegt.
 	 * 
 	 * @param cwl
 	 * @return
@@ -582,23 +580,23 @@ public class PDFAnalyzer {
 		if (debugen) {
 			System.out.println("calcRotation    --> start " + cwl.size());
 		}
-		/*
-		 * 1. Anhand dem selben Wörtern aus cwl eine Rotation berechnen.
-		 */
-		Word wO1 = cwl.get(0).get(0);
-		Word wS1 = cwl.get(0).get(1);
-		ArrayList<Double> diff = new ArrayList<Double>();
+		Word wO1 = null;
+		Word wS1 = null;
 		int i = 0;
-		for (int j = 1; j < cwl.size(); j++) {
+		for (int j = 0; j < cwl.size(); j++) {
 			Word wO = cwl.get(j).get(0);
 			Word wS = cwl.get(j).get(1);
 			if (wS.getConfidence() < confidence) {
 				continue;
 			}
+			if(wO1 == null) {
+				wO1 = cwl.get(j).get(0);
+				wS1 = cwl.get(j).get(1);
+				continue;
+			}
 			i++;
 			double angleO = getWordAngle(wO1, wO);
 			double angleS = getWordAngle(wS1, wS);
-			diff.add(angleO - angleS);
 			finalRotation += angleO - angleS;
 		}
 		finalRotation = finalRotation / i;
