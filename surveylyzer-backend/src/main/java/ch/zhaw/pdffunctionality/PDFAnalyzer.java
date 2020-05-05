@@ -10,6 +10,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import ch.zhaw.controller.utils.ResultUtils;
+import net.sourceforge.tess4j.util.LoadLibs;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -59,13 +62,58 @@ public class PDFAnalyzer {
 		allRectangles = new ArrayList<Rectangle>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
-		if (Util.isOS()) {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
-		} else {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+
+		// TODO: Define language path or make a "switch" for it...
+//		if (Util.isOS()) {
+//			initPath = "surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		} else {
+//			initPath = "surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		}
+
+		// ----------------------------------
+		// Option 1
+		// Works locally BUT NOT on Heroku, but locally:
+		// ----------------------------------
+//		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+//		t.setLanguage("ENG");
+//		System.out.println("---------------------------------------------------------------");
+//		System.out.println("PFAD: " + tessDataFolder.getAbsolutePath());
+//		//Set the tessdata path
+//		t.setDatapath(tessDataFolder.getAbsolutePath());
+
+		// ----------------------------------
+		// Option 2
+		// Works on HEROKU:
+		// ----------------------------------
+//		t.setDatapath("/app/.apt/usr/share/tesseract-ocr/4.00/tessdata");
+
+		// ----------------------------------
+		// Option 3
+		// Works @Yannic:
+		// ----------------------------------
+//		t.setDatapath("../surveylyzer-backend/tess/tessdata/");
+
+		// ----------------------------------
+		// Option 4
+		// works @Mike:
+		// ----------------------------------
+//		t.setDatapath("surveylyzer-backend/tess/tessdata/");
+
+
+		// ----------------------------------
+		// SOLUTION - Suggestion
+		// ----------------------------------
+		String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
+		if (Files.notExists(Paths.get(tessdataPath))){
+			File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+			tessdataPath = tessDataFolder.getAbsolutePath();
 		}
+		System.out.println("---------------------------------------------------------------");
+		System.out.println("Set tessdata path to: " + tessdataPath);
+		t.setDatapath(tessdataPath);
+
 	}
 
 
