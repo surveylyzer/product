@@ -10,7 +10,10 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,12 +21,13 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import ch.zhaw.controller.utils.ResultUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
+import ch.zhaw.controller.utils.ResultUtils;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
+import net.sourceforge.tess4j.util.LoadLibs;
 
 public class PDFAnalyzer {
 
@@ -49,7 +53,8 @@ public class PDFAnalyzer {
 	private int resolutionLevel = 6;//Bild Auflösung beim Rendern
 	private int minWordLength = 2;//Wie lang muss mind. ein Word sein.
 	private double confidence = 90.0;//Die genauigkeit, mit welcher ein Wort bestimmt wurde.
-	private int analyseIterations = 2;//Wie oft wird eine Seite analysiert.
+	private int analyseIterations = 1;//Wie oft wird eine Seite analysiert.
+	private double skipMaxMIn = 0.70; //Wenn 10Wörter+ für die Calibrierung verwendet werden, wie viel % davon weg geschmissen wird.
 
 	public PDFAnalyzer() {
 		init();
@@ -59,13 +64,58 @@ public class PDFAnalyzer {
 		allRectangles = new ArrayList<Rectangle>();
 		// Initalisierung vom OCR-Tesseract
 		t = new Tesseract();
-		if (Util.isOS()) {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
-		} else {
-			initPath = "surveylyzer-backend/";
-			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+
+		// TODO: Define language path or make a "switch" for it...
+//		if (Util.isOS()) {
+//			initPath = "surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		} else {
+//			initPath = "../surveylyzer-backend/";
+//			t.setDatapath("surveylyzer-backend/tess/tessdata/");
+//		}
+
+		// ----------------------------------
+		// Option 1
+		// Works locally BUT NOT on Heroku, but locally:
+		// ----------------------------------
+//		File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+//		t.setLanguage("ENG");
+//		System.out.println("---------------------------------------------------------------");
+//		System.out.println("PFAD: " + tessDataFolder.getAbsolutePath());
+//		//Set the tessdata path
+//		t.setDatapath(tessDataFolder.getAbsolutePath());
+
+		// ----------------------------------
+		// Option 2
+		// Works on HEROKU:
+		// ----------------------------------
+//		t.setDatapath("/app/.apt/usr/share/tesseract-ocr/4.00/tessdata");
+
+		// ----------------------------------
+		// Option 3
+		// Works @Yannic:
+		// ----------------------------------
+//		t.setDatapath("../surveylyzer-backend/tess/tessdata/");
+
+		// ----------------------------------
+		// Option 4
+		// works @Mike:
+		// ----------------------------------
+//		t.setDatapath("surveylyzer-backend/tess/tessdata/");
+
+
+		// ----------------------------------
+		// SOLUTION - Suggestion
+		// ----------------------------------
+		String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
+		if (Files.notExists(Paths.get(tessdataPath))){
+			File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+			tessdataPath = tessDataFolder.getAbsolutePath();
 		}
+		System.out.println("---------------------------------------------------------------");
+		System.out.println("Set tessdata path to: " + tessdataPath);
+		t.setDatapath(tessdataPath);
+
 	}
 
 
@@ -116,7 +166,6 @@ public class PDFAnalyzer {
 	}
 
 	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
-		System.out.println("Starting to analyse external Files");
 		debugen = false;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
@@ -126,19 +175,15 @@ public class PDFAnalyzer {
 				questionList = prcSurveyFile(docPrc);
 				if (questionList != null) {
 					results = ResultUtils.getResults(questionList);
-					for (Question q : prcSurveyFile(docPrc)) {
-						System.out.print("\n" + q.getQuestionText() + " ");
-						for (int i : q.getEval()) {
-							System.out.print(i + " ");
-						}
-					}
 				}
+				docInit.close();
+				docPrc.close();
 				return results;
 			} catch (Exception e) {
+				docInit.close();
+				docPrc.close();
 				e.printStackTrace();
 			}
-			docInit.close();
-			docPrc.close();
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
 		}
@@ -179,7 +224,6 @@ public class PDFAnalyzer {
 		}
 
 		g2d.dispose();
-
 		allWords = t.getWords(initImg, this.analysLevel);
 
 		groupedRectangles = groupRectangle(20, allRectangles);
@@ -414,7 +458,7 @@ public class PDFAnalyzer {
 			System.out.println("Anzahl Iterationen: " + this.analyseIterations);
 		}
 		for (int xx = 0; xx < doc.getNumberOfPages(); xx++) {
-			// for(int xx = 4; xx< 5;xx++){
+//			 for(int xx = 0; xx< 1;xx++){
 			BufferedImage image = renderer.renderImage(xx, resolutionLevel);
 			if (debugen) {
 				System.out.println(
@@ -440,20 +484,6 @@ public class PDFAnalyzer {
 					break;
 				}
 
-				for (List<Word> wl : wordPairs) {
-
-					int Swl_x = (int) wl.get(1).getBoundingBox().getX();
-					int Swl_y = (int) wl.get(1).getBoundingBox().getY();
-					int Swl_w = (int) wl.get(1).getBoundingBox().getWidth();
-					int Swl_h = (int) wl.get(1).getBoundingBox().getHeight();
-					BufferedImage bi = image.getSubimage(Swl_x, Swl_y, Swl_w, Swl_h);
-					if (debugDrawing) {
-						Graphics2D g2d = image.createGraphics();
-						g2d.setColor(Color.RED);
-						g2d.drawRect(Swl_x, Swl_y, Swl_w, Swl_h);
-						g2d.dispose();
-					}
-				}
 				image = calibration(image, w, wordPairs);
 				if (image == null) {
 					continue;
@@ -462,25 +492,18 @@ public class PDFAnalyzer {
 				uWforRotation = singleWords(w);
 				wordPairs = sameWords(this.uniquWords, uWforRotation);// bisher
 
-				if (debugDrawing) {
-					for (List<Word> wl : wordPairs) {
-						int Owl_x = (int) wl.get(0).getBoundingBox().getX();
-						int Owl_y = (int) wl.get(0).getBoundingBox().getY();
-						int Owl_w = (int) wl.get(0).getBoundingBox().getWidth();
-						int Owl_h = (int) wl.get(0).getBoundingBox().getHeight();
 
-						Graphics2D g2do = image.createGraphics();
-						g2do.setColor(Color.BLACK);
-						g2do.drawRect(Owl_x, Owl_y, Owl_w, Owl_h);
-						g2do.dispose();
-					}
+				if (debugen) {
+					ImageIO.write(image, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "_it"+i+"_.jpg"));
 				}
 			}
 			auswertung.addAll(doEvaluation(image, this.groupedRectangles, wordPairs));
 
 			try {
 				for (int i = 0; i < auswertung.size(); i++) {
-					evaluation[i][auswertung.get(i)]++;
+					if(auswertung.get(i) >=0) {
+						evaluation[i][auswertung.get(i)]++;
+					}
 				}
 				if (debugen) {
 					ImageIO.write(image, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "Final.jpg"));
@@ -562,6 +585,7 @@ public class PDFAnalyzer {
 			Double rotation = calcRotation(w, cwl);
 			bi = rotate(bi, rotation, cwl.get(0).get(1).getBoundingBox().getX(),
 					cwl.get(0).get(1).getBoundingBox().getY());
+			bi = resize(bi,cwl);
 		} else {
 			System.out.println("!!!!!!!!!!!!!!!!!!! keine Wortpaare zum Ausrichten!");
 			bi = null;
@@ -571,8 +595,7 @@ public class PDFAnalyzer {
 
 	/**
 	 * Gibt den Rotationswinkeln zurück. Anhand der Wortliste wird verglichen, wie
-	 * das Original zum gescannten liegt. Dies anhand 3 Wörter(Anfang, Mitte,
-	 * Schluss)
+	 * das Original zum gescannten liegt.
 	 * 
 	 * @param cwl
 	 * @return
@@ -582,29 +605,46 @@ public class PDFAnalyzer {
 		if (debugen) {
 			System.out.println("calcRotation    --> start " + cwl.size());
 		}
-		/*
-		 * 1. Anhand dem selben Wörtern aus cwl eine Rotation berechnen.
-		 */
-		Word wO1 = cwl.get(0).get(0);
-		Word wS1 = cwl.get(0).get(1);
-		ArrayList<Double> diff = new ArrayList<Double>();
-		int i = 0;
-		for (int j = 1; j < cwl.size(); j++) {
+		Word wO1 = null;
+		Word wS1 = null;
+		ArrayList<Double> dArray = new ArrayList<Double>();
+		for (int j = 0; j < cwl.size(); j++) {
 			Word wO = cwl.get(j).get(0);
 			Word wS = cwl.get(j).get(1);
-			if (wS.getConfidence() < confidence) {
+			if (wS.getConfidence() < confidence || wO.getConfidence() < confidence) {
 				continue;
 			}
-			i++;
+			if(wO1 == null) {
+				wO1 = cwl.get(j).get(0);
+				wS1 = cwl.get(j).get(1);
+				continue;
+			}
 			double angleO = getWordAngle(wO1, wO);
 			double angleS = getWordAngle(wS1, wS);
-			diff.add(angleO - angleS);
-			finalRotation += angleO - angleS;
+			dArray.add(angleO - angleS);
 		}
-		finalRotation = finalRotation / i;
-		if(finalRotation.isNaN()) {
-			finalRotation = 0.0;
+		
+		Collections.sort(dArray);
+		// wenn mehr wie 10 wörter, dann 20% Aussreiser rauslöschen
+		if (debugen) {
+			System.out.println(dArray.size());
+			System.out.println(dArray);
 		}
+		if (dArray.size() > 10) {
+			for (int j = 0; j < dArray.size() * (skipMaxMIn / 2); j++) {
+				dArray.remove(dArray.size() - 1);// last one
+				dArray.remove(0);// first one
+			}
+		}
+		if (debugen) {
+			System.out.println(dArray.size());
+			System.out.println(dArray);
+		}
+		double sum = 0;
+		for(Double d : dArray) {
+			sum +=d;
+		}
+		finalRotation = sum/dArray.size();
 		return finalRotation;
 	}
 
@@ -612,20 +652,51 @@ public class PDFAnalyzer {
 		return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),
 				w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
 	}
-
+	/**
+	 * Vergrösserung/Verkleinerung der übergebenen Seite anhand:
+	 * Distanz der Wörter zueinander vom Init-File zu 
+	 * Distanz der Wörter zueinander vom Scanned-File.
+	 * Dies anhand aller Wöter welchen den notwendigen confidence-Level erreichen.
+	 * Falls mehr als 10 Wörter für diese berechnung in Frage kommt, werden 20% der 
+	 * kleinsten/grössten Werte aussortiert.
+	 * @param img
+	 * @param cwl
+	 * @return
+	 */
 	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
 		BufferedImage bi = img;
 		// Distanz
-		Word wOrig1 = cwl.get(0).get(0);
-		Word wOrig2 = cwl.get(cwl.size() - 1).get(0);
-		Word wScan1 = cwl.get(0).get(1);
-		Word wScan2 = cwl.get(cwl.size() - 1).get(1);
-
-		Double distanceBetwOrig = distWords(wOrig1, wOrig2);
-		Double distanceBetwScan = distWords(wScan1, wScan2);
-
-		Double calVal = distanceBetwScan * 100 / distanceBetwOrig;
-		calVal = 100 / calVal;
+		Word wO1 = null;
+		Word wS1 = null;
+		ArrayList<Double> dArray = new ArrayList<Double>();
+		for (int j = 0; j < cwl.size(); j++) {
+			Word wO = cwl.get(j).get(0);
+			Word wS = cwl.get(j).get(1);
+			if (wS.getConfidence() < confidence || wO.getConfidence() < confidence) {
+				continue;
+			}
+			if(wO1 == null) {
+				wO1 = cwl.get(j).get(0);
+				wS1 = cwl.get(j).get(1);
+				continue;
+			}
+			Double distanceBetwOrig = distWords(wO1, wO);
+			Double distanceBetwScan = distWords(wS1, wS);
+			dArray.add(distanceBetwOrig / distanceBetwScan);
+		}
+		Collections.sort(dArray);
+		//wenn mehr wie 10 wörter, dann 20% Aussreiser rauslöschen
+		if(dArray.size() > 10) {
+			for(int j = 0; j< dArray.size()*(skipMaxMIn/2);j++) {
+				dArray.remove(dArray.size()-1);//last one
+				dArray.remove(0);//first one
+			}
+		}
+		double sum = 0;
+		for(Double d : dArray) {
+			sum +=d;
+		}
+		Double calVal = sum/dArray.size();
 		if (!calVal.isNaN()) {
 			bi = scale(bi, calVal);
 		}
@@ -670,7 +741,6 @@ public class PDFAnalyzer {
 	 * @return scaled image
 	 */
 	public BufferedImage scale(BufferedImage sbi, Double scale) {
-		System.out.println("                             scale " + scale);
 		int newH = (int) (sbi.getHeight() * scale);
 		int newW = (int) (sbi.getWidth() * scale);
 		Image tmp = sbi.getScaledInstance((int) (sbi.getWidth() * scale), (int) (sbi.getHeight() * scale),
@@ -711,8 +781,8 @@ public class PDFAnalyzer {
 		// Um Probleme mit den R�ndern zu entgehen, schauen wir nur den inneren
 		// Teil an.
 		// Somit schauen wir nur 60% des Feldes an.
-		long which_is_choosed = 255 * 3;// Weiss
-		int position = 0;
+		long which_is_choosed = 240 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
+		int position = -1;
 		int i = 0;
 		for (Rectangle r : gR) {
 			BufferedImage zelle = img.getSubimage((int) (r.getX() - ausrichtung.getX() + (r.getWidth() * 0.2)),
@@ -733,7 +803,6 @@ public class PDFAnalyzer {
 			green = green / zelle.getHeight() / zelle.getWidth();
 			blue = blue / zelle.getHeight() / zelle.getWidth();
 			int isChoice = red + green + blue;
-
 			if (which_is_choosed > isChoice) {
 				which_is_choosed = isChoice;
 				position = i;
@@ -752,7 +821,6 @@ public class PDFAnalyzer {
 				}
 			}
 		}
-
 		return position;
 	}
 
