@@ -51,7 +51,7 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
                 <IonLabel position="floating">Results ID</IonLabel>
                 <IonInput class={"spacing"}  value={surveyId} onIonChange={event => setSurveyId(event.detail.value || "")} type="text" name="surveyId" />
             </IonItem>
-            <IonText>Copy here your 'Results ID' to access visualization of your survey</IonText>
+            <IonText>Copy here your 'Result ID' to access visualization of your survey</IonText>
             <IonFab vertical="bottom" horizontal="end" slot="fixed">
                 <IonFabButton onClick={() => submitIdAndGetResult(surveyId)}>
                     <IonIcon icon={play} />
