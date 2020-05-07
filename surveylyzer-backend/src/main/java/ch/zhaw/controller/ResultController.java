@@ -34,8 +34,8 @@ public class ResultController {
         Survey survey = dataBase.getSurveyResultById(surveyId);
 
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
-        File template = new File("template");
-        File surveyFile = new File("survey");
+        File template = new File("template_" + surveyId);
+        File surveyFile = new File("survey_" + surveyId);
 
         if (surveyTemplate != null) {
             Binary binaryTemplate = surveyTemplate.getTemplate();
@@ -69,7 +69,7 @@ public class ResultController {
         Object[][] dummyResult = {header};
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey != null && survey.getResult() != null) {
                 return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);

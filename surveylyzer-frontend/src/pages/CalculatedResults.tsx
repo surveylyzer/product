@@ -2,7 +2,7 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
     IonBackButton, IonButton,
-    IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardTitle,
+    IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle,
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar
 } from '@ionic/react';
 
@@ -11,22 +11,25 @@ import {Chart} from "react-google-charts";
 
 interface ResultProps {
     res : any
+    surveyId: string
 }
 
 const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
 
-    const myProps : ResultProps = props.location.state as ResultProps || {res:null};
-    const textLang = "09591764-05a6-41c3-b499-4e936471a991";
-    const urlCsv = 'http://localhost:8080/get-results-csv';
+    const myProps : ResultProps = props.location.state as ResultProps || {res:null, surveyId: null};
+    const hostURL = window.location.protocol + '//' + window.location.host;
+    const csvURL = hostURL + '/get-results-csv';
+    const rawDataUrl = hostURL + '/rawResults?surveyId=' + myProps?.surveyId;
 
     function submitSurveyId(surveyId: string) {
         let formData = new FormData();
         formData.append('surveyId', surveyId);
-        fetch(urlCsv, {
+        fetch(csvURL, {
             method: 'POST',
             body: formData
         })
             .then(response => response);
+        // Todo: response ? - error handling...
     }
 
     return (
@@ -42,9 +45,15 @@ const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
             <IonContent>
                 <IonCard class="welcome-card">
                     <IonCardHeader>
-                        {submitSurveyId(textLang)}
+                        {submitSurveyId(myProps?.surveyId)}
                         <IonCardTitle class={"title"}>{"Your Survey Result"}</IonCardTitle>
                         <IonButton class={"button"} href={"/export-survey-results"}>Export Data as CSV</IonButton>
+                        <IonCardSubtitle>Click this link to access the <b>raw data: </b>
+                            <a href={rawDataUrl} className="url_ready">{rawDataUrl}</a>
+                        </IonCardSubtitle>
+                        <IonCardSubtitle>Save this ID to access the
+                            <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
+                        </IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
                         <Chart

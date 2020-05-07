@@ -1,5 +1,5 @@
 import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonInput, IonCardContent, IonText } from "@ionic/react";
-import React from 'react';
+import React, {useState} from 'react';
 import './DropArea.css';
 import { play } from "ionicons/icons";
 
@@ -9,14 +9,16 @@ interface ResultProps {
     history: History;
 }
 
-const ResultsArea: React.FC<ResultProps> = ({ history }) => {
+const InputArea: React.FC<ResultProps> = ({ history }) => {
 
-    // const [surveyId, setSurveyId] = useState(null);
+     const [surveyId, setSurveyId] = useState<string>();
+    const hostURL = window.location.protocol + '//' + window.location.host;
+    const resultsUrl = hostURL + '/visualizeResults';
 
     function submitIdAndGetResult(surveyId: any) {
         let formData = new FormData();
         formData.append('surveyId', surveyId);
-        fetch('http://localhost:8080/visualizeResults', {
+        fetch(resultsUrl, {
             method: 'POST',
             body: formData
         })
@@ -33,28 +35,25 @@ const ResultsArea: React.FC<ResultProps> = ({ history }) => {
             })
     }
 
+
+
     function goToResult(res: any) {
         if (!res) { console.error("ID and Survey File mustn't be null!!"); return; }
-        history.push('/calculatedResults', { res: res});
+        history.push('/calculatedResults', { res: res, surveyId: surveyId});
     }
 
-    const text = "09591764-05a6-41c3-b499-4e936471a991";
-    // const textLang = "b8718b71-48f9-4a4f-b964-99e201b60560";
-
-
+    // testID_1 = "420beefe-4643-4e7d-88ff-171ae1e2e73b";
+    // testID_2 = "4ff38e89-fdc1-48db-b8a9-241168341886";
 
     return (
         <IonCardContent>
             <IonItem>
                 <IonLabel position="floating">Results ID</IonLabel>
-                <IonInput class={"spacing"}></IonInput>
-                {/*<IonInput class={"spacing"}  value={surveyId}  onChange={event => setSurveyId(event.target.value)} type="text" name="surveyId" />*/}
+                <IonInput class={"spacing"}  value={surveyId} onIonChange={event => setSurveyId(event.detail.value || "")} type="text" name="surveyId" />
             </IonItem>
             <IonText>Copy here your 'Results ID' to access visualization of your survey</IonText>
-
-
             <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                <IonFabButton onClick={() => submitIdAndGetResult(text)}>
+                <IonFabButton onClick={() => submitIdAndGetResult(surveyId)}>
                     <IonIcon icon={play} />
                 </IonFabButton>
             </IonFab>
@@ -62,4 +61,4 @@ const ResultsArea: React.FC<ResultProps> = ({ history }) => {
         </IonCardContent>
     );
 };
-export default ResultsArea;
+export default InputArea;

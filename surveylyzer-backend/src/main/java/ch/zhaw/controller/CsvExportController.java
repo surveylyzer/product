@@ -28,17 +28,24 @@ public class CsvExportController {
 
     private SurveyItemManager itemManager = new SurveyItemManager();
     private List<SurveyItemAbstract> surveyItems = new ArrayList<>();
+    private String id = "";
+    private int counter = 0;
 
     @PostMapping("/get-results-csv")
     public ResponseEntity<String> prepareResultForExport(@RequestParam("surveyId") String surveyId) {
-        Object[][] results;
-        if (surveyId != null) {
-            itemManager.clearItems();
-            Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
-                results = survey.getResult();
-                itemManager.setResults(results);
-                surveyItems = itemManager.parseResults(results);
+        counter++;
+        if(counter==1){
+            Object[][] results;
+            if (surveyId != null) {
+                this.id = surveyId;
+                itemManager.clearItems();
+                surveyItems.clear();
+                Survey survey = dataBase.getSurveyResultById(id);
+                if (survey != null && survey.getResult() != null) {
+                    results = survey.getResult();
+                    itemManager.setResults(results);
+                    surveyItems = itemManager.parseResults(results);
+                }
             }
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -47,20 +54,18 @@ public class CsvExportController {
     @GetMapping("/export-survey-results")
     public ResponseEntity<String> exportCSV(HttpServletResponse response) throws Exception {
 
-        String filename = "survey_results.csv";
+        String filename = "survey_results_"+ id +".csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
 
-            response.setContentType("text/csv");
-            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
-            //create a csv writer
-            StatefulBeanToCsv<SurveyItemAbstract> writer = new StatefulBeanToCsvBuilder<SurveyItemAbstract>(response.getWriter())
+        //create a csv writer
+        StatefulBeanToCsv<SurveyItemAbstract> writer = new StatefulBeanToCsvBuilder<SurveyItemAbstract>(response.getWriter())
                     .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .build();
 
             //write all survey items to csv file
-            writer.write(surveyItems);
-//        }
+        writer.write(surveyItems);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

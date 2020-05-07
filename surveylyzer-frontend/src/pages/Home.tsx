@@ -7,7 +7,7 @@ import {
 // Custom Components
 import DropArea from '../components/DropArea';
 import HeaderNav from '../components/HeaderNav';
-import ResultsArea from '../components/ResultsArea';
+import InputArea from '../components/InputArea';
 // Our CSS
 import './Home.css';
 
@@ -26,7 +26,7 @@ const Home: React.FC<RouteComponentProps> = (props) => {
                 <IonCardHeader>
                     <IonCardTitle>{"Visualize your calculated result"}</IonCardTitle>
                 </IonCardHeader>
-                <ResultsArea history={props.history} />
+                <InputArea history={props.history} />
             </IonCard>
         </IonPage>
     );
