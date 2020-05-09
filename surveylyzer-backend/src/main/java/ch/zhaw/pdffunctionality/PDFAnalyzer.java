@@ -472,9 +472,7 @@ public class PDFAnalyzer {
 			for (int i = 0; i < analyseIterations; i++) {
 				// Rendert die PDF-Seite, welche analysiert werden soll
 				// Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
-				System.gc();
 				w = t.getWords(image, analysLevel);
-				System.gc();
 				// Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
 				uWforRotation = singleWords(w);
 				// Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
@@ -769,7 +767,6 @@ public class PDFAnalyzer {
 		for (List<Rectangle> lr : gR) {
 			eval.add(getChecked(img, lr, ausgleich));
 		}
-		System.out.println("schwety: " + eval.toString());
 		return eval;
 	}
 /**
