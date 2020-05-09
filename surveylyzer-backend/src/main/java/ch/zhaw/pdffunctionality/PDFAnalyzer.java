@@ -70,7 +70,7 @@ public class PDFAnalyzer {
 //			initPath = "surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		} else {
-//			initPath = "../surveylyzer-backend/";
+			initPath = "../surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		}
 
@@ -166,13 +166,25 @@ public class PDFAnalyzer {
 	}
 
 	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
-		debugen = false;
+		debugen = true;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
 			PDDocument docPrc = PDDocument.load(surveyFile);
 			try {
+				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
+				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
+				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
+				System.out.println("1 ------------");
 				prcInitFile(docInit);
+				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
+				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
+				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
+				System.out.println("2 ------------");
 				questionList = prcSurveyFile(docPrc);
+				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
+				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
+				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
+				System.out.println("3 ------------");
 				if (questionList != null) {
 					results = ResultUtils.getResults(questionList);
 				}
@@ -203,6 +215,7 @@ public class PDFAnalyzer {
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
 		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
+		
 		/*
 		 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen. und dann
 		 * alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
@@ -471,7 +484,17 @@ public class PDFAnalyzer {
 			for (int i = 0; i < analyseIterations; i++) {
 				// Rendert die PDF-Seite, welche analysiert werden soll
 				// Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
+
+				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
+				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
+				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
+				System.out.println("4------------");
 				w = t.getWords(image, analysLevel);
+
+				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
+				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
+				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
+				System.out.println("5------------");
 				// Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
 				uWforRotation = singleWords(w);
 				// Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
@@ -766,7 +789,7 @@ public class PDFAnalyzer {
 		for (List<Rectangle> lr : gR) {
 			eval.add(getChecked(img, lr, ausgleich));
 		}
-
+		System.out.println("schwety: " + eval.toString());
 		return eval;
 	}
 /**
@@ -781,7 +804,7 @@ public class PDFAnalyzer {
 		// Um Probleme mit den R�ndern zu entgehen, schauen wir nur den inneren
 		// Teil an.
 		// Somit schauen wir nur 60% des Feldes an.
-		long which_is_choosed = 240 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
+		long which_is_choosed = 250 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
 		int position = -1;
 		int i = 0;
 		for (Rectangle r : gR) {
