@@ -166,25 +166,13 @@ public class PDFAnalyzer {
 	}
 
 	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
-		debugen = true;
+		debugen = false;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
 			PDDocument docPrc = PDDocument.load(surveyFile);
 			try {
-				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
-				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
-				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
-				System.out.println("1 ------------");
 				prcInitFile(docInit);
-				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
-				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
-				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
-				System.out.println("2 ------------");
 				questionList = prcSurveyFile(docPrc);
-				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
-				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
-				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
-				System.out.println("3 ------------");
 				if (questionList != null) {
 					results = ResultUtils.getResults(questionList);
 				}
@@ -484,17 +472,9 @@ public class PDFAnalyzer {
 			for (int i = 0; i < analyseIterations; i++) {
 				// Rendert die PDF-Seite, welche analysiert werden soll
 				// Liste aller gefundenen Werte auf dem entsprechenden Analyse-Level
-
-				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
-				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
-				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
-				System.out.println("4------------");
+				System.gc();
 				w = t.getWords(image, analysLevel);
-
-				System.out.println("Memory max " + Runtime.getRuntime().maxMemory());
-				System.out.println("Memory free " + Runtime.getRuntime().freeMemory());
-				System.out.println("Memory total " + Runtime.getRuntime().totalMemory());
-				System.out.println("5------------");
+				System.gc();
 				// Wir holen die Wörter, welche nur einmal vorkommen für die Orientierrung
 				uWforRotation = singleWords(w);
 				// Liste von Wörterpaaren (initFile-Word, ScannedSIteWord) welche unique sind.
