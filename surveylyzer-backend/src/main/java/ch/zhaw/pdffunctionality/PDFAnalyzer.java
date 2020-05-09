@@ -136,9 +136,10 @@ public class PDFAnalyzer {
 				return results;
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				docInit.close();
+				docPrc.close();
 			}
-			docInit.close();
-			docPrc.close();
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
 		}
