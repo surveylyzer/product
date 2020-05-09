@@ -494,7 +494,7 @@ public class PDFAnalyzer {
 				wordPairs = sameWords(this.uniquWords, uWforRotation);// bisher
 
 
-				if (debugen) {
+				if (debugen && analyseIterations > 1) {
 					ImageIO.write(image, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "_it"+i+"_.jpg"));
 				}
 			}
