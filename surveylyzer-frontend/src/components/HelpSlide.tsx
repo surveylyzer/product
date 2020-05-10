@@ -22,7 +22,7 @@ interface SlideProps {
 
 const HelpSlide: React.FC<SlideProps> = ({ title, subtitle, imgPath, items }) => {
     const regexSplit = new RegExp('[/.]', 'g');
-    const regexRepl = new RegExp('[\-+*_.]', 'g');
+    const regexRepl = new RegExp('[-+*_.]', 'g');
     let SlideImage = null;
     if (imgPath) {
         let imgPathArr = imgPath.split(regexSplit);
