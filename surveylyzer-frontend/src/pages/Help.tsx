@@ -60,12 +60,12 @@ const Help: React.FC = () => {
                     <HelpSlide
                         title="Template (Vorlage)"
                         subtitle="Vorgaben"
-                        imgPath="../assets/img/template_example.jpg"
+                        imgPath="./assets/img/template_example.JPG"
                         items={itemsS1 as []} />
                     <HelpSlide
                         title="Survey (Umfrage)"
                         subtitle="Vorgaben"
-                        imgPath="../assets/img/survey_example.jpg"
+                        imgPath="./assets/img/survey_example.JPG"
                         items={itemsS2 as []} />
                     <HelpSlide
                         title="SurveyID"
