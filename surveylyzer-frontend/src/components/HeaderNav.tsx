@@ -14,9 +14,6 @@ const HeaderNav: React.FC = () => {
                     <IonItem routerLink="/home">
                         <IonTitle>Surveylyzer</IonTitle>
                     </IonItem>
-                    <IonItem routerLink="/result">
-                        View Result
-                    </IonItem>
                 </IonButtons>
             </IonToolbar>
         </IonHeader>

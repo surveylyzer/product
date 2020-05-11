@@ -1,12 +1,13 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
-    IonContent, IonPage
+    IonCard, IonCardHeader, IonCardTitle, IonPage
 } from '@ionic/react';
 
 // Custom Components
 import DropArea from '../components/DropArea';
 import HeaderNav from '../components/HeaderNav';
+import InputArea from '../components/InputArea';
 // Our CSS
 import './Home.css';
 
@@ -14,10 +15,19 @@ const Home: React.FC<RouteComponentProps> = (props) => {
 
     return (
         <IonPage>
-            <HeaderNav />
-            <IonContent>
+            <HeaderNav/>
+            <IonCard>
+                <IonCardHeader>
+                    <IonCardTitle>{"Calculate new result"}</IonCardTitle>
+                </IonCardHeader>
                 <DropArea history={props.history} />
-            </IonContent>
+            </IonCard>
+            <IonCard>
+                <IonCardHeader>
+                    <IonCardTitle>{"Visualize your calculated result"}</IonCardTitle>
+                </IonCardHeader>
+                <InputArea history={props.history} />
+            </IonCard>
         </IonPage>
     );
 };
