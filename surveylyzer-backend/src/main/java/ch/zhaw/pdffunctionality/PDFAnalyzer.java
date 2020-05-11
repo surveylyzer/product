@@ -70,7 +70,7 @@ public class PDFAnalyzer {
 //			initPath = "surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		} else {
-//			initPath = "../surveylyzer-backend/";
+			initPath = "../surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		}
 
@@ -183,6 +183,9 @@ public class PDFAnalyzer {
 				docInit.close();
 				docPrc.close();
 				e.printStackTrace();
+			} finally {
+				docInit.close();
+				docPrc.close();
 			}
 		} catch (IOException e) {
 			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
@@ -203,6 +206,7 @@ public class PDFAnalyzer {
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
 		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
+		
 		/*
 		 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen. und dann
 		 * alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
@@ -493,7 +497,7 @@ public class PDFAnalyzer {
 				wordPairs = sameWords(this.uniquWords, uWforRotation);// bisher
 
 
-				if (debugen) {
+				if (debugen && analyseIterations > 1) {
 					ImageIO.write(image, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "_it"+i+"_.jpg"));
 				}
 			}
@@ -766,7 +770,6 @@ public class PDFAnalyzer {
 		for (List<Rectangle> lr : gR) {
 			eval.add(getChecked(img, lr, ausgleich));
 		}
-
 		return eval;
 	}
 /**
@@ -781,7 +784,7 @@ public class PDFAnalyzer {
 		// Um Probleme mit den R�ndern zu entgehen, schauen wir nur den inneren
 		// Teil an.
 		// Somit schauen wir nur 60% des Feldes an.
-		long which_is_choosed = 240 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
+		long which_is_choosed = 250 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
 		int position = -1;
 		int i = 0;
 		for (Rectangle r : gR) {

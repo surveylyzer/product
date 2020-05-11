@@ -29,19 +29,18 @@ public class ResultController {
     private Object[][] results;
 
     @PostMapping("/resultObject")
-    public ResponseEntity<Object [][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
+    public ResponseEntity<Object[][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
         PDFAnalyzer analyzer = new PDFAnalyzer();
         Survey survey = dataBase.getSurveyResultById(surveyId);
 
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
-        File template = new File("template");
-        File surveyFile = new File("survey");
+        File template = new File("template_" + surveyId);
+        File surveyFile = new File("survey_" + surveyId);
 
         if (surveyTemplate != null) {
             Binary binaryTemplate = surveyTemplate.getTemplate();
             if (binaryTemplate != null) {
                 byte[] byteTemplate = binaryTemplate.getData();
-
                 try {
                     FileUtils.writeByteArrayToFile(template, byteTemplate);
                     FileUtils.writeByteArrayToFile(surveyFile, ControllerUtils.multipartToByteArray(file));
@@ -51,23 +50,24 @@ public class ResultController {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    template.delete();
+                    surveyFile.delete();
                 }
             }
 
         }
-
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
-    //todo: it has be still implemented in FE
-    @GetMapping("/visualizeResults")
+    @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
+        // todo: error handling + user infos / alerts
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey != null && survey.getResult() != null) {
                 return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
@@ -81,6 +81,7 @@ public class ResultController {
     @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
     @ResponseBody
     public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
+        //todo: error handling must be still implemented
         String[] header = {"Questions", "1", "2", "3"};
         Object[][] dummyResult = {header};
 
