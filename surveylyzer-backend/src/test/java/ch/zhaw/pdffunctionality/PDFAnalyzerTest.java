@@ -2,6 +2,7 @@ package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.lowagie.text.xml.xmp.PdfA1Schema;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Word;
 import org.junit.Assert;
@@ -12,13 +13,18 @@ import org.junit.rules.ExpectedException;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
+
+import javax.imageio.ImageIO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = SurveylyzerBackendApplication.class)
 public class PDFAnalyzerTest {
@@ -30,8 +36,7 @@ public class PDFAnalyzerTest {
     PDDocument docInit;
     PDDocument docPrc;
 
-/*
-    @Before
+
     void init() throws Exception{
         initPath = "surveylyzer-backend/";
         File fileInit = new File(initPath + "../pdf_umfragen/initFile.pdf");
@@ -44,16 +49,16 @@ public class PDFAnalyzerTest {
             e.printStackTrace();
         }
     }
-*/
+
     @Test
-    public void isHighlightedColourTest(){
+    void isHighlightedColourTest(){
         int color1 = new Color(255, 200, 0).getRGB();
         int color2 = new Color(0, 0, 0).getRGB();
         Assert.assertTrue(pdfAnalyzer.isHighlightedColour(color1));
         Assert.assertFalse(pdfAnalyzer.isHighlightedColour(color2));
     }
     @Test
-    public void getAngleTest() throws Exception{
+    void getAngleTest() throws Exception{
         double ak = 1;
         double gk = 2;
         Method getAngle = PDFAnalyzer.class.getDeclaredMethod("getAngle", double.class, double.class);
@@ -65,7 +70,7 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(angleExpected, angleActual, 0);
     }
     @Test
-    public void groupRectangleTest()throws Exception{
+    void groupRectangleTest()throws Exception{
         Method groupRectangle = PDFAnalyzer.class.getDeclaredMethod("groupRectangle", int.class, List.class);
         groupRectangle.setAccessible(true);
 
@@ -102,7 +107,7 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(sorted,sortedFromMethod);
     }
     @Test
-    public void groupWordsTest()throws Exception{
+    void groupWordsTest()throws Exception{
         Method groupWords = PDFAnalyzer.class.getDeclaredMethod("groupWords", int.class, List.class);
         groupWords.setAccessible(true);
 
@@ -146,7 +151,7 @@ public class PDFAnalyzerTest {
 
     }
     @Test
-    public void isInRangeTest() throws Exception{
+    void isInRangeTest() throws Exception{
         int range = 5;
         int a = 10;
         int b = 12;
@@ -160,7 +165,7 @@ public class PDFAnalyzerTest {
         Assert.assertFalse(resultTwo);
     }
     @Test
-    public void sameWordsTest() throws Exception{
+    void sameWordsTest() throws Exception{
         Method sameWords = PDFAnalyzer.class.getDeclaredMethod("sameWords", HashMap.class, HashMap.class);
         sameWords.setAccessible(true);
         List<List<Word>> output = new ArrayList<List<Word>>();
@@ -195,7 +200,7 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(output, resultat);
     }
     @Test
-    public void distWordsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void distWordsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Rectangle r1 = new Rectangle(0, 0, 2, 4);
         Rectangle r2 = new Rectangle(5, 0, 2, 4);
         Word w1 = new Word("WordOne", 0, r1);
@@ -208,7 +213,6 @@ public class PDFAnalyzerTest {
         double distActual = (Double) distWords.invoke(pdfAnalyzer,w1,w2);
         Assert.assertEquals(distExpected, distActual, 0);
     }
-
     @Test
     public void getWordAngleTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Rectangle r1 = new Rectangle(0, 0, 2, 4);
@@ -227,7 +231,6 @@ public class PDFAnalyzerTest {
 
         Assert.assertEquals(angleExpected, angleActual,0);
     }
-
     @Test
     void startHighlightingExternalFileTest2() throws Exception {
         File fileone = new File("wrong Path");
@@ -243,25 +246,11 @@ public class PDFAnalyzerTest {
         } catch (Exception e) {
         }
     }
-
-    @Test
-    void findRectangle() throws Exception {
-     /*   pdfAnalyzer = new PDFAnalyzer();
-        init();
-        pdfAnalyzer.prcInitFile(docInit);
-        Rectangle r1 = new Rectangle(0, 0, 4, 2);
-        Rectangle r2 = new Rectangle(5, 0, 4, 2);
-        Rectangle r3 = new Rectangle(5, 0, 4, 2);
-        Rectangle newRectangle = pdfAnalyzer.findRectangle(10, 0);
-        Assert.assertEquals(r2, newRectangle);*/
-    }
-
     @Test
     void makeQuestionsTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method makeQuestions = PDFAnalyzer.class.getDeclaredMethod("makeQuestions", List.class, ArrayList.class);
         makeQuestions.setAccessible(true);
 
-        int range = 20;
         Rectangle r1 = new Rectangle(0, 0, 2, 4);
         Rectangle r2 = new Rectangle(5, 0, 2, 4);
         Rectangle r3 = new Rectangle(10, 30, 2, 4);
@@ -323,7 +312,6 @@ public class PDFAnalyzerTest {
         expected.put("WordFour", w4);
         Assert.assertEquals(expected, result);
     }
-
     @Test
     void calcRotationTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method calcRotation = PDFAnalyzer.class.getDeclaredMethod("calcRotation", List.class, List.class);
@@ -333,13 +321,13 @@ public class PDFAnalyzerTest {
         Rectangle r2 = new Rectangle(10, 0, 2, 4);
         Rectangle r3 = new Rectangle(5, 10, 2, 4);
 
-        Word w1 = new Word("WordOne", 0, r1);
-        Word w2 = new Word("WordTwo", 10, r2);
+        Word w1 = new Word("WordOne", 95, r1);
+        Word w2 = new Word("WordTwo", 95, r2);
         Word w3 = new Word("WordThree", 100, r1);
-        Word w4 = new Word("WordFour", 200, r3);
-        Word w5 = new Word("a", 90, r1);
-        Word w6 = new Word("WordOne", 0, r1);
-        Word w7 = new Word("WordTwo", 0, r2);
+        Word w4 = new Word("WordFour", 98, r3);
+        Word w5 = new Word("WordFive", 94, r1);
+        Word w6 = new Word("WordOne", 92, r1);
+        Word w7 = new Word("WordTwo", 91, r2);
 
         List<Word> listOne = new ArrayList<>();
         List<Word> listTwo = new ArrayList<>();
@@ -362,9 +350,65 @@ public class PDFAnalyzerTest {
         listThree.add(w7);
         allTwo.add(listThree);
         result = (Double) calcRotation.invoke(pdfAnalyzer,null,allTwo);
-        expected = 0.0;
-        Assert.assertEquals(expected, result, 0.01);
+        Assert.assertTrue(Double.isNaN(result));
     }
+    @Test
+    void resizeTest() throws NoSuchMethodException, IOException, InvocationTargetException, IllegalAccessException {
+        Method resize = PDFAnalyzer.class.getDeclaredMethod("resize", BufferedImage.class, List.class);
+        resize.setAccessible(true);
+        initPath = "surveylyzer-backend/";
+        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        BufferedImage image1 = ImageIO.read(bild1);
+        File bild2 = new File(initPath + "../pdf_umfragen/bildResize.png");
+        BufferedImage image2 = ImageIO.read(bild2);
 
+        Rectangle r1 = new Rectangle(0, 0, 2, 4);
+
+        Word w1 = new Word("Meine", 0, r1);
+        Word w2 = new Word("Frage", 0, r1);
+        Word w3 = new Word("zweite", 0, r1);
+        Word w4 = new Word("dritte", 0, r1);
+
+        List<List<Word>> all = new ArrayList<List<Word>>();
+        List<Word> listOne = new ArrayList<>();
+        List<Word> listTwo = new ArrayList<>();
+        listOne.add(w1);
+        listOne.add(w2);
+        listTwo.add(w3);
+        listTwo.add(w4);
+        all.add(listOne);
+        all.add(listTwo);
+
+        BufferedImage result = (BufferedImage) resize.invoke(pdfAnalyzer,image1,all);
+        byte[] byteArrayResult = ((DataBufferByte) result.getData().getDataBuffer()).getData();
+        byte[] byteArray = ((DataBufferByte) image2.getData().getDataBuffer()).getData();
+        Assert.assertArrayEquals(byteArray, byteArrayResult);
+    }
+    @Test
+    void rotateTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+        Method rotate = PDFAnalyzer.class.getDeclaredMethod("rotate", BufferedImage.class, double.class, double.class, double.class);
+        rotate.setAccessible(true);
+        initPath = "surveylyzer-backend/";
+        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        BufferedImage image1 = ImageIO.read(bild1);
+        File bild2 = new File(initPath + "../pdf_umfragen/bildRotate.png");
+        BufferedImage image2 = ImageIO.read(bild2);
+        BufferedImage result = (BufferedImage) rotate.invoke(pdfAnalyzer,image1,30.0, 200.0, 100.0);
+        byte[] byteArrayResult = ((DataBufferByte) result.getData().getDataBuffer()).getData();
+        byte[] byteArray = ((DataBufferByte) image2.getData().getDataBuffer()).getData();
+        Assert.assertArrayEquals(byteArray, byteArrayResult);
+    }
+    @Test
+    void scaleTest() throws IOException {
+        initPath = "surveylyzer-backend/";
+        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        BufferedImage image1 = ImageIO.read(bild1);
+        File bild2 = new File(initPath + "../pdf_umfragen/bildScale.png");
+        BufferedImage image2 = ImageIO.read(bild2);
+        BufferedImage result = pdfAnalyzer.scale(image1, 0.3);
+        byte[] byteArrayResult = ((DataBufferByte) result.getData().getDataBuffer()).getData();
+        byte[] byteArray = ((DataBufferByte) image2.getData().getDataBuffer()).getData();
+        Assert.assertArrayEquals(byteArray, byteArrayResult);
+    }
 
 }
