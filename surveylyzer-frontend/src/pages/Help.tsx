@@ -22,7 +22,8 @@ const Help: React.FC = () => {
     ];
     const itemsS2 = [
         "Format: PDF",
-        "Muss zwingend dem Layout der Vorlage entsprechen",
+        "Muss zwingend dem Layout der Vorlage entsprechen." +
+        " Rotationsabweichungen (z.B. bei schrägem Einscannen) werden bis zu 20° tolleriert.",
         "Pro Seite eine ausgefüllte Umfrage",
         "Es werden zuerzeit nur Rechtecke, die farblich stärker" +
         " von den restlichen abweichen, erkannt.",
@@ -35,7 +36,7 @@ const Help: React.FC = () => {
         "Sie müssen nicht warten, bis die Umfrage fertig ausgewertet ist." +
         " Kommen Sie einfach später mit Ihrer ID wieder.",
         "API Abfragen sind auf folgender URL möglich:" +
-        "'surveylyzermaster.herokuapp.com/rawData/{ID}'."
+        "'surveylyzermaster.herokuapp.com/rawResults?surveyId={ID}'."
     ];
     const itemsS4 = [
         "Mit der Nutzung von Surveylyzer erklären Sie sich damit einverstanden, dass:",
