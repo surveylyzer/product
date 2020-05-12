@@ -39,6 +39,7 @@ public class ResultController {
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
         File template = new File("template_" + surveyId);
         File surveyFile = new File("survey_" + surveyId);
+        HttpStatus status = HttpStatus.FAILED_DEPENDENCY;
 
         if (surveyTemplate != null) {
             Binary binaryTemplate = surveyTemplate.getTemplate();
@@ -50,15 +51,17 @@ public class ResultController {
                     results = analyzer.startHighlightingExternalFile(template, surveyFile);
                     survey.setResult(results);
                     dataBase.saveOrUpdateSurveyResult(survey);
+                    status = HttpStatus.CREATED;
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    status = HttpStatus.INTERNAL_SERVER_ERROR;
                 } catch (InitFileException e) {
-					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
+					status = HttpStatus.NOT_ACCEPTABLE;
 				} catch (SurveyFileException e) {
-					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
+                    status = HttpStatus.EXPECTATION_FAILED;
                 } finally {
                     template.delete();
                     surveyFile.delete();
@@ -66,7 +69,7 @@ public class ResultController {
             }
 
         }
-        return new ResponseEntity<>(results, HttpStatus.CREATED);
+        return new ResponseEntity<>(results, status);
     }
 
     @PostMapping("/visualizeResults")
