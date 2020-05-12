@@ -71,6 +71,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 // update state
                 setResData(res);
             }).catch(error => console.log(error))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resultURL]);
 
     function errorHandling(response: any) {
