@@ -183,6 +183,10 @@ public class PDFAnalyzer {
 				throw new InitFileException(e);
 			} catch(Exception e) {
 				throw new SurveyFileException(e);
+			} finally {
+				docInit.close();
+				docPrc.close();
+
 			}
 		} catch (IOException e) {
 			throw new InitFileException("File not found");
