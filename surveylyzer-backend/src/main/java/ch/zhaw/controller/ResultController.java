@@ -87,20 +87,21 @@ public class ResultController {
     @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
     @ResponseBody
     public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
-        //todo: error handling must be still implemented
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey == null) {
+                String[] header = {"Your URI is not correct! Insert correct URI to get your raw results."};
+                return new Object[][]{header};
+            } else if (survey.getResult() != null) {
                 return survey.getResult();
             } else {
-                return dummyResult;
+                String[] header = {"We are still processing your request."};
+                return new Object[][]{header};
             }
 
         } else {
-            return dummyResult;
+            String[] header = {"Your ID is empty! Ensure that your URI includes ID parameter."};
+            return new Object[][]{header};
         }
     }
 
