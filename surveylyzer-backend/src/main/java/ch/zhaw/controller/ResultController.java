@@ -55,11 +55,9 @@ public class ResultController {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InitFileException e) {
-                	System.out.println("InitFileException <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
 				} catch (SurveyFileException e) {
-                	System.out.println("SurveyFileException>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
 				}
