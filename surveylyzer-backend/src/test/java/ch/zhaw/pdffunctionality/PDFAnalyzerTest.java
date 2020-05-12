@@ -374,6 +374,8 @@ public class PDFAnalyzerTest {
         byte[] byteArray = ((DataBufferByte) image2.getData().getDataBuffer()).getData();
         Assert.assertArrayEquals(byteArray, byteArrayResult);
     }
+
+    //Test proceed Document
     @Test
     void prcInit() throws Exception {
         pdfAnalyzer = new PDFAnalyzer();
