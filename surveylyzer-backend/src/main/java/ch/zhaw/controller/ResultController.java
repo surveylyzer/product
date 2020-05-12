@@ -71,19 +71,16 @@ public class ResultController {
 
     @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
-        // todo: error handling + user infos / alerts
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey != null && survey.getResult() != null) {
                 return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
-                return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
         } else {
-            return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
     }
 

@@ -1,4 +1,14 @@
-import { IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonInput, IonCardContent, IonText } from "@ionic/react";
+import {
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonCardContent,
+    IonText,
+    IonAlert
+} from "@ionic/react";
 import React, {useState} from 'react';
 import './DropArea.css';
 import { play } from "ionicons/icons";
@@ -11,31 +21,69 @@ interface ResultProps {
 
 const InputArea: React.FC<ResultProps> = ({ history }) => {
 
-     const [surveyId, setSurveyId] = useState<string>();
+    const [surveyId, setSurveyId] = useState<string>();
     const hostURL = window.location.protocol + '//' + window.location.host;
     const resultsUrl = hostURL + '/visualizeResults';
+    //Alerts
+    const [showAlert, setShowAlert] = useState(false);
+    const [subtitle, setSubtitle] = useState("");
+    const [message, setMessage] = useState("");
 
     function submitIdAndGetResult(surveyId: any) {
-        let formData = new FormData();
-        formData.append('surveyId', surveyId);
-        fetch(resultsUrl, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(json => {
-                console.log('Fetched json: ', json);
-                // make all row-arrays the same length (for google charts):
-                // if json
-                let maxL = json[0].length;
-                let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
-                console.log('Googel JSON: ', res);
-                // update state
-                goToResult(res);
+        console.log("response: ", surveyId);
+        if(surveyId == null || "") {
+            setAlert("ID Error", "'Results ID' Input is empty, please enter a valid ID!");
+        } else {
+            let formData = new FormData();
+            formData.append('surveyId', surveyId);
+            fetch(resultsUrl, {
+                method: 'POST',
+                body: formData
             })
+                .then(response => errorHandling(response))
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new TypeError("Not correct or empty ID, there is no JSON!");
+                    }
+                    return response.json();
+                })
+                .then(json => {
+                    console.log('Fetched json: ', json);
+                    // make all row-arrays the same length (for google charts):
+                    // if json
+                    let maxL = json[0].length;
+                    let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL-row.length,0)).fill(null)]});
+                    console.log('Googel JSON: ', res);
+                    // update state
+                    goToResult(res);
+                    window.location.reload();
+                }).catch(error => console.log(error))
+        }
+
     }
 
+    function errorHandling(response: any) {
+        // No content or ID is not valid
+        if (response.status == 204) {
+            setAlert("ID Error", "Your ID is not correct! Insert correct ID to visualize your results.");
+            console.log("No Content was found: " , response);
+        }
+        // Precondition failed, ID was null or empty
+        else if (response.status == 412) {
+            setAlert("ID Error", "'Results ID' - Input can not be empty!");
+        }
+        else if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        return response;
+    }
 
+    function setAlert(subtitle: string, message: string) {
+        setShowAlert(true);
+        setSubtitle(subtitle);
+        setMessage(message);
+    }
 
     function goToResult(res: any) {
         if (!res) { console.error("ID and Survey File mustn't be null!!"); return; }
@@ -57,6 +105,15 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
                     <IonIcon icon={play} />
                 </IonFabButton>
             </IonFab>
+
+            <IonAlert
+                isOpen={showAlert}
+                onDidDismiss={() => setShowAlert(false)}
+                header={"Alert"}
+                subHeader={subtitle}
+                message={message}
+                buttons={['OK']}
+            />
 
         </IonCardContent>
     );
