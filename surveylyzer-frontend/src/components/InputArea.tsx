@@ -26,8 +26,8 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
     const resultsUrl = hostURL + '/visualizeResults';
     //Alerts
     const [showAlert, setShowAlert] = useState(false);
-    const [subtitle, setSubtitle] = useState("");
-    const [message, setMessage] = useState("");
+    const [subtitle, setSubtitle] = useState("Unknown Error");
+    const [message, setMessage] = useState("Something went wrong");
 
     function submitIdAndGetResult(surveyId: any) {
         console.log("response: ", surveyId);
