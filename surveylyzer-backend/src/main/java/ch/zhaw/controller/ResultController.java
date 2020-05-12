@@ -4,7 +4,10 @@ import ch.zhaw.controller.utils.ControllerUtils;
 import ch.zhaw.db.Storage;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;
+import ch.zhaw.pdffunctionality.InitFileException;
 import ch.zhaw.pdffunctionality.PDFAnalyzer;
+import ch.zhaw.pdffunctionality.SurveyFileException;
+
 import org.apache.commons.io.FileUtils;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,12 @@ public class ResultController {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (InitFileException e) {
+					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
+					e.printStackTrace();
+				} catch (SurveyFileException e) {
+					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
+					e.printStackTrace();
                 } finally {
                     template.delete();
                     surveyFile.delete();
