@@ -165,7 +165,7 @@ public class PDFAnalyzer {
 		}
 	}
 
-	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
+	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) throws InitFileException, SurveyFileException {
 		debugen = false;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
@@ -179,16 +179,14 @@ public class PDFAnalyzer {
 				docInit.close();
 				docPrc.close();
 				return results;
-			} catch (Exception e) {
-				docInit.close();
-				docPrc.close();
-				e.printStackTrace();
+			} catch (InitFileException e) {
+				throw new InitFileException(e);
+			} catch(Exception e) {
+				throw new SurveyFileException(e);
 			}
 		} catch (IOException e) {
-			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
+			throw new InitFileException("File not found");
 		}
-
-		return results;
 	}
 
 	/**
@@ -196,9 +194,10 @@ public class PDFAnalyzer {
 	 * Words for alignment
 	 * 
 	 * @param doc
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public void prcInitFile(PDDocument doc) throws Exception {
+	public void prcInitFile(PDDocument doc) throws InitFileException, IOException {
 		PDFRenderer renderer = new PDFRenderer(doc);
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
 		Graphics2D g2d = initImg.createGraphics();
@@ -225,6 +224,9 @@ public class PDFAnalyzer {
 		}
 
 		g2d.dispose();
+		if(allRectangles.isEmpty()) {
+			throw new InitFileException("No Highlighted Fields found");
+		}
 		allWords = t.getWords(initImg, this.analysLevel);
 
 		groupedRectangles = groupRectangle(20, allRectangles);
@@ -445,7 +447,7 @@ public class PDFAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws Exception {
+	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws SurveyFileException, Exception {
 
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
