@@ -65,12 +65,12 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
 
     function errorHandling(response: any) {
         // No content or ID is not valid
-        if (response.status == 204) {
+        if (response.status === 204) {
             setAlert("ID Error", "Your ID is not correct! Insert correct ID to visualize your results.");
             console.log("No Content was found: " , response);
         }
         // Precondition failed, ID was null or empty
-        else if (response.status == 412) {
+        else if (response.status === 412) {
             setAlert("ID Error", "'Results ID' - Input can not be empty!");
         }
         else if (!response.ok) {
