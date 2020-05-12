@@ -29,7 +29,7 @@ public class ResultController {
     private Object[][] results;
 
     @PostMapping("/resultObject")
-    public ResponseEntity<Object [][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
+    public ResponseEntity<Object[][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
         PDFAnalyzer analyzer = new PDFAnalyzer();
         Survey survey = dataBase.getSurveyResultById(surveyId);
 
@@ -41,7 +41,6 @@ public class ResultController {
             Binary binaryTemplate = surveyTemplate.getTemplate();
             if (binaryTemplate != null) {
                 byte[] byteTemplate = binaryTemplate.getData();
-
                 try {
                     FileUtils.writeByteArrayToFile(template, byteTemplate);
                     FileUtils.writeByteArrayToFile(surveyFile, ControllerUtils.multipartToByteArray(file));
@@ -51,14 +50,13 @@ public class ResultController {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    template.delete();
+                    surveyFile.delete();
                 }
             }
 
         }
-
-        template.delete();
-        surveyFile.delete();
-
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
