@@ -39,8 +39,8 @@ public class PDFAnalyzerTest {
 
     void init() throws Exception{
         initPath = "surveylyzer-backend/";
-        File fileInit = new File(initPath + "../pdf_umfragen/initFile.pdf");
-        File filePrc = new File(initPath + "../pdf_umfragen/testprcFile.pdf");
+        File fileInit = new File(initPath + "../testFiles/initFile.pdf");
+        File filePrc = new File(initPath + "../testFiles/testprcFile.pdf");
         try {
             docInit = PDDocument.load(fileInit);
             docPrc = PDDocument.load(filePrc);
@@ -323,9 +323,9 @@ public class PDFAnalyzerTest {
     @Test
     void resizeTest() throws IOException, InvocationTargetException, IllegalAccessException {
         initPath = "surveylyzer-backend/";
-        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        File bild1 = new File(initPath + "../testFiles/TestBild.png");
         BufferedImage image1 = ImageIO.read(bild1);
-        File bild2 = new File(initPath + "../pdf_umfragen/bildResize.png");
+        File bild2 = new File(initPath + "../testFiles/bildResize.png");
         BufferedImage image2 = ImageIO.read(bild2);
 
         Rectangle r1 = new Rectangle(0, 0, 2, 4);
@@ -353,9 +353,9 @@ public class PDFAnalyzerTest {
     @Test
     void rotateTest() throws InvocationTargetException, IllegalAccessException, IOException {
         initPath = "surveylyzer-backend/";
-        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        File bild1 = new File(initPath + "../testFiles/TestBild.png");
         BufferedImage image1 = ImageIO.read(bild1);
-        File bild2 = new File(initPath + "../pdf_umfragen/bildRotate.png");
+        File bild2 = new File(initPath + "../testFiles/bildRotate.png");
         BufferedImage image2 = ImageIO.read(bild2);
         BufferedImage result = pdfAnalyzer.rotate(image1,30.0, 200.0, 100.0);
         byte[] byteArrayResult = ((DataBufferByte) result.getData().getDataBuffer()).getData();
@@ -365,17 +365,15 @@ public class PDFAnalyzerTest {
     @Test
     void scaleTest() throws IOException {
         initPath = "surveylyzer-backend/";
-        File bild1 = new File(initPath + "../pdf_umfragen/TestBild.png");
+        File bild1 = new File(initPath + "../testFiles/TestBild.png");
         BufferedImage image1 = ImageIO.read(bild1);
-        File bild2 = new File(initPath + "../pdf_umfragen/bildScale.png");
+        File bild2 = new File(initPath + "../testFiles/bildScale.png");
         BufferedImage image2 = ImageIO.read(bild2);
         BufferedImage result = pdfAnalyzer.scale(image1, 0.3);
         byte[] byteArrayResult = ((DataBufferByte) result.getData().getDataBuffer()).getData();
         byte[] byteArray = ((DataBufferByte) image2.getData().getDataBuffer()).getData();
         Assert.assertArrayEquals(byteArray, byteArrayResult);
     }
-
-    //Test proceed Document
     @Test
     void prcInit() throws Exception {
         pdfAnalyzer = new PDFAnalyzer();
