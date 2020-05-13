@@ -38,9 +38,9 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     const rawDataUrl = hostURL + '/rawResults?surveyId=' + surveyID;
 
     //Alerts
-    const [showAlert, setShowAlert] = useState(false);
-    const [subtitle, setSubtitle] = useState("Unknown Error");
-    const [message, setMessage] = useState("Something went wrong");
+    const [showAlertResults, setShowAlertResults] = useState(false);
+    const [subtitleResults, setSubtitleResults] = useState("Unknown Error");
+    const [messageResults, setMessageResults] = useState("Something went wrong");
 
     // --------------------------------------------
     // Submit Functions
@@ -57,7 +57,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             .then(response => {
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
-                    throw new TypeError("Not correct or empty ID, there is no JSON!");
+                    throw new TypeError("Something went wrong, there is no JSON!");
                 }
                 return response.json();
             })
@@ -77,35 +77,35 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     function errorHandling(response: any) {
         // template file can not be proceeded
         if (response.status === 406) {
-            setAlert("Template Error", "Check your Template File. Server can not proceed the evaluation due to faulty template file!" +
+            setAlertResult("Template Error", "Check your Template File. Server can not proceed the evaluation due to faulty template file!" +
                 " Click Help to find more Information about correct file upload");
             console.log("No Content was found: " , response);
         }
         // survey file can not be proceeded
         else if (response.status === 417) {
-            setAlert("Survey Error", "Check your Survey File. Server can not proceed the evaluation due to faulty survey file!" +
+            setAlertResult("Survey Error", "Check your Survey File. Server can not proceed the evaluation due to faulty survey file!" +
                 " Click Help to find more Information about correct file upload");
         }
         // server error
         else if(response.status === 500) {
-            setAlert("Internal Server Error", "Something unexpected occurred. Server can not proceed the evaluation!" +
+            setAlertResult("Internal Server Error", "Something unexpected occurred. Server can not proceed the evaluation!" +
                 " Click Help to find more Information about correct file upload");
         }
         // fatal error
         else if(response.status === 424) {
-            setAlert("Fatal Error", "Something unexpected occurred. Click Help to find more Information about correct file upload!");
+            setAlertResult("Fatal Error", "Something unexpected occurred. Click Help to find more Information about correct file upload!");
         }
         else if (!response.ok) {
-            setShowAlert(true);
+            setShowAlertResults(true);
             throw Error(response.statusText);
         }
         return response;
     }
 
-    function setAlert(subtitle: string, message: string) {
-        setShowAlert(true);
-        setSubtitle(subtitle);
-        setMessage(message);
+    function setAlertResult(subtitle: string, message: string) {
+        setShowAlertResults(true);
+        setSubtitleResults(subtitle);
+        setMessageResults(message);
     }
 
     function submitSurveyId(surveyId: string) {
@@ -253,11 +253,11 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 </IonCard>
             </IonContent>
             <IonAlert
-                isOpen={showAlert}
-                onDidDismiss={() => setShowAlert(false)}
+                isOpen={showAlertResults}
+                onDidDismiss={() => setShowAlertResults(false)}
                 header={"Alert"}
-                subHeader={subtitle}
-                message={message}
+                subHeader={subtitleResults}
+                message={messageResults}
                 buttons={[
                     {
                         text: 'Cancel',

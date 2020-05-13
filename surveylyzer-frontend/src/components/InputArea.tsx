@@ -25,14 +25,14 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
     const hostURL = window.location.protocol + '//' + window.location.host;
     const resultsUrl = hostURL + '/visualizeResults';
     //Alerts
-    const [showAlert, setShowAlert] = useState(false);
-    const [subtitle, setSubtitle] = useState("Unknown Error");
-    const [message, setMessage] = useState("Something went wrong");
+    const [showAlertInput, setShowAlertInput] = useState(false);
+    const [subtitleInput, setSubtitleInput] = useState("Unknown Error");
+    const [messageInput, setMessageInput] = useState("Something went wrong");
 
     function submitIdAndGetResult(surveyId: any) {
         console.log("response: ", surveyId);
         if(surveyId == null || "") {
-            setAlert("ID Error", "'Results ID' Input is empty, please enter a valid ID!");
+            setAlertInput("ID Error", "'Results ID' Input is empty, please enter a valid ID!");
         } else {
             let formData = new FormData();
             formData.append('surveyId', surveyId);
@@ -66,12 +66,12 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
     function errorHandling(response: any) {
         // No content or ID is not valid
         if (response.status === 204) {
-            setAlert("ID Error", "Your ID is not correct! Insert correct ID to visualize your results.");
+            setAlertInput("ID Error", "Your ID is not correct! Insert correct ID to visualize your results.");
             console.log("No Content was found: " , response);
         }
         // Precondition failed, ID was null or empty
         else if (response.status === 412) {
-            setAlert("ID Error", "'Results ID' - Input can not be empty!");
+            setAlertInput("ID Error", "'Results ID' - Input can not be empty!");
         }
         else if (!response.ok) {
             throw Error(response.statusText);
@@ -79,10 +79,10 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
         return response;
     }
 
-    function setAlert(subtitle: string, message: string) {
-        setShowAlert(true);
-        setSubtitle(subtitle);
-        setMessage(message);
+    function setAlertInput(subtitle: string, message: string) {
+        setShowAlertInput(true);
+        setSubtitleInput(subtitle);
+        setMessageInput(message);
     }
 
     function goToResult(res: any) {
@@ -107,11 +107,11 @@ const InputArea: React.FC<ResultProps> = ({ history }) => {
             </IonFab>
 
             <IonAlert
-                isOpen={showAlert}
-                onDidDismiss={() => setShowAlert(false)}
+                isOpen={showAlertInput}
+                onDidDismiss={() => setShowAlertInput(false)}
                 header={"Alert"}
-                subHeader={subtitle}
-                message={message}
+                subHeader={subtitleInput}
+                message={messageInput}
                 buttons={['OK']}
             />
 
