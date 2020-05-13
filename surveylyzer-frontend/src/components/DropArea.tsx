@@ -86,6 +86,7 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
     function goToResult(id: String, file: File | null) {
         if (!id || !file) { console.error("ID and Survey File mustn't be null!!"); return; }
         history.push('/result', { surveyId: id, surveyFile: file });
+        window.location.reload();
     }
 
     return (
