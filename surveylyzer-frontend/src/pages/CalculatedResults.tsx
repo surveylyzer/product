@@ -52,7 +52,7 @@ const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
                         <IonCardTitle class={"title"}>{"Your Survey Result"}</IonCardTitle>
                         <IonButton class={"button"} href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardSubtitle>Click this link to access the <b>raw data: </b>
-                            <a href={rawDataUrl} className="url_ready">{rawDataUrl}</a>
+                            <a href={rawDataUrl} className="url_ready" id={"raw_data_link"}>{rawDataUrl}</a>
                         </IonCardSubtitle>
                         <IonCardSubtitle>Save this ID to access the
                             <b> data visualization: </b> <span className="url">{myProps?.surveyId}</span>
