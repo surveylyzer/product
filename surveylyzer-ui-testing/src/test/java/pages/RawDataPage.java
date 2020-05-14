@@ -10,7 +10,7 @@ public class RawDataPage extends PageObject {
 
     public void i_see_data_in_json_format() {
         WebElement json = find(By.cssSelector("#json"));
-        waitABit(500);
+        waitABit(1000);
         SoftAssertions soft = new SoftAssertions();
         soft.assertThat(json).isNotNull();
         soft.assertAll();
