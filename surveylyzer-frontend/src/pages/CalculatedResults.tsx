@@ -3,7 +3,7 @@ import { RouteComponentProps } from 'react-router';
 import {
     IonBackButton, IonButton,
     IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle,
-    IonContent, IonHeader, IonPage, IonTitle, IonToolbar
+    IonContent, IonHeader, IonImg, IonPage, IonTitle, IonToolbar
 } from '@ionic/react';
 
 import './Result.css';
@@ -37,6 +37,9 @@ const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
+                        <a href='/'>
+                            <IonImg className="logo" src='./assets/icon/surveylyzer_icon.png' alt="Logo" />
+                        </a>
                         <IonBackButton defaultHref="/home" />
                     </IonButtons>
                     <IonTitle>Survey Calculation Results</IonTitle>

@@ -33,7 +33,13 @@ public class CsvExportController {
 
     @PostMapping("/get-results-csv")
     public ResponseEntity<String> prepareResultForExport(@RequestParam("surveyId") String surveyId) {
-        counter++;
+
+        if (!id.equals(surveyId)){
+            counter = 1;
+        } else {
+            counter++;
+        }
+
         if(counter==1){
             Object[][] results;
             if (surveyId != null) {

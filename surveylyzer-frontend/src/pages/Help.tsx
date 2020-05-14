@@ -7,7 +7,7 @@ import {
     IonPage,
     IonTitle,
     IonToolbar,
-    IonSlides
+    IonSlides, IonImg
 } from '@ionic/react';
 import HelpSlide from '../components/HelpSlide';
 
@@ -50,6 +50,9 @@ const Help: React.FC = () => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
+                        <a href='/'>
+                            <IonImg className="logo" src='./assets/icon/surveylyzer_icon.png' alt="Logo" />
+                        </a>
                         <IonBackButton defaultHref="/home" />
                     </IonButtons>
                     <IonTitle>Surveylyzer - Help</IonTitle>

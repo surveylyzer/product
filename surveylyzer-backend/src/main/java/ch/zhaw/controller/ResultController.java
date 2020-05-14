@@ -39,6 +39,7 @@ public class ResultController {
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
         File template = new File("template_" + surveyId);
         File surveyFile = new File("survey_" + surveyId);
+        HttpStatus status = HttpStatus.FAILED_DEPENDENCY;
 
         if (surveyTemplate != null) {
             Binary binaryTemplate = surveyTemplate.getTemplate();
@@ -50,15 +51,17 @@ public class ResultController {
                     results = analyzer.startHighlightingExternalFile(template, surveyFile);
                     survey.setResult(results);
                     dataBase.saveOrUpdateSurveyResult(survey);
+                    status = HttpStatus.CREATED;
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    status = HttpStatus.INTERNAL_SERVER_ERROR;
                 } catch (InitFileException e) {
-					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
+					status = HttpStatus.NOT_ACCEPTABLE;
 				} catch (SurveyFileException e) {
-					// TODO Auto-generated catch block @TODO: Bogumila, hier bitte die Infos an den user weiterleiten
 					e.printStackTrace();
+                    status = HttpStatus.EXPECTATION_FAILED;
                 } finally {
                     template.delete();
                     surveyFile.delete();
@@ -66,44 +69,42 @@ public class ResultController {
             }
 
         }
-        return new ResponseEntity<>(results, HttpStatus.CREATED);
+        return new ResponseEntity<>(results, status);
     }
 
     @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
-        // todo: error handling + user infos / alerts
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey != null && survey.getResult() != null) {
                 return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
-                return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
         } else {
-            return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
     }
 
     @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
     @ResponseBody
     public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
-        //todo: error handling must be still implemented
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey == null) {
+                String[] header = {"Your URI is not correct! Insert correct URI to get your raw results."};
+                return new Object[][]{header};
+            } else if (survey.getResult() != null) {
                 return survey.getResult();
             } else {
-                return dummyResult;
+                String[] header = {"We are still processing your request."};
+                return new Object[][]{header};
             }
 
         } else {
-            return dummyResult;
+            String[] header = {"Your ID is empty! Ensure that your URI includes ID parameter."};
+            return new Object[][]{header};
         }
     }
 
