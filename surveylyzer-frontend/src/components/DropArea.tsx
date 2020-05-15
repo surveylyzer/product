@@ -126,7 +126,7 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
             </Dropzone>
 
             <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                <IonFabButton onClick={() => submitAllFiles()}>
+                <IonFabButton id={'submit'} onClick={() => submitAllFiles()}>
                     <IonIcon icon={play} />
                 </IonFabButton>
             </IonFab>
