@@ -306,7 +306,7 @@ public class PDFAnalyzerTest {
         Assert.assertTrue(Double.isNaN(result));
     }
     @Test
-    void prcInit() throws Exception {
+    void prcInitTest() throws Exception {
         pdfAnalyzer = new PDFAnalyzer();
         init();
         pdfAnalyzer.prcInitFile(docInit);
