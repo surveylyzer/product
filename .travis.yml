@@ -6,7 +6,7 @@ addons:
   sonarcloud:
     organization: "surveylyzer-github"
     token:
-      secure: "$SONAR_TOKEN"
+      secure: "drtcbg6lKyhg5+lQlGE6Zh1SGwbYpisg0MGPcV76iALJCQ8RSPcMlhwAVfUJP+NAmyPmmeFT7wbmsHvuVvjvS7bHqxtgMksSIU11UwqlHeBnEGKa06F3gqs7I+H+Y+HOIpePgX+BS1hQ7XUGNkTWaTzYKr9Jyc1ag6W2MbZCh+ez/n58qsaYEb66sW6jVfTqbjb1NVdFVccrPV3ArPutLy6iJAUYEOYbVfR780nzfHwuLMT2zI4P78VMKpVDp+2Ngg9zglw9hX0V9LIHW5IgFSpLPidnCLa5HddmDJ6vmcsbxxkrVQysGoYr7em5BDVgIM0w1yyZto2VHH50XOnFHhECVJh6Xs/TlQCYzQCPdt3neU2C34kWO5kGTRYiAzj7BlKlsZWMc0V7ElbJCMNz+ZsEwglB4EtbR+Hs5u3b97YMjhpaDEl2DsE6s49duLtE9WJhmc1MLu+Oj7tn+iPDtmSWtP5v0KICBcvDfRnmp1lNKVI7JgWw0hYfnxmsJXG8YNoY7pJMdzHZ6HpF+Mk/mizply+OfNihk7PDlugOSPz1Nci0Atrs4gAKfC2DsSUiDOclOqK8nycx3Gfjj5DS/A1hh75uj1exQRlHOgHE3goBz2weE2FGlRw13ElpYeXcdgC1rLZiCgrl//H9vonWtION5NN2DIYj7uii6dlVzzo="
 jdk:
   - openjdk8 
 script:
