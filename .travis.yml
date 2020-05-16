@@ -6,12 +6,12 @@ addons:
   sonarcloud:
     organization: "surveylyzer-github"
     token:
-      secure: "drtcbg6lKyhg5+lQlGE6Zh1SGwbYpisg0MGPcV76iALJCQ8RSPcMlhwAVfUJP+NAmyPmmeFT7wbmsHvuVvjvS7bHqxtgMksSIU11UwqlHeBnEGKa06F3gqs7I+H+Y+HOIpePgX+BS1hQ7XUGNkTWaTzYKr9Jyc1ag6W2MbZCh+ez/n58qsaYEb66sW6jVfTqbjb1NVdFVccrPV3ArPutLy6iJAUYEOYbVfR780nzfHwuLMT2zI4P78VMKpVDp+2Ngg9zglw9hX0V9LIHW5IgFSpLPidnCLa5HddmDJ6vmcsbxxkrVQysGoYr7em5BDVgIM0w1yyZto2VHH50XOnFHhECVJh6Xs/TlQCYzQCPdt3neU2C34kWO5kGTRYiAzj7BlKlsZWMc0V7ElbJCMNz+ZsEwglB4EtbR+Hs5u3b97YMjhpaDEl2DsE6s49duLtE9WJhmc1MLu+Oj7tn+iPDtmSWtP5v0KICBcvDfRnmp1lNKVI7JgWw0hYfnxmsJXG8YNoY7pJMdzHZ6HpF+Mk/mizply+OfNihk7PDlugOSPz1Nci0Atrs4gAKfC2DsSUiDOclOqK8nycx3Gfjj5DS/A1hh75uj1exQRlHOgHE3goBz2weE2FGlRw13ElpYeXcdgC1rLZiCgrl//H9vonWtION5NN2DIYj7uii6dlVzzo="
+      secure: "MbY49KuM9Ge71D1lLfWkOnXjQZmr0G7Bxkub9I+8+uYrNDn2ZE6UsxfDNhY7MnTl1bKTDidYtVIIicCSmq0nsRKoNAYYj8g9hv27bMt/3ikutWtlqihHsiQcnMUbgGfrYCFmAbTAfEUgySB1EfTxCCHjI4ZaDFwwGhdv3AESCZuA//v10IsbmnoriEXSvuNSPPrGSKfGzjYAsmF8a4UB8mIG3msjyUTXPCl2vV/37999GNelN0GokT+2HbeN5kHfhdAmvibPT/kX2fWmeP0KWAa7wK+YotaZw24XuuMFXbTiVQKISbZUmu39iFFGlq1x/TZb9Kh2v3Pndq/3H27TYSIL05AnDZGViykufdM/6kUluyRKo7KD3rneKSAhY9D88FXh+J50Lha+PSe9tCSv8sdbSaxLmUgp7EWSYQXznbuZJJrnbatiQjcpJpVyj2aL4bIWC10yEsUfdhMa6BvZfJ4pFfpd0U39OCh5Zmsughza84vQiBhc6fAKiAJbI7uNi5HQ6gNcfB7+Rf73Wp4z1Sf/KLRMfH/V55llCNDSQBtGWgL3YLSR2RI+rYVszYa5XY0YCDBPaZ0G5yXjLUxNIMzU9HwOZTXWTzxRZ0exnYw+U8aXTauQegixNX9/E0rPpH0Eg6KHOpZX/39YaslZbkcPgnO2YTtV9f1a3JnnAGs="
 jdk:
   - openjdk8 
 script:
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -q
-cache:
+    - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=surveylyzer_product -q
+  cache:
   directories:
     - '$HOME/.m2/repository'
     - '$HOME/.sonar/cache'
