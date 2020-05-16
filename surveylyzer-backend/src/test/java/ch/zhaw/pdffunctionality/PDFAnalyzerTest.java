@@ -26,11 +26,13 @@ public class PDFAnalyzerTest {
 
 
     void init() throws Exception{
-        String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
-        runTest=false;
-        if (Files.notExists(Paths.get(tessdataPath))) {
+        initPath = "../surveylyzer-backend/";
+        String testPath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
+        if (Files.notExists(Paths.get(testPath))) {
+            runTest=false;
+        }
+        else{
             runTest = true;
-            initPath = "../surveylyzer-backend/";
             File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
             File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
             try {
