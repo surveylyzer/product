@@ -9,7 +9,7 @@ import {
     IonText,
     IonAlert
 } from "@ionic/react";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './DropArea.css';
 import { play } from "ionicons/icons";
 import { History } from "history";
