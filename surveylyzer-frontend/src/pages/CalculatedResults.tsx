@@ -5,22 +5,31 @@ import {
     IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle,
     IonContent, IonHeader, IonImg, IonPage, IonTitle, IonToolbar
 } from '@ionic/react';
-
 import './Result.css';
-import {Chart} from "react-google-charts";
+import { Chart } from "react-google-charts";
 
 interface ResultProps {
-    res : any
+    res: any
     surveyId: string
+    surveyTitle: string
 }
 
+/**
+ * Displays already calculated results.
+ * @param props
+ */
 const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
-
-    const myProps : ResultProps = props.location.state as ResultProps || {res:null, surveyId: null};
+    // --------------------------------------------
+    // Init
+    // --------------------------------------------
+    const myProps: ResultProps = props.location.state as ResultProps || { res: null, surveyId: null };
     const hostURL = window.location.protocol + '//' + window.location.host;
     const csvURL = hostURL + '/get-results-csv';
     const rawDataUrl = hostURL + '/rawResults?surveyId=' + myProps?.surveyId;
 
+    // --------------------------------------------
+    // Functions
+    // --------------------------------------------
     function submitSurveyId(surveyId: string) {
         let formData = new FormData();
         formData.append('surveyId', surveyId);
@@ -28,10 +37,13 @@ const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
             method: 'POST',
             body: formData
         })
-            .then(response => response);
-        // Todo: response ? - error handling...
+            .then(response => response)
+            .catch(err => console.log("Error: ", err));
     }
 
+    // --------------------------------------------
+    // Returning UI-Elements
+    // --------------------------------------------
     return (
         <IonPage>
             <IonHeader>
@@ -49,7 +61,7 @@ const CalculatedResults: React.FC<RouteComponentProps> = (props) => {
                 <IonCard class="welcome-card">
                     <IonCardHeader>
                         {submitSurveyId(myProps?.surveyId)}
-                        <IonCardTitle class={"title"}>{"Your Survey Result"}</IonCardTitle>
+                        <IonCardTitle class={"title"}>{myProps?.surveyTitle?.toUpperCase() ?? "Your Survey Result"}</IonCardTitle>
                         <IonButton class={"button"} href={"/export-survey-results"}>Export Data as CSV</IonButton>
                         <IonCardSubtitle>Click this link to access the <b>raw data: </b>
                             <a href={rawDataUrl} className="url_ready">{rawDataUrl}</a>

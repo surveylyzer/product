@@ -4,6 +4,9 @@ import {
 } from '@ionic/react';
 import { helpCircleOutline } from 'ionicons/icons';
 
+/**
+ * Header navigation elements
+ */
 const HeaderNav: React.FC = () => {
     return (
         <IonHeader>

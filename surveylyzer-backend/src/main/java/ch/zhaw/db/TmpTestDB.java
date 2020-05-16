@@ -36,7 +36,7 @@ public class TmpTestDB implements CommandLineRunner {
 
         // Store new empty survey (to get an id) and its template
         SurveyTemplate t = new SurveyTemplate(pdf);
-        Survey s = db.saveNewResult(null, t);
+        Survey s = db.saveNewResult("test survey",null, t);
 
         // Update survey with result
         s.setResult(result);
@@ -48,7 +48,7 @@ public class TmpTestDB implements CommandLineRunner {
 
         // Read Template by id and add another Survey result
         SurveyTemplate t2 = db.getSurveyTemplateById(s.getTemplateId());
-        Survey s3 = db.saveNewResult(result, t2);
+        Survey s3 = db.saveNewResult("test survey 2", result, t2);
 //        Survey s3 = db.saveNewResult(result, t2.getId()); // same
 
 

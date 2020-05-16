@@ -1,17 +1,23 @@
-import {IonAlert, IonCardContent, IonFab, IonFabButton, IonIcon} from "@ionic/react";
-import React, { useState} from "react";
+import { IonAlert, IonCardContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
+import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload, play } from "ionicons/icons";
-
 import { History } from "history";
 
 interface DropAreaProps {
     history: History;
 }
 
+/**
+ * Drag & Drop for Survey & Template file.
+ * Submit template to server and then go to result page.
+ * @param param0
+ */
 const DropArea: React.FC<DropAreaProps> = ({ history }) => {
-    //Init
+    // --------------------------------------------
+    // Init
+    // --------------------------------------------
     const [templateText, setTemplateText] = useState("Drag 'n' drop your Template here");
     const [surveyText, setSurveyText] = useState("Drag 'n' drop your Survey here");
     const [templateFile, setTemplateFile] = useState(null);
@@ -26,6 +32,9 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
 
     let dragIsActive = false;
 
+    // --------------------------------------------
+    // Functions
+    // --------------------------------------------
     function uploadFile(fileIn: any[], inputType: string) {
         dragIsActive = false;
         let file = fileIn[0];
@@ -55,7 +64,6 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
         }
         else {
             submitTemplate(templateFile, "templateFile");
-            console.log("submitAllFiles -> SUCCESS - Template has been submitted");
         }
     }
 
@@ -89,6 +97,9 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
         window.location.reload();
     }
 
+    // --------------------------------------------
+    // Returning UI-Elements
+    // --------------------------------------------
     return (
         <IonCardContent>
             <Dropzone onDrop={acceptedFiles => uploadFile(acceptedFiles, "templateFile")}
@@ -139,7 +150,6 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
                 message={message}
                 buttons={['OK']}
             />
-
         </IonCardContent>
     );
 }

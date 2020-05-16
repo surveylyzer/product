@@ -21,9 +21,9 @@ public interface Storage {
 
     SurveyTemplate saveOrUpdateSurveyTemplate(SurveyTemplate surveyTemplate);
 
-    Survey saveNewResult(Object[][] result, UUID templateID);
+    Survey saveNewResult(String title, Object[][] result, UUID templateID);
 
-    Survey saveNewResult(Object[][] result, SurveyTemplate template);
+    Survey saveNewResult(String title, Object[][] result, SurveyTemplate template);
 
     SurveyTemplate saveNewTemplate(Binary pdf);
 
