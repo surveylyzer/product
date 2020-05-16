@@ -23,7 +23,7 @@ public class PDFAnalyzerTest {
 
 
     void init() throws Exception{
-        initPath = "../surveylyzer-backend/";
+        initPath = "/app/surveylyzer-backend/";
         File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
         File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
         try {
