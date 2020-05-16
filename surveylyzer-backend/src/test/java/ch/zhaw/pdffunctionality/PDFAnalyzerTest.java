@@ -318,8 +318,8 @@ public class PDFAnalyzerTest {
     @Test
     void prcInitTest() throws Exception {
         if (init()) {
-            pdfAnalyzer = new PDFAnalyzer();
             try {
+                pdfAnalyzer = new PDFAnalyzer();
                 pdfAnalyzer.prcInitFile(docInit);
                 ArrayList<List<Rectangle>> groupedRectanglesExpected = pdfAnalyzer.groupedRectangles;
                 List<Word> allWordsExpected = pdfAnalyzer.allWords;
