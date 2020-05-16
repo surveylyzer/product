@@ -2,7 +2,6 @@ package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import net.sourceforge.tess4j.Word;
-import net.sourceforge.tess4j.util.LoadLibs;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,19 +26,18 @@ public class PDFAnalyzerTest {
 
 
     void init() throws Exception{
-        initPath = "/app/surveylyzer-backend/";
-        if (Files.notExists(Paths.get(initPath))){
-            initPath = "../surveylyzer-backend/";
+        String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
+        if (Files.notExists(Paths.get(tessdataPath))) {
             runTest = true;
-        }
-        File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
-        File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
-        try {
-            docInit = PDDocument.load(fileInit);
-            docPrc = PDDocument.load(filePrc);
-        }
-        catch (Exception e){
-            e.printStackTrace();
+            initPath = "../surveylyzer-backend/";
+            File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
+            File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
+            try {
+                docInit = PDDocument.load(fileInit);
+                docPrc = PDDocument.load(filePrc);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     @Test
@@ -315,9 +313,9 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() throws Exception {
+        init();
         if(runTest){
         pdfAnalyzer = new PDFAnalyzer();
-        init();
         pdfAnalyzer.prcInitFile(docInit);
         ArrayList<List<Rectangle>> groupedRectanglesExpected = pdfAnalyzer.groupedRectangles;
         List<Word> allWordsExpected = pdfAnalyzer.allWords;
