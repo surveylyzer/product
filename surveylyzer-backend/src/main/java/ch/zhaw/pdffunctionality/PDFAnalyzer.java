@@ -135,35 +135,6 @@ public class PDFAnalyzer {
 	/**
 	 * vorgegebenes PDF wird analysiert.
 	 */
-	public void startHighlightingTest() {
-		debugen = false;
-		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
-		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
-		try {
-			PDDocument docInit = PDDocument.load(fileInit);
-			PDDocument docPrc = PDDocument.load(filePrc);
-			System.out.println("I got: " + fileInit.exists() + " at " + fileInit.getAbsolutePath());
-			try {
-				prcInitFile(docInit);
-				questionList = prcSurveyFile(docPrc);
-				if (!questionList.isEmpty()) {
-					evaluationReady = true;
-				}
-				for (Question q : questionList) {
-					System.out.print("\n"+ q.getQuestionText() + " ");
-					for(int i: q.getEval()) {
-						System.out.print(i+" ");
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			docInit.close();
-			docPrc.close();
-		} catch (IOException e) {
-			System.out.println("lokales PDF konnten nicht gefunden werden.");
-		}
-	}
 
 	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) throws InitFileException, SurveyFileException {
 		debugen = false;
