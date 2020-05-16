@@ -24,8 +24,8 @@ public class PDFAnalyzerTest {
 
     void init() throws Exception{
         initPath = "../surveylyzer-backend/";
-        File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
-        File filePrc = new File(initPath + "pdf_umfragen/prcFileSmall.pdf");
+        File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
+        File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
         try {
             docInit = PDDocument.load(fileInit);
             docPrc = PDDocument.load(filePrc);
@@ -316,34 +316,34 @@ public class PDFAnalyzerTest {
         ArrayList<List<Word>> groupedWordsExpected = pdfAnalyzer.groupedWords;
         ArrayList<String> questionsExpected = pdfAnalyzer.questions;
 
-        Rectangle rectangle1 = new Rectangle(1958, 783, 380, 80);
-        Rectangle rectangle2 = new Rectangle(2341, 783, 422, 80);
-        Rectangle rectangle3 = new Rectangle(2767, 783, 378, 80);
+        Rectangle rectangle1 = new Rectangle(1283, 435, 325, 116);
+        Rectangle rectangle2 = new Rectangle(1612, 435, 307, 116);
+        Rectangle rectangle3 = new Rectangle(1923, 435, 250, 116);
         List<Rectangle> rectangles = new ArrayList<>();
         rectangles.add(rectangle1);
         rectangles.add(rectangle2);
         rectangles.add(rectangle3);
         Assert.assertEquals(groupedRectanglesExpected.get(0), rectangles);
-        Assert.assertTrue(groupedRectanglesExpected.size() == 11);
+        Assert.assertTrue(groupedRectanglesExpected.size() == 5);
 
         List<Word> allWords = new ArrayList<>();
         Word word = new Word("Meine", 0, rectangle1);
         Assert.assertEquals(allWordsExpected.get(0).getText(), word.getText());
-        Assert.assertTrue(allWordsExpected.size() == 94);
+        Assert.assertTrue(allWordsExpected.size() == 23);
 
         Assert.assertTrue(uniquWordsExpected.containsKey("Mittel"));
-        Assert.assertTrue(uniquWordsExpected.containsKey("erzeugen"));
-        Assert.assertTrue(uniquWordsExpected.size() == 68);
+        Assert.assertTrue(uniquWordsExpected.containsKey("Bewertung:"));
+        Assert.assertTrue(uniquWordsExpected.size() == 14);
 
         ArrayList<List<Word>> groupedWords = new ArrayList<>();
-        Assert.assertEquals(groupedWordsExpected.get(0).get(0).getText(), "Meine");
-        Assert.assertEquals(groupedWordsExpected.get(0).get(1).getText(), "zweite");
-        Assert.assertEquals(groupedWordsExpected.get(0).get(2).getText(), "Frage");
-        Assert.assertTrue(groupedWordsExpected.size() == 15);
+        Assert.assertEquals(groupedWordsExpected.get(1).get(0).getText(), "Meine");
+        Assert.assertEquals(groupedWordsExpected.get(1).get(1).getText(), "zweite");
+        Assert.assertEquals(groupedWordsExpected.get(1).get(2).getText(), "Frage");
+        Assert.assertTrue(groupedWordsExpected.size() == 6);
 
         ArrayList<String> questions = new ArrayList<>();
         Assert.assertEquals(questionsExpected.get(0), " Meine  zweite  Frage ");
-        Assert.assertTrue(questionsExpected.size() == 11);
+        Assert.assertTrue(questionsExpected.size() == 5);
 
         ArrayList<Question> result = pdfAnalyzer.prcSurveyFile(docPrc);
         Question q1 = new Question(" Meine  zweite  Frage ", new int[] {0, 0, 0} );
