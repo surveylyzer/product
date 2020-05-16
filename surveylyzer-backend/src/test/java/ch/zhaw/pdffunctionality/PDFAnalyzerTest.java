@@ -25,23 +25,24 @@ public class PDFAnalyzerTest {
     Boolean runTest = true;
 
 
-    void init() throws Exception{
+    boolean init() throws Exception{
         initPath = "../surveylyzer-backend/";
-        String testPath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
-        if (Files.notExists(Paths.get(testPath))) {
-            runTest=false;
+    //    String testPath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
+   /*     if (Files.notExists(Paths.get(testPath))) {
+            File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
+            return false;
         }
-        else{
-            runTest = true;
+        else{*/
             File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
             File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
             try {
                 docInit = PDDocument.load(fileInit);
                 docPrc = PDDocument.load(filePrc);
+                return true;
             } catch (Exception e) {
-                e.printStackTrace();
+             //   e.printStackTrace();
+                return false;
             }
-        }
     }
     @Test
     void isHighlightedColourTest(){
@@ -316,8 +317,7 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() throws Exception {
-        init();
-        if(runTest){
+        if(init()){
         pdfAnalyzer = new PDFAnalyzer();
         pdfAnalyzer.prcInitFile(docInit);
         ArrayList<List<Rectangle>> groupedRectanglesExpected = pdfAnalyzer.groupedRectangles;
