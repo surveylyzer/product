@@ -18,7 +18,7 @@ const HeaderNav: React.FC = () => {
                     <IonItem routerLink="/home">
                         <IonTitle>Surveylyzer</IonTitle>
                     </IonItem>
-                    <IonItem routerLink="/help">
+                    <IonItem routerLink="/help" id={"help_icon"}>
                         <IonIcon icon={helpCircleOutline} color="warning"></IonIcon>
                     </IonItem>
                 </IonButtons>

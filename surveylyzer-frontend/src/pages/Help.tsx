@@ -61,7 +61,7 @@ const Help: React.FC = () => {
                         </a>
                         <IonBackButton defaultHref="/home" />
                     </IonButtons>
-                    <IonTitle>Surveylyzer - Help</IonTitle>
+                    <IonTitle id={"page_title"}>Surveylyzer - Help</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent>
