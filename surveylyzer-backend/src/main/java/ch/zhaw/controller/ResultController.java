@@ -4,7 +4,10 @@ import ch.zhaw.controller.utils.ControllerUtils;
 import ch.zhaw.db.Storage;
 import ch.zhaw.domain.Survey;
 import ch.zhaw.domain.SurveyTemplate;
+import ch.zhaw.pdffunctionality.InitFileException;
 import ch.zhaw.pdffunctionality.PDFAnalyzer;
+import ch.zhaw.pdffunctionality.SurveyFileException;
+
 import org.apache.commons.io.FileUtils;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,71 +32,79 @@ public class ResultController {
     private Object[][] results;
 
     @PostMapping("/resultObject")
-    public ResponseEntity<Object [][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
+    public ResponseEntity<Object[][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
         PDFAnalyzer analyzer = new PDFAnalyzer();
         Survey survey = dataBase.getSurveyResultById(surveyId);
 
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
-        File template = new File("template");
-        File surveyFile = new File("survey");
+        File template = new File("template_" + surveyId);
+        File surveyFile = new File("survey_" + surveyId);
+        HttpStatus status = HttpStatus.FAILED_DEPENDENCY;
 
         if (surveyTemplate != null) {
             Binary binaryTemplate = surveyTemplate.getTemplate();
             if (binaryTemplate != null) {
                 byte[] byteTemplate = binaryTemplate.getData();
-
                 try {
                     FileUtils.writeByteArrayToFile(template, byteTemplate);
                     FileUtils.writeByteArrayToFile(surveyFile, ControllerUtils.multipartToByteArray(file));
                     results = analyzer.startHighlightingExternalFile(template, surveyFile);
                     survey.setResult(results);
                     dataBase.saveOrUpdateSurveyResult(survey);
+                    status = HttpStatus.CREATED;
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    status = HttpStatus.INTERNAL_SERVER_ERROR;
+                } catch (InitFileException e) {
+					e.printStackTrace();
+					status = HttpStatus.NOT_ACCEPTABLE;
+				} catch (SurveyFileException e) {
+					e.printStackTrace();
+                    status = HttpStatus.EXPECTATION_FAILED;
+                } finally {
+                    template.delete();
+                    surveyFile.delete();
                 }
             }
 
         }
-
-        return new ResponseEntity<>(results, HttpStatus.CREATED);
+        return new ResponseEntity<>(results, status);
     }
 
-    //todo: it has be still implemented in FE
-    @GetMapping("/visualizeResults")
+    @PostMapping("/visualizeResults")
     public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey != null && survey.getResult() != null) {
                 return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
-                return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
         } else {
-            return new ResponseEntity<>(dummyResult, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
     }
 
     @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
     @ResponseBody
     public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
-        String[] header = {"Questions", "1", "2", "3"};
-        Object[][] dummyResult = {header};
-
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
-            if (survey.getResult() != null) {
+            if (survey == null) {
+                String[] header = {"Your URI is not correct! Insert correct URI to get your raw results."};
+                return new Object[][]{header};
+            } else if (survey.getResult() != null) {
                 return survey.getResult();
             } else {
-                return dummyResult;
+                String[] header = {"We are still processing your request."};
+                return new Object[][]{header};
             }
 
         } else {
-            return dummyResult;
+            String[] header = {"Your ID is empty! Ensure that your URI includes ID parameter."};
+            return new Object[][]{header};
         }
     }
 

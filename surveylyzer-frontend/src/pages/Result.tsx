@@ -13,7 +13,7 @@ import {
     IonPage,
     IonTitle,
     IonToolbar,
-    IonButton, IonImg
+    IonButton, IonImg, IonAlert
 } from '@ionic/react';
 import { RouteComponentProps } from "react-router";
 
@@ -37,6 +37,11 @@ const Result: React.FC<RouteComponentProps> = (props) => {
     const csvURL = hostURL + '/get-results-csv';
     const rawDataUrl = hostURL + '/rawResults?surveyId=' + surveyID;
 
+    //Alerts
+    const [showAlertResults, setShowAlertResults] = useState(false);
+    const [subtitleResults, setSubtitleResults] = useState("Unknown Error");
+    const [messageResults, setMessageResults] = useState("Something went wrong");
+
     // --------------------------------------------
     // Submit Functions
     // --------------------------------------------
@@ -48,7 +53,14 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => errorHandling(response))
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new TypeError("Something went wrong, there is no JSON!");
+                }
+                return response.json();
+            })
             .then(json => {
                 console.log('Fetched json: ', json);
                 // make all row-arrays the same length (for google charts):
@@ -58,8 +70,43 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 console.log('Googel JSON: ', res);
                 // update state
                 setResData(res);
-            })
+            }).catch(error => console.log(error))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resultURL]);
+
+    function errorHandling(response: any) {
+        // template file can not be proceeded
+        if (response.status === 406) {
+            setAlertResult("Template Error", "Check your Template File. Server can not proceed the evaluation due to faulty template file!" +
+                " Click Help to find more Information about correct file upload");
+            console.log("No Content was found: " , response);
+        }
+        // survey file can not be proceeded
+        else if (response.status === 417) {
+            setAlertResult("Survey Error", "Check your Survey File. Server can not proceed the evaluation due to faulty survey file!" +
+                " Click Help to find more Information about correct file upload");
+        }
+        // server error
+        else if(response.status === 500) {
+            setAlertResult("Internal Server Error", "Something unexpected occurred. Server can not proceed the evaluation!" +
+                " Click Help to find more Information about correct file upload");
+        }
+        // fatal error
+        else if(response.status === 424) {
+            setAlertResult("Fatal Error", "Something unexpected occurred. Click Help to find more Information about correct file upload!");
+        }
+        else if (!response.ok) {
+            setShowAlertResults(true);
+            throw Error(response.statusText);
+        }
+        return response;
+    }
+
+    function setAlertResult(subtitle: string, message: string) {
+        setShowAlertResults(true);
+        setSubtitleResults(subtitle);
+        setMessageResults(message);
+    }
 
     function submitSurveyId(surveyId: string) {
         let formData = new FormData();
@@ -186,6 +233,9 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
+                        <a href='/'>
+                            <IonImg className="logo" src='./assets/icon/surveylyzer_icon.png' alt="Logo" />
+                        </a>
                         <IonBackButton defaultHref="/home" />
                     </IonButtons>
                     <IonTitle>Survey Calculation Results</IonTitle>
@@ -202,6 +252,30 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                     </IonCardContent>
                 </IonCard>
             </IonContent>
+            <IonAlert
+                isOpen={showAlertResults}
+                onDidDismiss={() => setShowAlertResults(false)}
+                header={"Alert"}
+                subHeader={subtitleResults}
+                message={messageResults}
+                buttons={[
+                    {
+                        text: 'Cancel',
+                        role: 'cancel',
+                        cssClass: 'danger',
+                        handler: () => {
+                            props.history.push("/home");
+                        }
+                    },
+                    {
+                        text: 'Help',
+                        cssClass: 'warning',
+                        handler: () => {
+                            props.history.push("/help");
+                        }
+                    }
+                ]}
+            />
         </IonPage>
     );
 };

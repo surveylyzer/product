@@ -70,7 +70,7 @@ public class PDFAnalyzer {
 //			initPath = "surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		} else {
-//			initPath = "../surveylyzer-backend/";
+			initPath = "../surveylyzer-backend/";
 //			t.setDatapath("surveylyzer-backend/tess/tessdata/");
 //		}
 
@@ -165,7 +165,7 @@ public class PDFAnalyzer {
 		}
 	}
 
-	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) {
+	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) throws InitFileException, SurveyFileException {
 		debugen = false;
 		try {
 			PDDocument docInit = PDDocument.load(templateFile);
@@ -179,16 +179,18 @@ public class PDFAnalyzer {
 				docInit.close();
 				docPrc.close();
 				return results;
-			} catch (Exception e) {
+			} catch (InitFileException e) {
+				throw new InitFileException(e);
+			} catch(Exception e) {
+				throw new SurveyFileException(e);
+			} finally {
 				docInit.close();
 				docPrc.close();
-				e.printStackTrace();
+
 			}
 		} catch (IOException e) {
-			System.out.println("Hochgeladenes PDF konnte nicht gefunden werden");
+			throw new InitFileException("File not found");
 		}
-
-		return results;
 	}
 
 	/**
@@ -196,13 +198,15 @@ public class PDFAnalyzer {
 	 * Words for alignment
 	 * 
 	 * @param doc
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public void prcInitFile(PDDocument doc) throws Exception {
+	public void prcInitFile(PDDocument doc) throws InitFileException, IOException {
 		PDFRenderer renderer = new PDFRenderer(doc);
 		initImg = renderer.renderImage(0, resolutionLevel);// Seite, Auflösung
 		Graphics2D g2d = initImg.createGraphics();
 		g2d.setColor(Color.RED);
+		
 		/*
 		 * Idee: die einzelnen Stücke der Analyse auf die gelbe Farbe abfragen. und dann
 		 * alle mal aufs original einzeichnen und schauen, ob es funktioniert hat.
@@ -224,6 +228,9 @@ public class PDFAnalyzer {
 		}
 
 		g2d.dispose();
+		if(allRectangles.isEmpty()) {
+			throw new InitFileException("No Highlighted Fields found");
+		}
 		allWords = t.getWords(initImg, this.analysLevel);
 
 		groupedRectangles = groupRectangle(20, allRectangles);
@@ -444,7 +451,7 @@ public class PDFAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws Exception {
+	public ArrayList<Question>prcSurveyFile(PDDocument doc) throws SurveyFileException, Exception {
 
 		PDFRenderer renderer = new PDFRenderer(doc);
 		ArrayList<Integer> auswertung = new ArrayList<Integer>();
@@ -493,7 +500,7 @@ public class PDFAnalyzer {
 				wordPairs = sameWords(this.uniquWords, uWforRotation);// bisher
 
 
-				if (debugen) {
+				if (debugen && analyseIterations > 1) {
 					ImageIO.write(image, "JPEG", new File(initPath + "pdf_umfragen/Pics/P" + xx + "_it"+i+"_.jpg"));
 				}
 			}
@@ -766,7 +773,6 @@ public class PDFAnalyzer {
 		for (List<Rectangle> lr : gR) {
 			eval.add(getChecked(img, lr, ausgleich));
 		}
-
 		return eval;
 	}
 /**
@@ -781,7 +787,7 @@ public class PDFAnalyzer {
 		// Um Probleme mit den R�ndern zu entgehen, schauen wir nur den inneren
 		// Teil an.
 		// Somit schauen wir nur 60% des Feldes an.
-		long which_is_choosed = 240 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
+		long which_is_choosed = 250 * 3;// Weiss --> leere Felder werden nicht als angekreuzt interpretiert.
 		int position = -1;
 		int i = 0;
 		for (Rectangle r : gR) {

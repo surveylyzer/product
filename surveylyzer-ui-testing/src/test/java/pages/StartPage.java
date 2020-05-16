@@ -15,12 +15,42 @@ public class StartPage extends PageObject {
         viewResults.click();
     }
 
-    public void should_see_results(String results) {
-        WebElement resultsText = find(By.cssSelector(".item.md.ion-focusable.hydrated"));
-        waitFor(resultsText);
+    public void i_click_start_cal() {
+        WebElement submit = find(By.cssSelector("#submit"));
+        waitFor(submit);
+        submit.click();
+    }
+
+    public void i_click_upload_id() {
+        WebElement uploadId = find(By.cssSelector("#upload_id"));
+        waitFor(uploadId);
+        uploadId.click();
+        waitABit(1000);
+    }
+
+    public void i_insert_id(String id) {
+        element(By.cssSelector(("ion-input[name='surveyId'] input"))).sendKeys(id);
+    }
+
+    public void click_help_icon() {
+        WebElement helpIcon = find(By.cssSelector("#help_icon"));
+        waitFor(helpIcon);
+        helpIcon.click();
+        waitABit(1000);
+    }
+
+    public void seeAlert(String alertSubtitle, String alertMessage, String num) {
+        WebElement alertContainer = find(By.cssSelector(".alert-wrapper"));
+        waitFor(alertContainer);
+        String currentSubtitle = alertContainer.findElement(By.cssSelector("#alert-" + num + "-sub-hdr")).getText();
+        String currentMessage = alertContainer.findElement(By.cssSelector("#alert-" + num + "-msg")).getText();
+
         SoftAssertions soft = new SoftAssertions();
-        soft.assertThat(resultsText.getText()).isEqualTo(results);
+        soft.assertThat(currentSubtitle).isEqualTo(alertSubtitle);
+        soft.assertThat(currentMessage).isEqualTo(alertMessage);
         soft.assertAll();
     }
+
+
 }
 

@@ -1,5 +1,5 @@
-import { IonContent, IonFab, IonFabButton, IonIcon } from "@ionic/react";
-import React, { useState } from "react";
+import {IonAlert, IonCardContent, IonFab, IonFabButton, IonIcon} from "@ionic/react";
+import React, { useState} from "react";
 import Dropzone from "react-dropzone";
 import './DropArea.css';
 import { cloudUploadOutline, cloudUpload, play } from "ionicons/icons";
@@ -15,6 +15,10 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
     const [templateText, setTemplateText] = useState("Drag 'n' drop your Template here");
     const [surveyText, setSurveyText] = useState("Drag 'n' drop your Survey here");
     const [templateFile, setTemplateFile] = useState(null);
+    //Alerts
+    const [showAlert, setShowAlert] = useState(false);
+    const [subtitle, setSubtitle] = useState("Unknown Error");
+    const [message, setMessage] = useState("Something went wrong");
     // Values to be passed to result
     const [surveyFile, setSurveyFile] = useState(null);
     const hostURL = window.location.protocol + '//' + window.location.host;
@@ -26,27 +30,39 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
         dragIsActive = false;
         let file = fileIn[0];
         let arr = file?.name?.split('.');
+        let fileName = file.path;
         if (arr && arr[arr?.length - 1].toLowerCase() === 'pdf') {
             console.log("uploadFile -> ", file);
         }
-        if (inputType === "templateFile") {
-            setTemplateFile(file);
-            setTemplateText("Uploaded TEMPLATE: " + file.name + "   (Mistake? Just reupload correct file)")
-        } else if (inputType === "dataFile") {
-            setSurveyFile(file);
-            setSurveyText("Uploaded SURVEY: " + file.name + "   (Mistake? Just reupload correct file)")
+        if (!fileName.toString().endsWith(".pdf")) {
+            setAlert("File Extension Error", "Surveylyzer can proceed ONLY documents in PDF - Format!");
+        } else {
+            if (inputType === "templateFile") {
+                setTemplateFile(file);
+                setTemplateText("Uploaded TEMPLATE: " + file.name + "   (Mistake? Just reupload correct file)")
+            } else if (inputType === "dataFile") {
+                setSurveyFile(file);
+                setSurveyText("Uploaded SURVEY: " + file.name + "   (Mistake? Just reupload correct file)")
+            }
         }
     }
 
     function submitAllFiles() {
         if (templateFile === null) {
-            alert("FAIL -> Template file has not been uploaded!");
+            setAlert("Template Error", "Template file has not been uploaded!");
         } else if (surveyFile === null) {
-            alert("FAIL -> Survey file has not been uploaded!");
-        } else {
+            setAlert("Survey Error", "Survey file has not been uploaded!");
+        }
+        else {
             submitTemplate(templateFile, "templateFile");
             console.log("submitAllFiles -> SUCCESS - Template has been submitted");
         }
+    }
+
+    function setAlert(subtitle: string, message: string) {
+        setShowAlert(true);
+        setSubtitle(subtitle);
+        setMessage(message);
     }
 
     function submitTemplate(file: any, inputType: string) {
@@ -70,10 +86,11 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
     function goToResult(id: String, file: File | null) {
         if (!id || !file) { console.error("ID and Survey File mustn't be null!!"); return; }
         history.push('/result', { surveyId: id, surveyFile: file });
+        window.location.reload();
     }
 
     return (
-        <IonContent>
+        <IonCardContent>
             <Dropzone onDrop={acceptedFiles => uploadFile(acceptedFiles, "templateFile")}
                 onDragEnter={() => dragIsActive = true}
                 onDragLeave={() => dragIsActive = false}>
@@ -109,12 +126,21 @@ const DropArea: React.FC<DropAreaProps> = ({ history }) => {
             </Dropzone>
 
             <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                <IonFabButton onClick={() => submitAllFiles()}>
+                <IonFabButton id={'submit'} onClick={() => submitAllFiles()}>
                     <IonIcon icon={play} />
                 </IonFabButton>
             </IonFab>
 
-        </IonContent>
+            <IonAlert
+                isOpen={showAlert}
+                onDidDismiss={() => setShowAlert(false)}
+                header={"Alert"}
+                subHeader={subtitle}
+                message={message}
+                buttons={['OK']}
+            />
+
+        </IonCardContent>
     );
 }
 export default DropArea;
