@@ -1,13 +1,9 @@
 language: java
-sudo: required
+sudo: false
 install: true
 dist: trusty
 addons:
-    apt:
-        sources:
-            - google-chrome
-        packages:
-            - google-chrome-stable
+  chrome: stable  
   sonarcloud:
     organization: "surveylyzer-github"
     token:
@@ -23,11 +19,3 @@ cache:
   directories:
     - '$HOME/.m2/repository'
     - '$HOME/.sonar/cache'
-
-before_script:
-  - wget http://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip
-  - unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python2.7.9/
-  - export CHROME_BIN=chromium-browser
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 
