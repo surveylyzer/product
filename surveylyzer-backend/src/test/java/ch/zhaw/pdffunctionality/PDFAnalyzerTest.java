@@ -22,11 +22,12 @@ public class PDFAnalyzerTest {
     PDDocument empty;
     PDDocument docInit;
     PDDocument docPrc;
-    Boolean runTest = false;
+    Boolean runTest = true;
 
 
     void init() throws Exception{
         String tessdataPath = "/app/.apt/usr/share/tesseract-ocr/4.00/tessdata";
+        runTest=false;
         if (Files.notExists(Paths.get(tessdataPath))) {
             runTest = true;
             initPath = "../surveylyzer-backend/";
@@ -360,6 +361,6 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(result.get(1).getQuestionText(), q2.getQuestionText());
         Assert.assertEquals(result.get(2).getQuestionText(), q3.getQuestionText());
         }
-        Assert.assertTrue(true);
+        else {Assert.assertTrue(true);}
     }
 }
