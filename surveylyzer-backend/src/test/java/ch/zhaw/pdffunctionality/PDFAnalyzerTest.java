@@ -311,7 +311,7 @@ public class PDFAnalyzerTest {
         result = pdfAnalyzer.calcRotation(null,allTwo);
         Assert.assertTrue(Double.isNaN(result));
     }
-    @Test
+  /*  @Test
     void prcInitTest() throws Exception {
         pdfAnalyzer = new PDFAnalyzer();
         init();
@@ -358,5 +358,5 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(result.get(0).getQuestionText(), q1.getQuestionText());
         Assert.assertEquals(result.get(1).getQuestionText(), q2.getQuestionText());
         Assert.assertEquals(result.get(2).getQuestionText(), q3.getQuestionText());
-    }
+    }*/
 }
