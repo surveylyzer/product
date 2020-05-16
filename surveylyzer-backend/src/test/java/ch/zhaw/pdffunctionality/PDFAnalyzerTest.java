@@ -2,12 +2,15 @@ package ch.zhaw.pdffunctionality;
 
 import ch.zhaw.surveylyzerbackend.SurveylyzerBackendApplication;
 import net.sourceforge.tess4j.Word;
+import net.sourceforge.tess4j.util.LoadLibs;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +27,9 @@ public class PDFAnalyzerTest {
 
     void init() throws Exception{
         initPath = "/app/surveylyzer-backend/";
+        if (Files.notExists(Paths.get(initPath))){
+            initPath = "../surveylyzer-backend/";
+        }
         File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
         File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
         try {
