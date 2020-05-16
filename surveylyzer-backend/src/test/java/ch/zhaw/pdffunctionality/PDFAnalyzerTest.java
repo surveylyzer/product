@@ -23,12 +23,14 @@ public class PDFAnalyzerTest {
     PDDocument empty;
     PDDocument docInit;
     PDDocument docPrc;
+    Boolean runTest = false;
 
 
     void init() throws Exception{
         initPath = "/app/surveylyzer-backend/";
         if (Files.notExists(Paths.get(initPath))){
             initPath = "../surveylyzer-backend/";
+            runTest = true;
         }
         File fileInit = new File(initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf");
         File filePrc = new File(initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf");
@@ -311,8 +313,9 @@ public class PDFAnalyzerTest {
         result = pdfAnalyzer.calcRotation(null,allTwo);
         Assert.assertTrue(Double.isNaN(result));
     }
-  /*  @Test
+    @Test
     void prcInitTest() throws Exception {
+        if(runTest){
         pdfAnalyzer = new PDFAnalyzer();
         init();
         pdfAnalyzer.prcInitFile(docInit);
@@ -358,5 +361,7 @@ public class PDFAnalyzerTest {
         Assert.assertEquals(result.get(0).getQuestionText(), q1.getQuestionText());
         Assert.assertEquals(result.get(1).getQuestionText(), q2.getQuestionText());
         Assert.assertEquals(result.get(2).getQuestionText(), q3.getQuestionText());
-    }*/
+        }
+        Assert.assertTrue(true);
+    }
 }
