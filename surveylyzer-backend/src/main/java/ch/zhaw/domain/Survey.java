@@ -18,6 +18,7 @@ public class Survey {
     private String id;
     @DBRef
     private SurveyTemplate surveyTemplate;
+    private String title;
     private Object[][] result;
     @Field("changed_date")
     private Date changedDate;
@@ -33,8 +34,9 @@ public class Survey {
     }
 
     @PersistenceConstructor
-    public Survey(SurveyTemplate surveyTemplate, Object[][] result) {
+    public Survey(String title, SurveyTemplate surveyTemplate, Object[][] result) {
         this();
+        this.setTitle(title);
         this.setSurveyTemplate(surveyTemplate);
         this.setResult(result);
     }
@@ -52,6 +54,15 @@ public class Survey {
         this.surveyTemplate = surveyTemplate;
         dataHasChanged();
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 
     public Object[][] getResult() { return result; }
 
@@ -87,6 +98,7 @@ public class Survey {
     public String toString() {
         return "Survey{" +
                 "id='" + id + '\'' +
+                "title='" + title + '\'' +
                 ", changedDate=" + changedDate +
                 '}';
     }
@@ -97,6 +109,7 @@ public class Survey {
         if (o == null || getClass() != o.getClass()) return false;
         Survey survey = (Survey) o;
         return Objects.equals(id, survey.id) &&
+                Objects.equals(title, survey.title) &&
                 Objects.equals(surveyTemplate, survey.surveyTemplate) &&
                 Arrays.equals(result, survey.result) &&
                 Objects.equals(changedDate, survey.changedDate);
@@ -104,7 +117,7 @@ public class Survey {
 
     @Override
     public int hashCode() {
-        int result1 = Objects.hash(id, surveyTemplate, changedDate);
+        int result1 = Objects.hash(id, title, surveyTemplate, changedDate);
         result1 = 31 * result1 + Arrays.hashCode(result);
         return result1;
     }

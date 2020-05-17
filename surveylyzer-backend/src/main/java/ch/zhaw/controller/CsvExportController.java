@@ -20,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides mappings for returning results as csv.
+ */
 @Controller
 public class CsvExportController {
 
@@ -34,13 +37,13 @@ public class CsvExportController {
     @PostMapping("/get-results-csv")
     public ResponseEntity<String> prepareResultForExport(@RequestParam("surveyId") String surveyId) {
 
-        if (!id.equals(surveyId)){
+        if (!id.equals(surveyId)) {
             counter = 1;
         } else {
             counter++;
         }
 
-        if(counter==1){
+        if (counter == 1) {
             Object[][] results;
             if (surveyId != null) {
                 this.id = surveyId;
@@ -59,18 +62,17 @@ public class CsvExportController {
 
     @GetMapping("/export-survey-results")
     public ResponseEntity<String> exportCSV(HttpServletResponse response) throws Exception {
-
-        String filename = "survey_results_"+ id +".csv";
+        String filename = "survey_results_" + id + ".csv";
         response.setContentType("text/csv");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
 
         //create a csv writer
         StatefulBeanToCsv<SurveyItemAbstract> writer = new StatefulBeanToCsvBuilder<SurveyItemAbstract>(response.getWriter())
-                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
-                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-                    .build();
+                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                .build();
 
-            //write all survey items to csv file
+        //write all survey items to csv file
         writer.write(surveyItems);
         return new ResponseEntity<>(HttpStatus.OK);
     }

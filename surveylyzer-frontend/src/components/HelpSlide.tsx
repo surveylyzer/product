@@ -20,6 +20,10 @@ interface SlideProps {
     items: []
 }
 
+/**
+ * Display a slide help page slide.
+ * @param param0
+ */
 const HelpSlide: React.FC<SlideProps> = ({ title, subtitle, imgPath, items }) => {
     const regexSplit = new RegExp('[/.]', 'g');
     const regexRepl = new RegExp('[-+*_.]', 'g');

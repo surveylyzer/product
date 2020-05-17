@@ -12,6 +12,9 @@ import {
 import HelpSlide from '../components/HelpSlide';
 
 const Help: React.FC = () => {
+    // --------------------------------------------
+    // Slide data
+    // --------------------------------------------
     const itemsS1 = [
         "Format: PDF",
         "Maximal Anzahl Seiten: 1",
@@ -45,6 +48,9 @@ const Help: React.FC = () => {
         "Sie können ihre Daten anhand der SurveyID löschen lassen."
     ];
 
+    // --------------------------------------------
+    // Returning UI-Elements
+    // --------------------------------------------
     return (
         <IonPage>
             <IonHeader>

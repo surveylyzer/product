@@ -113,29 +113,31 @@ public class StorageImpl implements Storage {
     /**
      * Creates new Survey object and saves it.
      *
+     * @param title
      * @param result
      * @return survey when successfully saved or null
      */
     @Override
-    public Survey saveNewResult(Object[][] result, UUID templateID) {
+    public Survey saveNewResult(String title, Object[][] result, UUID templateID) {
         if (templateID == null) {return null;}
         SurveyTemplate template = templateRepo.findById(templateID.toString()).orElse(null);
         if (template == null) {return null;}
-        return saveNewResult(result, template);
+        return saveNewResult(title, result, template);
     }
 
     /**
      * Creates new Survey object and saves it with template.
      * If template isn't already in db, it will save the new template too.
      *
+     * @param title
      * @param result
      * @param template
      * @return
      */
     @Override
-    public Survey saveNewResult(Object[][] result, SurveyTemplate template) {
+    public Survey saveNewResult(String title, Object[][] result, SurveyTemplate template) {
         if (template == null) {return null;}
-        Survey res = new Survey(template, result);
+        Survey res = new Survey(title, template, result);
         res.setNewIdIfNull();
         try {
             res.setSurveyTemplate(saveOrUpdateSurveyTemplate(template));

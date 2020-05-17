@@ -12,10 +12,9 @@ import InputArea from '../components/InputArea';
 import './Home.css';
 
 const Home: React.FC<RouteComponentProps> = (props) => {
-
     return (
         <IonPage>
-            <HeaderNav/>
+            <HeaderNav />
             <IonCard>
                 <IonCardHeader>
                     <IonCardTitle>{"Calculate new result"}</IonCardTitle>
