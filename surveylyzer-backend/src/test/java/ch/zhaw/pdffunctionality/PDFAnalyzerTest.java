@@ -296,7 +296,7 @@ public class PDFAnalyzerTest {
         Assert.assertTrue(Double.isNaN(result));
     }
     @Test
-    void prcInitTest() throws Exception {
+    void prcInitTest() {
 
         initPath = "../surveylyzer-backend/";
         String initFilePath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
@@ -312,56 +312,53 @@ public class PDFAnalyzerTest {
             try {
                 docInit = PDDocument.load(fileInit);
                 docPrc = PDDocument.load(filePrc);
+                pdfAnalyzer = new PDFAnalyzer();
+                pdfAnalyzer.prcInitFile(docInit);
+                ArrayList<List<Rectangle>> groupedRectanglesExpected = pdfAnalyzer.groupedRectangles;
+                List<Word> allWordsExpected = pdfAnalyzer.allWords;
+                HashMap<String, Word> uniquWordsExpected = pdfAnalyzer.uniquWords;
+                ArrayList<List<Word>> groupedWordsExpected = pdfAnalyzer.groupedWords;
+                ArrayList<String> questionsExpected = pdfAnalyzer.questions;
+
+                Rectangle rectangle1 = new Rectangle(1283, 435, 325, 116);
+                Rectangle rectangle2 = new Rectangle(1612, 435, 307, 116);
+                Rectangle rectangle3 = new Rectangle(1923, 435, 249, 116);
+                List<Rectangle> rectangles = new ArrayList<>();
+                rectangles.add(rectangle1);
+                rectangles.add(rectangle2);
+                rectangles.add(rectangle3);
+                Assert.assertEquals(groupedRectanglesExpected.get(0), rectangles);
+                Assert.assertTrue(groupedRectanglesExpected.size() == 5);
+
+                List<Word> allWords = new ArrayList<>();
+                Word word = new Word("Meine", 0, rectangle1);
+                Assert.assertEquals(allWordsExpected.get(0).getText(), word.getText());
+                Assert.assertTrue(allWordsExpected.size() == 23);
+
+                Assert.assertTrue(uniquWordsExpected.containsKey("Mittel"));
+                Assert.assertTrue(uniquWordsExpected.containsKey("Bewertung:"));
+                Assert.assertTrue(uniquWordsExpected.size() == 14);
+
+                ArrayList<List<Word>> groupedWords = new ArrayList<>();
+                Assert.assertEquals(groupedWordsExpected.get(1).get(0).getText(), "Meine");
+                Assert.assertEquals(groupedWordsExpected.get(1).get(1).getText(), "zweite");
+                Assert.assertEquals(groupedWordsExpected.get(1).get(2).getText(), "Frage");
+                Assert.assertEquals(6, groupedWordsExpected.size());
+
+                ArrayList<String> questions = new ArrayList<>();
+                Assert.assertEquals(questionsExpected.get(0), " Meine  zweite  Frage ");
+                Assert.assertEquals(5, questionsExpected.size());
+
+                ArrayList<Question> result = pdfAnalyzer.prcSurveyFile(docPrc);
+                Question q1 = new Question(" Meine  zweite  Frage ", new int[]{0, 0, 0});
+                Question q2 = new Question(" Meine  dritte  Frage ", new int[]{0, 0, 0});
+                Question q3 = new Question(" Meine  vierte  Frage ", new int[]{0, 0, 0});
+                Assert.assertEquals(result.get(0).getQuestionText(), q1.getQuestionText());
+                Assert.assertEquals(result.get(1).getQuestionText(), q2.getQuestionText());
+                Assert.assertEquals(result.get(2).getQuestionText(), q3.getQuestionText());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            pdfAnalyzer = new PDFAnalyzer();
-            pdfAnalyzer.prcInitFile(docInit);
-            ArrayList<List<Rectangle>> groupedRectanglesExpected = pdfAnalyzer.groupedRectangles;
-            List<Word> allWordsExpected = pdfAnalyzer.allWords;
-            HashMap<String, Word> uniquWordsExpected = pdfAnalyzer.uniquWords;
-            ArrayList<List<Word>> groupedWordsExpected = pdfAnalyzer.groupedWords;
-            ArrayList<String> questionsExpected = pdfAnalyzer.questions;
-
-            Rectangle rectangle1 = new Rectangle(1283, 435, 325, 116);
-            Rectangle rectangle2 = new Rectangle(1612, 435, 307, 116);
-            Rectangle rectangle3 = new Rectangle(1923, 435, 249, 116);
-            List<Rectangle> rectangles = new ArrayList<>();
-            rectangles.add(rectangle1);
-            rectangles.add(rectangle2);
-            rectangles.add(rectangle3);
-            Assert.assertEquals(groupedRectanglesExpected.get(0), rectangles);
-            Assert.assertTrue(groupedRectanglesExpected.size() == 5);
-
-            List<Word> allWords = new ArrayList<>();
-            Word word = new Word("Meine", 0, rectangle1);
-            Assert.assertEquals(allWordsExpected.get(0).getText(), word.getText());
-            Assert.assertTrue(allWordsExpected.size() == 23);
-
-            Assert.assertTrue(uniquWordsExpected.containsKey("Mittel"));
-            Assert.assertTrue(uniquWordsExpected.containsKey("Bewertung:"));
-            Assert.assertTrue(uniquWordsExpected.size() == 14);
-
-            ArrayList<List<Word>> groupedWords = new ArrayList<>();
-            Assert.assertEquals(groupedWordsExpected.get(1).get(0).getText(), "Meine");
-            Assert.assertEquals(groupedWordsExpected.get(1).get(1).getText(), "zweite");
-            Assert.assertEquals(groupedWordsExpected.get(1).get(2).getText(), "Frage");
-            Assert.assertEquals(6, groupedWordsExpected.size());
-
-            ArrayList<String> questions = new ArrayList<>();
-            Assert.assertEquals(questionsExpected.get(0), " Meine  zweite  Frage ");
-            Assert.assertEquals(5, questionsExpected.size());
-
-            ArrayList<Question> result = pdfAnalyzer.prcSurveyFile(docPrc);
-            Question q1 = new Question(" Meine  zweite  Frage ", new int[]{0, 0, 0});
-            Question q2 = new Question(" Meine  dritte  Frage ", new int[]{0, 0, 0});
-            Question q3 = new Question(" Meine  vierte  Frage ", new int[]{0, 0, 0});
-            Assert.assertEquals(result.get(0).getQuestionText(), q1.getQuestionText());
-            Assert.assertEquals(result.get(1).getQuestionText(), q2.getQuestionText());
-            Assert.assertEquals(result.get(2).getQuestionText(), q3.getQuestionText());
-
-
         }
     }
 }
