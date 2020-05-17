@@ -296,7 +296,7 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() {
-        initPath = "../szrveylyzer/surveylyzer-backend/";
+        initPath = "../Surveylyzer/surveylyzer-backend/";
         String initFilePath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
         String surveyFilePath = initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
 
