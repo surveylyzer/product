@@ -16,7 +16,6 @@ import {
     IonButton, IonImg, IonAlert
 } from '@ionic/react';
 import { RouteComponentProps } from "react-router";
-
 import './Result.css';
 
 interface ResultProps {
@@ -24,6 +23,10 @@ interface ResultProps {
     surveyFile: File
 }
 
+/**
+ * Post survey, calculate result and then display them.
+ * @param props 
+ */
 const Result: React.FC<RouteComponentProps> = (props) => {
     // --------------------------------------------
     // Init
@@ -64,7 +67,6 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             .then(json => {
                 console.log('Fetched json: ', json);
                 // make all row-arrays the same length (for google charts):
-                // if json
                 let maxL = json[0].length;
                 let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL - row.length, 0)).fill(null)] });
                 console.log('Googel JSON: ', res);
@@ -79,7 +81,7 @@ const Result: React.FC<RouteComponentProps> = (props) => {
         if (response.status === 406) {
             setAlertResult("Template Error", "Check your Template File. Server can not proceed the evaluation due to faulty template file!" +
                 " Click Help to find more Information about correct file upload");
-            console.log("No Content was found: " , response);
+            console.log("No Content was found: ", response);
         }
         // survey file can not be proceeded
         else if (response.status === 417) {
@@ -87,12 +89,12 @@ const Result: React.FC<RouteComponentProps> = (props) => {
                 " Click Help to find more Information about correct file upload");
         }
         // server error
-        else if(response.status === 500) {
+        else if (response.status === 500) {
             setAlertResult("Internal Server Error", "Something unexpected occurred. Server can not proceed the evaluation!" +
                 " Click Help to find more Information about correct file upload");
         }
         // fatal error
-        else if(response.status === 424) {
+        else if (response.status === 424) {
             setAlertResult("Fatal Error", "Something unexpected occurred. Click Help to find more Information about correct file upload!");
         }
         else if (!response.ok) {
@@ -115,32 +117,9 @@ const Result: React.FC<RouteComponentProps> = (props) => {
             method: 'POST',
             body: formData
         })
-            .then(response => response);
-        // Todo: response ? - error handling...
+            .then(response => response)
+            .catch(err => console.log("Error: ", err));
     }
-
-    // TODO: Maybe use this for other use case "get result from survey id.."
-    // const fetchResult = useCallback(() => {
-    //     fetch(resultURL)
-    //         .then(response => response.json())
-    //         .then(json => {
-    //             if (json.some((row: string | string[]) => row.includes('$$busy$$'))) {
-    //                 alert('server is still working...');
-    //                 setTimeout(() => { fetchResult(); }, 2000);
-    //             }
-    //             else {
-    //                 console.log('Fetched json: ', json);
-    //                 // make all row-arrays the same length (for google charts):
-    //                 // if json
-    //                 let maxL = json[0].length;
-    //                 let res = json.map((row: []) => { return [...row, ...Array(Math.max(maxL - row.length, 0)).fill(null)] });
-    //                 console.log('Googel JSON: ', res);
-    //                 // update state
-    //                 setResData(res);
-    //             }
-    //         })
-    //         .catch((err) => { console.log(err); alert('id not found') });
-    // }, []);
 
     // --------------------------------------------
     // Fetch Result Data

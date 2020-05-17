@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
-
+/**
+ * Provides mappings for saving a template file and init a new survey.
+ */
 @RestController
 @RequestMapping()
 public class PdfController {
@@ -23,26 +25,26 @@ public class PdfController {
 
     private Survey survey = null;
     /**
-     * POST METHOD -> Get PDF Files from Frontend
+     * POST METHOD -> Get PDF Template from Frontend
      */
     @PostMapping("/template")
-    public ResponseEntity<UUID> persistTemplate(@RequestParam("file1") MultipartFile file1,@RequestParam("pdfType") String pdfType) {
-        System.out.println("--> Received Template : " + file1.getOriginalFilename());
+    public ResponseEntity<UUID> persistTemplate(@RequestParam("file1") MultipartFile file,@RequestParam("pdfType") String pdfType) {
+        System.out.println("--> Received Template : " + file.getOriginalFilename());
         //templateFile are being persisted in db
-        survey = persistTemplate(file1);
+        survey = persist(file);
         UUID surveyId = survey.getId();
         return new ResponseEntity<>(surveyId,HttpStatus.CREATED);
     }
 
 
     /**
-     * Persist received template File and get Survey
+     * Persist received File and returns Survey
      * @param file
      * @return
      */
-    private Survey persistTemplate(MultipartFile file){
+    private Survey persist(MultipartFile file){
         byte[] pdfData = ControllerUtils.multipartToByteArray(file);
         SurveyTemplate t = new SurveyTemplate(new Binary(pdfData));
-        return databaseAccess.saveNewResult(null, t);
+        return databaseAccess.saveNewResult("",null, t);
     }
 }

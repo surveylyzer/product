@@ -9,6 +9,7 @@ import ch.zhaw.pdffunctionality.PDFAnalyzer;
 import ch.zhaw.pdffunctionality.SurveyFileException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Get result data from database or error messages.
+ * Provides mappings for
+ * - starting survey calculation
+ * - getting result data from database
+ * returns error messages on failure.
  */
 @RestController
 @RequestMapping()
@@ -32,9 +36,10 @@ public class ResultController {
     private Object[][] results;
 
     @PostMapping("/resultObject")
-    public ResponseEntity<Object[][]> getSurveyPdf(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
+    public ResponseEntity<Object[][]> calculateResult(@RequestParam("file") MultipartFile file, @RequestParam("surveyId") String surveyId) {
         PDFAnalyzer analyzer = new PDFAnalyzer();
         Survey survey = dataBase.getSurveyResultById(surveyId);
+        String name = FilenameUtils.removeExtension(file.getOriginalFilename());
 
         SurveyTemplate surveyTemplate = survey.getSurveyTemplate();
         File template = new File("template_" + surveyId);
@@ -50,6 +55,7 @@ public class ResultController {
                     FileUtils.writeByteArrayToFile(surveyFile, ControllerUtils.multipartToByteArray(file));
                     results = analyzer.startHighlightingExternalFile(template, surveyFile);
                     survey.setResult(results);
+                    survey.setTitle(name);
                     dataBase.saveOrUpdateSurveyResult(survey);
                     status = HttpStatus.CREATED;
 
@@ -57,39 +63,53 @@ public class ResultController {
                     e.printStackTrace();
                     status = HttpStatus.INTERNAL_SERVER_ERROR;
                 } catch (InitFileException e) {
-					e.printStackTrace();
-					status = HttpStatus.NOT_ACCEPTABLE;
-				} catch (SurveyFileException e) {
-					e.printStackTrace();
+                    e.printStackTrace();
+                    status = HttpStatus.NOT_ACCEPTABLE;
+                } catch (SurveyFileException e) {
+                    e.printStackTrace();
                     status = HttpStatus.EXPECTATION_FAILED;
                 } finally {
                     template.delete();
                     surveyFile.delete();
                 }
             }
-
         }
         return new ResponseEntity<>(results, status);
     }
 
-    @PostMapping("/visualizeResults")
-    public ResponseEntity<Object [][]> getResults(@RequestParam("surveyId") String surveyId) {
+    @GetMapping("/resultTitle")
+    public ResponseEntity<String> getSurveyTitle(@RequestParam("surveyId") String surveyId) {
+        String title = "Survey Result";
+        HttpStatus status = HttpStatus.OK;
+        try {
+            Survey s = dataBase.getSurveyResultById(surveyId);
+            if (s != null && s.getTitle() != null && !s.getTitle().trim().isEmpty()) {
+                title = s.getTitle();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return new ResponseEntity<>(title, status);
+    }
+
+    @GetMapping("/visualizeResults")
+    public ResponseEntity<Object[][]> getResults(@RequestParam("surveyId") String surveyId) {
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey != null && survey.getResult() != null) {
-                return  new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
+                return new ResponseEntity<>(survey.getResult(), HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
         } else {
             return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         }
     }
 
-    @RequestMapping(value = "/rawResults", method = RequestMethod.GET)
+    @GetMapping("/rawResults")
     @ResponseBody
-    public Object [][] getRawData(@RequestParam("surveyId") String surveyId) {
+    public Object[][] getRawData(@RequestParam("surveyId") String surveyId) {
         if (surveyId != null) {
             Survey survey = dataBase.getSurveyResultById(surveyId);
             if (survey == null) {
@@ -107,12 +127,4 @@ public class ResultController {
             return new Object[][]{header};
         }
     }
-
-    private static Object[][] simulateBusy() {
-        // return null; // "not found"
-        // return simulateBusy(); // "found but empty --> result not yet ready"
-        Object[][] busy = {{"$$busy$$"}};
-        return busy;
-    }
-
 }
