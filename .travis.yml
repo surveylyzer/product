@@ -1,9 +1,12 @@
 language: java
-sudo: false
+sudo: required
 install: true
 dist: trusty
 addons:
-  chrome: stable  
+
+  chrome: stable
+
+  #chrome: stable  
   sonarcloud:
     organization: "surveylyzer-github"
     token:
