@@ -298,9 +298,9 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() {
-        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
-        String initPath = path.toString();
-      //  initPath = "C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\";
+        //Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+        //String initPath = path.toString();
+        initPath = "../Surveylyzer/surveylyzer-backend";
         String initFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
         String surveyFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
 
