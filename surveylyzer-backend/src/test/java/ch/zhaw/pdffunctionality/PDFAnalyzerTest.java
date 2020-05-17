@@ -8,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -296,9 +298,11 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() {
-        initPath = "../Surveylyzer/surveylyzer-backend/";
-        String initFilePath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
-        String surveyFilePath = initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
+        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+        String initPath = path.toString();
+      //  initPath = "C:\\Users\\Nuredini Elda\\Documents\\ZHAW\\6.Semester\\PSIT4\\Surveylyzer\\surveylyzer-backend\\";
+        String initFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
+        String surveyFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
 
         if(Files.notExists(Paths.get(surveyFilePath)) && Files.notExists(Paths.get(initFilePath))) {
             Assert.assertTrue(true);
