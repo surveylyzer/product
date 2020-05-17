@@ -298,11 +298,11 @@ public class PDFAnalyzerTest {
     @Test
     void prcInitTest() {
 
-        initPath = "../surveylyzer-backend/";
+        initPath = "../surveylyzer/surveylyzer-backend/";
         String initFilePath = initPath + "pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
         String surveyFilePath = initPath + "pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
 
-        if(System.getProperty("os.name").equals("linux")) {
+        if(Files.notExists(Paths.get(surveyFilePath)) && Files.notExists(Paths.get(initFilePath))) {
             Assert.assertTrue(true);
         } else {
 
