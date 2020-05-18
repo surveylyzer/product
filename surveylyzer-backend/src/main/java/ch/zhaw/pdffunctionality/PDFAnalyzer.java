@@ -40,11 +40,11 @@ public class PDFAnalyzer {
 	private BufferedImage initImg;
 
 	private List<Rectangle> allRectangles;
-	private ArrayList<List<Rectangle>> groupedRectangles;
-	private List<Word> allWords;
-	private HashMap<String, Word> uniquWords;
-	private ArrayList<List<Word>> groupedWords;
-	private ArrayList<String> questions;
+	protected ArrayList<List<Rectangle>> groupedRectangles;
+	protected List<Word> allWords;
+	protected HashMap<String, Word> uniquWords;
+	protected ArrayList<List<Word>> groupedWords;
+	protected ArrayList<String> questions;
 	private BufferedImage searchThroug;
 	private ArrayList<Question> questionList;
 	private boolean evaluationReady;
@@ -128,42 +128,13 @@ public class PDFAnalyzer {
 	 *            Gegenkathete
 	 * @return
 	 */
-	private double getAngle(double ak, double gk) {
+	protected double getAngle(double ak, double gk) {
 		return Math.atan((gk) / (ak));
 	}
 
 	/**
 	 * vorgegebenes PDF wird analysiert.
 	 */
-	public void startHighlightingTest() {
-		debugen = false;
-		File fileInit = new File(initPath + "pdf_umfragen/initFile.pdf");
-		File filePrc = new File(initPath + "pdf_umfragen/prcFile.pdf");
-		try {
-			PDDocument docInit = PDDocument.load(fileInit);
-			PDDocument docPrc = PDDocument.load(filePrc);
-			System.out.println("I got: " + fileInit.exists() + " at " + fileInit.getAbsolutePath());
-			try {
-				prcInitFile(docInit);
-				questionList = prcSurveyFile(docPrc);
-				if (!questionList.isEmpty()) {
-					evaluationReady = true;
-				}
-				for (Question q : questionList) {
-					System.out.print("\n"+ q.getQuestionText() + " ");
-					for(int i: q.getEval()) {
-						System.out.print(i+" ");
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			docInit.close();
-			docPrc.close();
-		} catch (IOException e) {
-			System.out.println("lokales PDF konnten nicht gefunden werden.");
-		}
-	}
 
 	public Object[][] startHighlightingExternalFile(File templateFile, File surveyFile) throws InitFileException, SurveyFileException {
 		debugen = false;
@@ -333,7 +304,7 @@ public class PDFAnalyzer {
 	 * @param all
 	 * @return
 	 */
-	private ArrayList<List<Rectangle>> groupRectangle(int range, List<Rectangle> all) {
+	protected ArrayList<List<Rectangle>> groupRectangle(int range, List<Rectangle> all) {
 		if (all.size() == 0) {
 			return null;
 		} // Leere Liste abfangen.
@@ -366,7 +337,7 @@ public class PDFAnalyzer {
 	 * @param gR
 	 * @return
 	 */
-	private ArrayList<String> makeQuestions(List<Word> all, ArrayList<List<Rectangle>> gR){
+	protected ArrayList<String> makeQuestions(List<Word> all, ArrayList<List<Rectangle>> gR){
 		ArrayList<String> q = new ArrayList<String>();
 		String singleQuestion = "";
 
@@ -394,7 +365,7 @@ public class PDFAnalyzer {
 	 * @param all
 	 * @return
 	 */
-	private ArrayList<List<Word>> groupWords(int range, List<Word> all) {
+	protected ArrayList<List<Word>> groupWords(int range, List<Word> all) {
 		if (all.size() == 0) {
 			return null;
 		} // Leere Liste abfangen.
@@ -440,7 +411,7 @@ public class PDFAnalyzer {
 	 * @param b
 	 * @return
 	 */
-	private boolean isInRange(int range, int a, int b) {
+	protected boolean isInRange(int range, int a, int b) {
 		return (a - range) < b && (a + range) > b;
 	}
 
@@ -538,7 +509,7 @@ public class PDFAnalyzer {
 	 * @param list
 	 * @return
 	 */
-	private HashMap<String, Word> singleWords(List<Word> list) {
+	protected HashMap<String, Word> singleWords(List<Word> list) {
 		HashMap<String, Word> singleWords = new HashMap<String, Word>();
 		HashMap<String, String> deletWords = new HashMap<String, String>();
 		for (Word w : list) {
@@ -568,7 +539,7 @@ public class PDFAnalyzer {
 	 * @param scanned
 	 * @return
 	 */
-	private List<List<Word>> sameWords(HashMap<String, Word> orig, HashMap<String, Word> scanned) {
+	protected List<List<Word>> sameWords(HashMap<String, Word> orig, HashMap<String, Word> scanned) {
 		List<List<Word>> output = new ArrayList<List<Word>>();
 		for (Map.Entry<String, Word> e : scanned.entrySet()) {
 			if (orig.containsKey(e.getKey())) {
@@ -607,7 +578,7 @@ public class PDFAnalyzer {
 	 * @param cwl
 	 * @return
 	 */
-	private double calcRotation(List<Word> wl, List<List<Word>> cwl) {
+	protected double calcRotation(List<Word> wl, List<List<Word>> cwl) {
 		Double finalRotation = 0.0;
 		if (debugen) {
 			System.out.println("calcRotation    --> start " + cwl.size());
@@ -655,7 +626,7 @@ public class PDFAnalyzer {
 		return finalRotation;
 	}
 
-	private double getWordAngle(Word w1, Word w2) {
+	protected double getWordAngle(Word w1, Word w2) {
 		return getAngle(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(),
 				w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY());
 	}
@@ -670,7 +641,7 @@ public class PDFAnalyzer {
 	 * @param cwl
 	 * @return
 	 */
-	private BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
+	protected BufferedImage resize(BufferedImage img, List<List<Word>> cwl) {
 		BufferedImage bi = img;
 		// Distanz
 		Word wO1 = null;
@@ -720,7 +691,7 @@ public class PDFAnalyzer {
 	 * @param yCenter
 	 * @return
 	 */
-	private BufferedImage rotate(BufferedImage img, double angle, double xCenter, double yCenter) {
+	protected BufferedImage rotate(BufferedImage img, double angle, double xCenter, double yCenter) {
 		AffineTransform affineTransform = new AffineTransform();
 		affineTransform.rotate(angle, xCenter, yCenter);
 		AffineTransformOp affineTransformOp = new AffineTransformOp(affineTransform, AffineTransformOp.TYPE_BILINEAR);
@@ -735,7 +706,7 @@ public class PDFAnalyzer {
  * @param w2
  * @return
  */
-	private double distWords(Word w1, Word w2) {// Pythagoras
+	protected double distWords(Word w1, Word w2) {// Pythagoras
 		return Math.sqrt(Math.pow(w1.getBoundingBox().getCenterX() - w2.getBoundingBox().getCenterX(), 2)
 				+ Math.pow(w1.getBoundingBox().getCenterY() - w2.getBoundingBox().getCenterY(), 2));
 	}
