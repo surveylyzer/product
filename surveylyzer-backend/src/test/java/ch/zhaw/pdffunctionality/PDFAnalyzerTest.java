@@ -298,8 +298,10 @@ public class PDFAnalyzerTest {
     }
     @Test
     void prcInitTest() {
+        //Lokal
         //Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
         //String initPath = path.toString();
+        //Heroku
         initPath = "../Surveylyzer/surveylyzer-backend";
         String initFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/initPostcardV5.pdf";
         String surveyFilePath = initPath + "/pdf_umfragen/HerokuTestdaten/prcPostcardV5_S1.pdf";
