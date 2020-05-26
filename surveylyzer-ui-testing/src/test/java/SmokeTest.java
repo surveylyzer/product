@@ -40,7 +40,7 @@ public class SmokeTest {
 
     @Test
     public void upload_existing_id_test() {
-        String id = "420beefe-4643-4e7d-88ff-171ae1e2e73b";
+        String id = "de3e16f6-2665-43d4-9394-2c0c43dd4511";
         smokeSteps.i_open_start_page();
         smokeSteps.i_insert_id(id);
         smokeSteps.i_click_upload_id();
@@ -49,7 +49,7 @@ public class SmokeTest {
 
     @Test
     public void check_raw_data_link_test() {
-        String id = "420beefe-4643-4e7d-88ff-171ae1e2e73b";
+        String id = "de3e16f6-2665-43d4-9394-2c0c43dd4511";
         smokeSteps.i_open_start_page();
         smokeSteps.i_insert_id(id);
         smokeSteps.i_click_upload_id();
